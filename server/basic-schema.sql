@@ -7,6 +7,7 @@ CREATE TABLE route (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
 CREATE TABLE vendor (
     vendor_id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -15,6 +16,7 @@ CREATE TABLE vendor (
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 
 CREATE TABLE shipment (
     shipment_id SERIAL PRIMARY KEY,
@@ -27,6 +29,7 @@ CREATE TABLE shipment (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
 CREATE TABLE cargo (
     cargo_id SERIAL PRIMARY KEY,
     shipment_id INTEGER NOT NULL REFERENCES shipment(shipment_id) ON DELETE CASCADE,
@@ -37,6 +40,7 @@ CREATE TABLE cargo (
     volume DECIMAL(10, 2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 
 CREATE TABLE delivery (
     delivery_id SERIAL PRIMARY KEY,
