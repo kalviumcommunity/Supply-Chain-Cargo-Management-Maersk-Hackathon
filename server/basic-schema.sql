@@ -18,7 +18,6 @@ CREATE TABLE vendor (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
 CREATE TABLE shipment (
     shipment_id SERIAL PRIMARY KEY,
     origin VARCHAR(100) NOT NULL,
@@ -51,4 +50,6 @@ CREATE TABLE delivery (
     status VARCHAR(20) DEFAULT 'Pending' NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
 

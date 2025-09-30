@@ -15,7 +15,7 @@ Initial draft translating the updated ERD (with explicit Delivery entity) to SQL
 - Research: DECIMAL for value/weight (fees); TIMESTAMP for dates (delays).
 
 ## SQL Script
-See `backend/basic-schema.sql` – Run in SQL Shell/pgAdmin.
+See `server/basic-schema.sql` – Run in SQL Shell/pgAdmin.
 
 ## Basic Testing Summary
 - Setup: cargo_db, run basics.sql.
