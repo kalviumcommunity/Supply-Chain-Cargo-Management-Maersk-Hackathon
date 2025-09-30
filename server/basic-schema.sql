@@ -1,3 +1,4 @@
+
 CREATE TABLE route (
     route_id SERIAL PRIMARY KEY,
     origin_port VARCHAR(100) NOT NULL,
