@@ -6,7 +6,7 @@ const sidebar = ref(null)
 </script>
 
 <template>
-  <div class="flex h-screen bg-gray-50">
+  <div class="flex h-screen bg-[#F5F5F7]">
     <!-- Sidebar -->
     <Sidebar ref="sidebar" />
     
@@ -15,7 +15,7 @@ const sidebar = ref(null)
       class="flex-1 overflow-y-auto transition-all duration-300"
       :class="sidebar?.isCollapsed ? 'ml-16' : 'ml-60'"
     >
-      <div class="p-8">
+      <div class="p-10">
         <router-view />
       </div>
     </main>
