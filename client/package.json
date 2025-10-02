@@ -8,12 +8,13 @@
     "build": "bunx --bun vite build",
     "preview": "bunx --bun vite preview",
     "bun:dev": "bun --bun vite",
-    "bun:build": "bun --bun vite build", 
+    "bun:build": "bun --bun vite build",
     "bun:preview": "bun --bun vite preview"
   },
   "dependencies": {
     "lucide-vue-next": "^0.544.0",
-    "vue": "^3.5.21"
+    "vue": "^3.5.21",
+    "vue-router": "4"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.13",
