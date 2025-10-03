@@ -1,1 +1,11 @@
+### Spring Boot ###
 target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### Application Properties ###
+application.properties
+application-*.properties
+!application.properties.example
+
