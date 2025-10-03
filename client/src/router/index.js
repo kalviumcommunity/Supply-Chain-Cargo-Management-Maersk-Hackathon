@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Dashboard from '../components/Dashboard.vue'
 import CargoManagement from '../components/CargoManagement.vue'
+import ShipmentTracking from '../components/ShipmentTracking.vue'
 
 // Create placeholder components for other routes
-const ShipmentTracking = { template: '<div class="p-8"><h1 class="text-2xl font-bold mb-4">Shipment Tracking</h1><p>Track shipments and their status.</p></div>' }
 const RouteManagement = { template: '<div class="p-8"><h1 class="text-2xl font-bold mb-4">Route Management</h1><p>Manage shipping routes and paths.</p></div>' }
 const VendorCoordination = { template: '<div class="p-8"><h1 class="text-2xl font-bold mb-4">Vendor Coordination</h1><p>Coordinate with vendors and partners.</p></div>' }
 const Analytics = { template: '<div class="p-8"><h1 class="text-2xl font-bold mb-4">Analytics</h1><p>View analytics and reports.</p></div>' }
