@@ -261,12 +261,12 @@
       </div>
 
       <!-- Table Content -->
-      <div v-if="view === 'table'" class="table-wrapper">
+      <div v-if="view === 'table'" class="table-wrapper max-h-[calc(100vh-520px)] overflow-y-auto">
         <table class="routes-table w-full">
-          <thead class="bg-gradient-to-b from-gray-50 to-gray-100 sticky top-0">
+          <thead class="bg-gradient-to-b from-gray-50 to-gray-100 sticky top-0 z-10">
             <tr class="border-b-2 border-gray-200">
               <th class="text-left p-6">
-                <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" class="rounded border-gray-300" />
+                <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
               </th>
               <th class="text-left p-6 text-xs font-bold text-gray-600 uppercase tracking-wider">Route ID</th>
               <th class="text-left p-6 text-xs font-bold text-gray-600 uppercase tracking-wider">Route Name</th>
@@ -284,8 +284,8 @@
               v-for="route in filteredRoutes"
               :key="route.id"
               @click="viewRouteDetails(route)"
-              class="route-row border-b border-gray-100 hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 hover:translate-x-1 transition-all duration-200 cursor-pointer min-h-[88px]"
-              :class="{ 'bg-blue-50': isSelected(route.id) }"
+              class="route-row group border-b border-gray-100 hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 hover:translate-x-1 transition-all duration-200 cursor-pointer min-h-[88px]"
+              :class="{ 'bg-blue-50 border-blue-200': isSelected(route.id) }"
             >
               <td class="p-6">
                 <input 
@@ -293,17 +293,18 @@
                   :value="route.id" 
                   v-model="selectedRoutes" 
                   @click.stop 
-                  class="rounded border-gray-300"
+                  class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
               </td>
               <td class="route-id p-6">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-bold text-[#1E293B] font-mono">{{ route.id }}</span>
+                <div class="flex items-center gap-2 group/id">
+                  <span class="text-sm font-bold text-[#1E293B] font-mono tracking-wide">{{ route.id }}</span>
                   <button 
-                    class="copy-btn opacity-0 group-hover:opacity-100 transition-opacity"
+                    class="copy-btn opacity-0 group-hover/id:opacity-100 transition-opacity p-1 hover:bg-blue-100 rounded"
                     @click.stop="copyToClipboard(route.id)"
+                    title="Copy Route ID"
                   >
-                    <svg class="w-4 h-4 text-gray-400 hover:text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="w-3.5 h-3.5 text-gray-400 hover:text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
@@ -312,7 +313,7 @@
               </td>
               <td class="route-name p-6">
                 <div class="space-y-2">
-                  <div class="name-primary text-sm font-semibold text-[#1E293B]">{{ route.name }}</div>
+                  <div class="name-primary text-sm font-semibold text-[#1E293B] leading-snug">{{ route.name }}</div>
                   <span 
                     class="route-type-badge inline-flex items-center px-2.5 py-1 text-xs font-bold uppercase tracking-wider rounded-md"
                     :class="getRouteTypeBadgeClass(route.routeType)"
@@ -323,79 +324,98 @@
               </td>
               <td class="route-path p-6">
                 <div class="space-y-3">
-                  <div class="path-origin flex items-center gap-2">
-                    <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2H2Z"></path>
-                      <path d="m6 12 4-4 4 4"></path>
-                      <path d="M10 8V4a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v4"></path>
-                    </svg>
-                    <div class="location-info">
-                      <div class="location text-sm font-semibold text-[#1E293B]">{{ route.origin.location }}</div>
-                      <div class="port text-xs text-[#64748B]">{{ route.origin.port }}</div>
+                  <div class="path-origin flex items-center gap-3">
+                    <div class="flex-shrink-0">
+                      <svg class="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2H2Z"></path>
+                        <path d="m6 12 4-4 4 4"></path>
+                        <path d="M10 8V4a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v4"></path>
+                      </svg>
+                    </div>
+                    <div class="location-info flex-1 min-w-0">
+                      <div class="location text-sm font-semibold text-[#1E293B] truncate">{{ route.origin.location }}</div>
+                      <div class="port text-xs text-[#64748B] truncate">{{ route.origin.port }}</div>
                     </div>
                   </div>
-                  <div class="path-arrow text-center text-gray-400 text-lg">→</div>
-                  <div class="path-destination flex items-center gap-2">
-                    <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
-                      <circle cx="12" cy="10" r="3"></circle>
-                    </svg>
-                    <div class="location-info">
-                      <div class="location text-sm font-semibold text-[#1E293B]">{{ route.destination.location }}</div>
-                      <div class="port text-xs text-[#64748B]">{{ route.destination.port }}</div>
+                  <div class="path-arrow flex justify-center">
+                    <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 group-hover:bg-blue-100 transition-colors">
+                      <svg class="w-3 h-3 text-gray-500 group-hover:text-blue-600 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9,18 15,12 9,6"></polyline>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="path-destination flex items-center gap-3">
+                    <div class="flex-shrink-0">
+                      <svg class="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                      </svg>
+                    </div>
+                    <div class="location-info flex-1 min-w-0">
+                      <div class="location text-sm font-semibold text-[#1E293B] truncate">{{ route.destination.location }}</div>
+                      <div class="port text-xs text-[#64748B] truncate">{{ route.destination.port }}</div>
                     </div>
                   </div>
                 </div>
               </td>
               <td class="duration p-6">
-                <div class="flex items-center gap-2 mb-1">
-                  <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12,6 12,12 16,14"></polyline>
-                  </svg>
-                  <span class="duration-value text-sm font-semibold text-[#1E293B]">{{ route.duration }}h</span>
-                </div>
-                <div class="duration-badge">
-                  <span 
-                    v-if="getDurationComparison(route.duration) !== ''"
-                    class="text-xs px-2 py-1 rounded-md font-medium"
-                    :class="getDurationBadgeClass(route.duration)"
-                  >
-                    {{ getDurationComparison(route.duration) }}
-                  </span>
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-gray-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12,6 12,12 16,14"></polyline>
+                    </svg>
+                    <span class="duration-value text-sm font-semibold text-[#1E293B]">{{ route.duration }}h</span>
+                  </div>
+                  <div class="duration-badge" v-if="getDurationComparison(route.duration)">
+                    <span 
+                      class="text-xs px-2 py-1 rounded-md font-medium"
+                      :class="getDurationBadgeClass(route.duration)"
+                    >
+                      {{ getDurationComparison(route.duration) }}
+                    </span>
+                  </div>
                 </div>
               </td>
               <td class="distance p-6">
-                <div class="distance-value text-sm font-semibold text-[#1E293B] mb-2">{{ formatNumber(route.distance) }} km</div>
-                <div class="distance-bar w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                  <div 
-                    class="distance-fill h-full rounded-full transition-all duration-500"
-                    :style="{ 
-                      width: getDistancePercentage(route.distance) + '%',
-                      background: getDistanceColor(route.distance)
-                    }"
-                  ></div>
+                <div class="space-y-3">
+                  <div class="distance-value text-sm font-semibold text-[#1E293B]">{{ formatNumber(route.distance) }} km</div>
+                  <div class="distance-bar-container">
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+                      <span>Distance</span>
+                      <span>{{ Math.round(getDistancePercentage(route.distance)) }}%</span>
+                    </div>
+                    <div class="distance-bar w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div 
+                        class="distance-fill h-full rounded-full transition-all duration-700 ease-out"
+                        :style="{ 
+                          width: getDistancePercentage(route.distance) + '%',
+                          background: getDistanceColor(route.distance)
+                        }"
+                      ></div>
+                    </div>
+                  </div>
                 </div>
               </td>
               <td class="efficiency p-6">
-                <div class="flex items-center gap-2">
-                  <div class="circular-progress relative w-8 h-8">
-                    <svg class="w-8 h-8 transform -rotate-90" viewBox="0 0 32 32">
+                <div class="flex items-center gap-3">
+                  <div class="circular-progress relative w-10 h-10 flex-shrink-0">
+                    <svg class="w-10 h-10 transform -rotate-90" viewBox="0 0 40 40">
                       <circle
-                        cx="16" cy="16" r="12"
+                        cx="20" cy="20" r="16"
                         fill="none"
                         stroke="#E5E7EB"
                         stroke-width="3"
                       />
                       <circle
-                        cx="16" cy="16" r="12"
+                        cx="20" cy="20" r="16"
                         fill="none"
                         :stroke="getEfficiencyColor(route.efficiencyScore)"
                         stroke-width="3"
                         stroke-linecap="round"
-                        :stroke-dasharray="2 * Math.PI * 12"
-                        :stroke-dashoffset="2 * Math.PI * 12 * (1 - route.efficiencyScore / 100)"
-                        class="transition-all duration-500"
+                        :stroke-dasharray="2 * Math.PI * 16"
+                        :stroke-dashoffset="2 * Math.PI * 16 * (1 - route.efficiencyScore / 100)"
+                        class="transition-all duration-700 ease-out"
                       />
                     </svg>
                     <div class="absolute inset-0 flex items-center justify-center">
@@ -404,37 +424,89 @@
                       </span>
                     </div>
                   </div>
+                  <div class="efficiency-details">
+                    <div class="text-xs text-gray-500">Efficiency</div>
+                    <div class="text-xs font-medium" :class="getEfficiencyTextColor(route.efficiencyScore)">
+                      {{ getEfficiencyLabel(route.efficiencyScore) }}
+                    </div>
+                  </div>
                 </div>
               </td>
               <td class="p-6">
-                <span 
-                  class="status-badge inline-flex items-center gap-2 px-3 py-2 text-xs font-bold uppercase tracking-wider rounded-lg border-l-3"
-                  :class="getStatusBadgeClass(route.status)"
-                >
-                  <component :is="getStatusIcon(route.status)" class="w-3.5 h-3.5" />
-                  {{ route.status }}
-                </span>
+                <div class="status-container">
+                  <span 
+                    class="status-badge inline-flex items-center gap-2 px-3 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200"
+                    :class="getStatusBadgeClass(route.status)"
+                  >
+                    <div class="status-icon w-3.5 h-3.5 flex-shrink-0">
+                      <!-- Active Status Icon -->
+                      <svg v-if="route.status === 'active'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22,4 12,14.01 9,11.01"></polyline>
+                      </svg>
+                      <!-- Delayed Status Icon -->
+                      <svg v-else-if="route.status === 'delayed'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                      </svg>
+                      <!-- Inactive Status Icon -->
+                      <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="10" y1="15" x2="10" y2="9"></line>
+                        <line x1="14" y1="15" x2="14" y2="9"></line>
+                      </svg>
+                    </div>
+                    {{ route.status }}
+                  </span>
+                  <!-- Status timestamp -->
+                  <div class="mt-1 text-xs text-gray-400">
+                    {{ getStatusTimestamp(route.status) }}
+                  </div>
+                </div>
               </td>
               <td class="shipments-count p-6">
-                <div class="count-value text-sm font-bold text-[#1E293B]">{{ route.activeShipments }}</div>
-                <div class="count-label text-xs text-[#64748B]">
-                  shipment{{ route.activeShipments !== 1 ? 's' : '' }}
+                <div class="shipments-info">
+                  <div class="count-value text-lg font-bold text-[#1E293B] mb-1">{{ route.activeShipments }}</div>
+                  <div class="count-label text-xs text-[#64748B] mb-2">
+                    shipment{{ route.activeShipments !== 1 ? 's' : '' }}
+                  </div>
+                  <!-- Shipment avatars -->
+                  <div v-if="route.activeShipments > 0" class="shipment-avatars flex -space-x-2">
+                    <div 
+                      v-for="i in Math.min(route.activeShipments, 3)" 
+                      :key="i"
+                      class="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white"
+                      :class="getShipmentAvatarColor(i)"
+                    >
+                      {{ i }}
+                    </div>
+                    <div 
+                      v-if="route.activeShipments > 3"
+                      class="w-6 h-6 rounded-full bg-gray-400 border-2 border-white flex items-center justify-center text-xs font-bold text-white"
+                    >
+                      +{{ route.activeShipments - 3 }}
+                    </div>
+                  </div>
                 </div>
               </td>
               <td class="actions-cell p-6">
-                <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="actions-container flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
                   <button 
-                    class="action-btn view w-9 h-9 flex items-center justify-center rounded-lg hover:bg-blue-50 transition-colors"
+                    class="action-btn view w-9 h-9 flex items-center justify-center rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-all duration-150 tooltip-container"
                     @click.stop="viewRoute(route)"
+                    title="View Route Details"
                   >
-                    <svg class="w-4 h-4 text-gray-600 hover:text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                       <circle cx="12" cy="12" r="3"></circle>
                     </svg>
                   </button>
                   <button 
-                    class="action-btn optimize flex items-center gap-1 px-3 py-2 border border-gray-300 rounded-lg text-xs font-semibold hover:border-green-500 hover:bg-green-50 hover:text-green-700 transition-all"
+                    class="action-btn optimize flex items-center gap-1.5 px-3 py-2 border border-gray-300 rounded-lg text-xs font-semibold hover:border-green-500 hover:bg-green-50 hover:text-green-700 transition-all duration-150"
                     @click.stop="optimizeRoute(route)"
+                    :disabled="route.status === 'inactive'"
+                    :class="{ 'opacity-50 cursor-not-allowed': route.status === 'inactive' }"
                   >
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
@@ -785,16 +857,11 @@ const getEfficiencyTextColor = (score: number): string => {
 
 const getStatusBadgeClass = (status: string): string => {
   const classes = {
-    active: 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-green-500',
-    delayed: 'bg-gradient-to-r from-red-50 to-rose-50 text-red-800 border-red-500',
-    inactive: 'bg-gradient-to-r from-gray-50 to-slate-50 text-gray-600 border-gray-400'
+    active: 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-l-4 border-green-500 shadow-sm',
+    delayed: 'bg-gradient-to-r from-red-50 to-rose-50 text-red-800 border-l-4 border-red-500 shadow-sm animate-pulse',
+    inactive: 'bg-gradient-to-r from-gray-50 to-slate-50 text-gray-600 border-l-4 border-gray-400 shadow-sm'
   }
   return classes[status as keyof typeof classes] || classes.inactive
-}
-
-const getStatusIcon = (status: string) => {
-  // Return appropriate icon component based on status
-  return 'div' // Placeholder
 }
 
 const viewRouteDetails = (route: Route) => {
@@ -839,6 +906,43 @@ const getEfficiencyText = (): string => {
   if (avgEfficiency >= 85) return 'Efficient'
   if (avgEfficiency >= 70) return 'Good'
   return 'Needs Optimization'
+}
+
+// Additional helper functions for enhanced table
+const getEfficiencyLabel = (score: number): string => {
+  if (score >= 90) return 'Excellent'
+  if (score >= 80) return 'Good'
+  if (score >= 70) return 'Average'
+  return 'Poor'
+}
+
+const getStatusTimestamp = (status: string): string => {
+  const now = new Date()
+  const timeOptions: Intl.DateTimeFormatOptions = { 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  }
+  
+  switch (status) {
+    case 'active':
+      return 'Active since ' + now.toLocaleTimeString('en-US', timeOptions)
+    case 'delayed':
+      return 'Delayed 2h ago'
+    case 'inactive':
+      return 'Stopped 1d ago'
+    default:
+      return ''
+  }
+}
+
+const getShipmentAvatarColor = (index: number): string => {
+  const colors = [
+    'bg-blue-500',
+    'bg-green-500', 
+    'bg-purple-500',
+    'bg-orange-500'
+  ]
+  return colors[(index - 1) % colors.length]
 }
 
 // Lifecycle
@@ -934,5 +1038,101 @@ onMounted(() => {
 
 .table-wrapper::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
+}
+
+/* Enhanced table row animations */
+.route-row {
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.route-row:hover {
+  transform: translateX(4px);
+  box-shadow: inset 4px 0 0 #3B82F6, 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Status badge animations */
+.status-badge {
+  position: relative;
+  overflow: hidden;
+}
+
+.status-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.route-row:hover .status-badge::before {
+  left: 100%;
+}
+
+/* Efficiency circle animation */
+.circular-progress circle {
+  transition: stroke-dashoffset 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Shipment avatars animation */
+.shipment-avatars {
+  transition: transform 0.2s ease-out;
+}
+
+.route-row:hover .shipment-avatars {
+  transform: scale(1.1);
+}
+
+/* Action buttons animation */
+.actions-container {
+  transform: translateX(8px);
+}
+
+.route-row:hover .actions-container {
+  transform: translateX(0);
+}
+
+/* Copy button tooltip */
+.tooltip-container {
+  position: relative;
+}
+
+.tooltip-container:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1F2937;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10;
+  margin-bottom: 4px;
+}
+
+/* Distance bar fill animation */
+.distance-fill {
+  background: linear-gradient(90deg, var(--start-color, #10B981), var(--end-color, #34D399));
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced status pulse for delayed routes */
+@keyframes statusPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+  }
+}
+
+.status-badge.animate-pulse {
+  animation: statusPulse 2s infinite;
 }
 </style>
