@@ -252,8 +252,7 @@
                     v-for="field in [
                       { key: 'name', label: 'Route Name' },
                       { key: 'duration', label: 'Duration' },
-                      { key: 'distance', label: 'Distance' },
-                      { key: 'efficiency', label: 'Efficiency' }
+                      { key: 'distance', label: 'Distance' }
                     ]" 
                     :key="field.key"
                     @click="setSorting(field.key as any)"
@@ -333,7 +332,6 @@
             <col class="w-64"> <!-- Origin → Destination -->
             <col class="w-28"> <!-- Duration -->
             <col class="w-32"> <!-- Distance -->
-            <col class="w-28"> <!-- Efficiency -->
             <col class="w-32"> <!-- Status -->
             <col class="w-32"> <!-- Active Shipments -->
             <col class="w-36"> <!-- Actions -->
@@ -348,7 +346,6 @@
               <th class="text-left p-4 text-xs font-bold text-gray-600 uppercase tracking-wider">Origin → Destination</th>
               <th class="text-left p-4 text-xs font-bold text-gray-600 uppercase tracking-wider">Duration</th>
               <th class="text-left p-4 text-xs font-bold text-gray-600 uppercase tracking-wider">Distance</th>
-              <th class="text-left p-4 text-xs font-bold text-gray-600 uppercase tracking-wider">Efficiency</th>
               <th class="text-left p-4 text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
               <th class="text-left p-4 text-xs font-bold text-gray-600 uppercase tracking-wider">Shipments</th>
               <th class="text-left p-4 text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
@@ -464,35 +461,6 @@
                           background: getDistanceColor(route.distance)
                         }"
                       ></div>
-                    </div>
-                  </div>
-                </div>
-              </td>
-              <td class="efficiency p-4">
-                <div class="flex items-center justify-center">
-                  <div class="circular-progress relative w-8 h-8 flex-shrink-0">
-                    <svg class="w-8 h-8 transform -rotate-90" viewBox="0 0 32 32">
-                      <circle
-                        cx="16" cy="16" r="12"
-                        fill="none"
-                        stroke="#E5E7EB"
-                        stroke-width="2"
-                      />
-                      <circle
-                        cx="16" cy="16" r="12"
-                        fill="none"
-                        :stroke="getEfficiencyColor(route.efficiencyScore)"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        :stroke-dasharray="2 * Math.PI * 12"
-                        :stroke-dashoffset="2 * Math.PI * 12 * (1 - route.efficiencyScore / 100)"
-                        class="transition-all duration-700 ease-out"
-                      />
-                    </svg>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                      <span class="text-xs font-bold" :class="getEfficiencyTextColor(route.efficiencyScore)">
-                        {{ route.efficiencyScore }}%
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -688,7 +656,7 @@ const activeFilters = ref<string[]>([])
 const selectedRoutes = ref<string[]>([])
 const selectAll = ref(false)
 const view = ref<'table' | 'map'>('table')
-const sortBy = ref<'duration' | 'distance' | 'efficiency' | 'name'>('name')
+const sortBy = ref<'duration' | 'distance' | 'name'>('name')
 const sortOrder = ref<'asc' | 'desc'>('asc')
 const showFilterMenu = ref(false)
 const showSortMenu = ref(false)
@@ -849,10 +817,6 @@ const filteredRoutes = computed(() => {
         aValue = a.distance
         bValue = b.distance
         break
-      case 'efficiency':
-        aValue = a.efficiencyScore
-        bValue = b.efficiencyScore
-        break
       case 'name':
       default:
         aValue = a.name.toLowerCase()
@@ -906,7 +870,7 @@ const clearFilters = () => {
   activeFilters.value = []
 }
 
-const setSorting = (field: 'duration' | 'distance' | 'efficiency' | 'name') => {
+const setSorting = (field: 'duration' | 'distance' | 'name') => {
   if (sortBy.value === field) {
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
   } else {
