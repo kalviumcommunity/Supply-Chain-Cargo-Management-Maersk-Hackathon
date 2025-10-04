@@ -1,12 +1,5 @@
 <template>
   <div class="shipment-tracking-page bg-[#F5F5F7] min-h-screen p-10 space-y-7">
-    <!-- Loading Overlay -->
-    <div v-if="isLoading" class="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center z-50">
-      <div class="bg-white rounded-2xl p-8 flex items-center gap-4 shadow-2xl">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span class="text-gray-700 font-medium">Loading shipments...</span>
-      </div>
-    </div>
     <!-- Page Header -->
     <header class="flex justify-between items-start">
       <div class="flex items-center gap-4">
@@ -469,7 +462,6 @@ const showSearchSuggestions = ref(false)
 const showShipmentModal = ref(false)
 const selectedShipment = ref(null)
 const sortBy = ref('created-desc')
-const isLoading = ref(false)
 
 // Sample shipment data
 const shipments = ref([
@@ -884,19 +876,9 @@ const viewShipment = (shipment) => {
 const trackShipment = (shipment) => {
   console.log('Track shipment:', shipment.id)
   // Simulate real-time tracking
-  isLoading.value = true
   setTimeout(() => {
-    isLoading.value = false
     console.log('Tracking data loaded for:', shipment.id)
   }, 1500)
-}
-
-// Loading simulation
-const simulateLoading = () => {
-  isLoading.value = true
-  setTimeout(() => {
-    isLoading.value = false
-  }, 1000)
 }
 
 // Click outside handler
@@ -911,7 +893,6 @@ const handleClickOutside = (event) => {
 // Initialize component
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
-  simulateLoading()
 })
 
 onUnmounted(() => {
