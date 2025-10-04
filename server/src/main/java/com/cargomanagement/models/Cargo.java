@@ -2,8 +2,17 @@ package com.cargomanagement.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -14,14 +23,38 @@ public class Cargo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cargoId;
 
+    @NotNull(message = "Shipment is required")
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "shipment_id", nullable = false)
     @JsonBackReference
     private Shipment shipment;
 
-    private String type;
-    private String description;
+    @NotBlank(message = "Type is required")
+    @Pattern(regexp = "Electronics|Perishables|Hazardous|General", message = "Type must be Electronics, Perishables, Hazardous, or General")
+    @Column(name = "type", nullable = false, length = 50)
+    private String type;  // String for type
+
+    @Column(name = "value", nullable = false, precision = 12, scale = 2)  // DECIMAL(12,2)
+    @NotNull(message = "Value is required")
+    @DecimalMin(value = "0.0", message = "Value must be >= 0")
     private BigDecimal value;
-    private BigDecimal weight; // Weight in kg or other unit
-    private String weightUnit; // Unit of weight (kg, lbs, tons, etc.)
+
+    @Size(max = 255, message = "Description cannot exceed 255 characters")
+    @Column(name = "description", length = 65535)  // TEXT
+    private String description;
+
+    @PositiveOrZero(message = "Weight must be positive or zero")
+    @Column(name = "weight", precision = 10, scale = 2)  // DECIMAL(10,2)
+    private BigDecimal weight;  // Allow NULL per specs
+
+    @PositiveOrZero(message = "Volume must be positive or zero")
+    @Column(name = "volume", precision = 10, scale = 2)
+    private BigDecimal volume;  // Added from specs
+
+    @Column(name = "weight_unit", length = 10)  // Not in original specs, but from context
+    private String weightUnit;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 }
