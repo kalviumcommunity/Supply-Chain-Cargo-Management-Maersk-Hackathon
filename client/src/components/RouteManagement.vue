@@ -187,28 +187,91 @@
           />
         </div>
         <div class="toolbar-actions flex items-center gap-3">
-          <button 
-            class="btn-filter flex items-center gap-2 h-12 px-5 border-1.5 border-[#E5E7EB] rounded-xl bg-white font-medium text-sm text-[#374151] hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
-            @click="toggleFilterMenu"
-          >
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-            </svg>
-            Filter by Status
-            <span v-if="activeFilters.length" class="filter-badge bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">{{ activeFilters.length }}</span>
-          </button>
-          <button 
-            class="btn-sort flex items-center gap-2 h-12 px-5 border-1.5 border-[#E5E7EB] rounded-xl bg-white font-medium text-sm text-[#374151] hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
-            @click="toggleSortMenu"
-          >
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m3 16 4 4 4-4"></path>
-              <path d="M7 20V4"></path>
-              <path d="m21 8-4-4-4 4"></path>
-              <path d="M17 4v16"></path>
-            </svg>
-            Sort by Duration
-          </button>
+          <!-- Filter Dropdown -->
+          <div class="relative">
+            <button 
+              class="btn-filter flex items-center gap-2 h-12 px-5 border-1.5 border-[#E5E7EB] rounded-xl bg-white font-medium text-sm text-[#374151] hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
+              @click="toggleFilterMenu"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+              </svg>
+              Filter by Status
+              <span v-if="activeFilters.length" class="filter-badge bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full ml-1">{{ activeFilters.length }}</span>
+            </button>
+            <!-- Filter Dropdown Menu -->
+            <transition name="dropdown">
+              <div v-if="showFilterMenu" class="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-200 rounded-xl shadow-lg z-20">
+                <div class="p-3">
+                  <div class="flex items-center justify-between mb-3">
+                    <span class="text-sm font-semibold text-gray-700">Filter by Status</span>
+                    <button @click="clearFilters" class="text-xs text-blue-600 hover:text-blue-800">Clear All</button>
+                  </div>
+                  <div class="space-y-2">
+                    <label v-for="status in ['active', 'delayed', 'inactive']" :key="status" class="flex items-center gap-2 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        :value="status" 
+                        @change="toggleFilter(status)"
+                        :checked="activeFilters.includes(status)"
+                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span class="text-sm text-gray-700 capitalize">{{ status }}</span>
+                      <span class="text-xs text-gray-500 ml-auto">
+                        {{ routes.filter(r => r.status === status).length }}
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </transition>
+          </div>
+
+          <!-- Sort Dropdown -->
+          <div class="relative">
+            <button 
+              class="btn-sort flex items-center gap-2 h-12 px-5 border-1.5 border-[#E5E7EB] rounded-xl bg-white font-medium text-sm text-[#374151] hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
+              @click="toggleSortMenu"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m3 16 4 4 4-4"></path>
+                <path d="M7 20V4"></path>
+                <path d="m21 8-4-4-4 4"></path>
+                <path d="M17 4v16"></path>
+              </svg>
+              Sort by {{ sortBy.charAt(0).toUpperCase() + sortBy.slice(1) }}
+              <svg class="w-3 h-3 ml-1" :class="{ 'rotate-180': sortOrder === 'desc' }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6,9 12,15 18,9"></polyline>
+              </svg>
+            </button>
+            <!-- Sort Dropdown Menu -->
+            <transition name="dropdown">
+              <div v-if="showSortMenu" class="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-lg z-20">
+                <div class="p-2">
+                  <button 
+                    v-for="field in [
+                      { key: 'name', label: 'Route Name' },
+                      { key: 'duration', label: 'Duration' },
+                      { key: 'distance', label: 'Distance' },
+                      { key: 'efficiency', label: 'Efficiency' }
+                    ]" 
+                    :key="field.key"
+                    @click="setSorting(field.key as any)"
+                    class="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                    :class="{ 'bg-blue-50 text-blue-600': sortBy === field.key }"
+                  >
+                    <span>{{ field.label }}</span>
+                    <div v-if="sortBy === field.key" class="flex items-center gap-1">
+                      <svg class="w-3 h-3" :class="{ 'rotate-180': sortOrder === 'desc' }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6,9 12,15 18,9"></polyline>
+                      </svg>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </transition>
+          </div>
+
           <button 
             class="btn-map-view flex items-center gap-2 h-12 px-5 border-1.5 border-[#E5E7EB] rounded-xl bg-white font-medium text-sm text-[#374151] hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200"
             @click="toggleMapView"
@@ -627,6 +690,10 @@ const activeFilters = ref<string[]>([])
 const selectedRoutes = ref<string[]>([])
 const selectAll = ref(false)
 const view = ref<'table' | 'map'>('table')
+const sortBy = ref<'duration' | 'distance' | 'efficiency' | 'name'>('name')
+const sortOrder = ref<'asc' | 'desc'>('asc')
+const showFilterMenu = ref(false)
+const showSortMenu = ref(false)
 
 // Mock Data
 const routes = ref<Route[]>([
@@ -758,7 +825,10 @@ const filteredRoutes = computed(() => {
       route.name.toLowerCase().includes(query) ||
       route.origin.location.toLowerCase().includes(query) ||
       route.destination.location.toLowerCase().includes(query) ||
-      route.status.toLowerCase().includes(query)
+      route.origin.port.toLowerCase().includes(query) ||
+      route.destination.port.toLowerCase().includes(query) ||
+      route.status.toLowerCase().includes(query) ||
+      route.routeType.toLowerCase().includes(query)
     )
   }
 
@@ -766,6 +836,42 @@ const filteredRoutes = computed(() => {
   if (activeFilters.value.length > 0) {
     filtered = filtered.filter(route => activeFilters.value.includes(route.status))
   }
+
+  // Apply sorting
+  filtered.sort((a, b) => {
+    let aValue: string | number
+    let bValue: string | number
+
+    switch (sortBy.value) {
+      case 'duration':
+        aValue = a.duration
+        bValue = b.duration
+        break
+      case 'distance':
+        aValue = a.distance
+        bValue = b.distance
+        break
+      case 'efficiency':
+        aValue = a.efficiencyScore
+        bValue = b.efficiencyScore
+        break
+      case 'name':
+      default:
+        aValue = a.name.toLowerCase()
+        bValue = b.name.toLowerCase()
+        break
+    }
+
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return sortOrder.value === 'asc' 
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue)
+    } else {
+      return sortOrder.value === 'asc' 
+        ? (aValue as number) - (bValue as number)
+        : (bValue as number) - (aValue as number)
+    }
+  })
 
   return filtered
 })
@@ -780,11 +886,36 @@ const handleMetricClick = (metric: MetricCard) => {
 }
 
 const toggleFilterMenu = () => {
-  console.log('Toggle filter menu')
+  showFilterMenu.value = !showFilterMenu.value
+  showSortMenu.value = false
 }
 
 const toggleSortMenu = () => {
-  console.log('Toggle sort menu')
+  showSortMenu.value = !showSortMenu.value
+  showFilterMenu.value = false
+}
+
+const toggleFilter = (status: string) => {
+  const index = activeFilters.value.indexOf(status)
+  if (index > -1) {
+    activeFilters.value.splice(index, 1)
+  } else {
+    activeFilters.value.push(status)
+  }
+}
+
+const clearFilters = () => {
+  activeFilters.value = []
+}
+
+const setSorting = (field: 'duration' | 'distance' | 'efficiency' | 'name') => {
+  if (sortBy.value === field) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortBy.value = field
+    sortOrder.value = 'asc'
+  }
+  showSortMenu.value = false
 }
 
 const toggleMapView = () => {
@@ -878,10 +1009,33 @@ const optimizeRoute = (route: Route) => {
 
 const bulkOptimize = () => {
   console.log('Bulk optimize:', selectedRoutes.value)
+  // Simulate optimization
+  selectedRoutes.value.forEach(routeId => {
+    const route = routes.value.find(r => r.id === routeId)
+    if (route && route.status !== 'inactive') {
+      route.efficiencyScore = Math.min(100, route.efficiencyScore + Math.floor(Math.random() * 10) + 5)
+      route.lastOptimized = new Date()
+    }
+  })
+  clearSelection()
 }
 
 const bulkExport = () => {
   console.log('Bulk export:', selectedRoutes.value)
+  const selectedData = routes.value.filter(route => selectedRoutes.value.includes(route.id))
+  const exportData = {
+    routes: selectedData,
+    exportDate: new Date().toISOString(),
+    totalRoutes: selectedData.length
+  }
+  // Simulate file download
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `routes-export-${new Date().toISOString().split('T')[0]}.json`
+  a.click()
+  URL.revokeObjectURL(url)
 }
 
 const clearSelection = () => {
@@ -948,6 +1102,22 @@ const getShipmentAvatarColor = (index: number): string => {
 // Lifecycle
 onMounted(() => {
   console.log('Route Management component mounted')
+  
+  // Close dropdowns when clicking outside
+  const handleClickOutside = (event: Event) => {
+    const target = event.target as HTMLElement
+    if (!target.closest('.relative')) {
+      showFilterMenu.value = false
+      showSortMenu.value = false
+    }
+  }
+  
+  document.addEventListener('click', handleClickOutside)
+  
+  // Cleanup on unmount
+  return () => {
+    document.removeEventListener('click', handleClickOutside)
+  }
 })
 </script>
 
@@ -1134,5 +1304,36 @@ onMounted(() => {
 
 .status-badge.animate-pulse {
   animation: statusPulse 2s infinite;
+}
+
+/* Dropdown animations */
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: all 0.2s ease-out;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.95);
+}
+
+/* Search input focus animation */
+.search-input:focus {
+  transform: scale(1.01);
+}
+
+/* Filter chip animations */
+.filter-chip {
+  transition: all 0.2s ease-out;
+}
+
+.filter-chip:hover {
+  transform: scale(1.05);
+}
+
+/* Rotate animation for sort arrows */
+.rotate-180 {
+  transform: rotate(180deg);
 }
 </style>
