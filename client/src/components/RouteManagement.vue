@@ -326,29 +326,29 @@
       <div v-if="view === 'table'" class="table-wrapper max-h-[calc(100vh-520px)] overflow-auto">
         <table class="routes-table w-full table-fixed">
           <colgroup>
-            <col class="w-16"> <!-- Checkbox -->
-            <col class="w-24"> <!-- Route ID -->
-            <col class="w-48"> <!-- Route Name -->
-            <col class="w-64"> <!-- Origin → Destination -->
-            <col class="w-28"> <!-- Duration -->
-            <col class="w-32"> <!-- Distance -->
-            <col class="w-32"> <!-- Status -->
-            <col class="w-32"> <!-- Active Shipments -->
-            <col class="w-36"> <!-- Actions -->
+            <col class="w-20"> <!-- Checkbox -->
+            <col class="w-28"> <!-- Route ID -->
+            <col class="w-56"> <!-- Route Name -->
+            <col class="w-72"> <!-- Origin → Destination -->
+            <col class="w-32"> <!-- Duration -->
+            <col class="w-36"> <!-- Distance -->
+            <col class="w-36"> <!-- Status -->
+            <col class="w-36"> <!-- Active Shipments -->
+            <col class="w-40"> <!-- Actions -->
           </colgroup>
           <thead class="bg-gradient-to-b from-gray-50 to-gray-100 sticky top-0 z-10">
             <tr class="border-b-2 border-gray-200">
-              <th class="text-left p-4">
+              <th class="text-left p-5">
                 <input type="checkbox" v-model="selectAll" @change="toggleSelectAll" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
               </th>
-              <th class="text-left p-4 text-xs font-bold text-gray-600 uppercase tracking-wider">Route ID</th>
-              <th class="text-left p-4 text-xs font-bold text-gray-600 uppercase tracking-wider">Route Name</th>
-              <th class="text-left p-4 text-xs font-bold text-gray-600 uppercase tracking-wider">Origin → Destination</th>
-              <th class="text-left p-4 text-xs font-bold text-gray-600 uppercase tracking-wider">Duration</th>
-              <th class="text-left p-4 text-xs font-bold text-gray-600 uppercase tracking-wider">Distance</th>
-              <th class="text-left p-4 text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
-              <th class="text-left p-4 text-xs font-bold text-gray-600 uppercase tracking-wider">Shipments</th>
-              <th class="text-left p-4 text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
+              <th class="text-left p-5 text-xs font-bold text-gray-600 uppercase tracking-wider">Route ID</th>
+              <th class="text-left p-5 text-xs font-bold text-gray-600 uppercase tracking-wider">Route Name</th>
+              <th class="text-left p-5 text-xs font-bold text-gray-600 uppercase tracking-wider">Origin → Destination</th>
+              <th class="text-left p-5 text-xs font-bold text-gray-600 uppercase tracking-wider">Duration</th>
+              <th class="text-left p-5 text-xs font-bold text-gray-600 uppercase tracking-wider">Distance</th>
+              <th class="text-left p-5 text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+              <th class="text-center p-5 text-xs font-bold text-gray-600 uppercase tracking-wider">Shipments</th>
+              <th class="text-center p-5 text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -359,7 +359,7 @@
               class="route-row group border-b border-gray-100 hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 transition-all duration-200 cursor-pointer"
               :class="{ 'bg-blue-50 border-blue-200': isSelected(route.id) }"
             >
-              <td class="p-4">
+              <td class="p-5">
                 <input 
                   type="checkbox" 
                   :value="route.id" 
@@ -368,7 +368,7 @@
                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
               </td>
-              <td class="route-id p-4">
+              <td class="route-id p-5">
                 <div class="flex items-center gap-2 group/id">
                   <span class="text-sm font-bold text-[#1E293B] font-mono tracking-wide truncate">{{ route.id }}</span>
                   <button 
@@ -383,57 +383,57 @@
                   </button>
                 </div>
               </td>
-              <td class="route-name p-4">
-                <div class="space-y-1">
+              <td class="route-name p-5">
+                <div class="space-y-2">
                   <div class="name-primary text-sm font-semibold text-[#1E293B] leading-snug truncate">{{ route.name }}</div>
                   <span 
-                    class="route-type-badge inline-flex items-center px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded"
+                    class="route-type-badge inline-flex items-center px-2.5 py-1 text-xs font-bold uppercase tracking-wider rounded-md"
                     :class="getRouteTypeBadgeClass(route.routeType)"
                   >
                     {{ route.routeType }}
                   </span>
                 </div>
               </td>
-              <td class="route-path p-4">
-                <div class="space-y-2">
-                  <div class="path-origin flex items-center gap-2">
+              <td class="route-path p-5">
+                <div class="space-y-3">
+                  <div class="path-origin flex items-center gap-3">
                     <div class="flex-shrink-0">
-                      <svg class="w-3 h-3 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <svg class="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2H2Z"></path>
                         <path d="m6 12 4-4 4 4"></path>
                         <path d="M10 8V4a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v4"></path>
                       </svg>
                     </div>
                     <div class="location-info flex-1 min-w-0">
-                      <div class="location text-xs font-semibold text-[#1E293B] truncate">{{ route.origin.location }}</div>
+                      <div class="location text-sm font-semibold text-[#1E293B] truncate">{{ route.origin.location }}</div>
                       <div class="port text-xs text-[#64748B] truncate">{{ route.origin.port }}</div>
                     </div>
                   </div>
                   <div class="path-arrow flex justify-center">
-                    <div class="flex items-center justify-center w-4 h-4 rounded-full bg-gray-100 group-hover:bg-blue-100 transition-colors">
-                      <svg class="w-2 h-2 text-gray-500 group-hover:text-blue-600 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <div class="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 group-hover:bg-blue-100 transition-colors">
+                      <svg class="w-3 h-3 text-gray-500 group-hover:text-blue-600 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9,18 15,12 9,6"></polyline>
                       </svg>
                     </div>
                   </div>
-                  <div class="path-destination flex items-center gap-2">
+                  <div class="path-destination flex items-center gap-3">
                     <div class="flex-shrink-0">
-                      <svg class="w-3 h-3 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <svg class="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
                         <circle cx="12" cy="10" r="3"></circle>
                       </svg>
                     </div>
                     <div class="location-info flex-1 min-w-0">
-                      <div class="location text-xs font-semibold text-[#1E293B] truncate">{{ route.destination.location }}</div>
+                      <div class="location text-sm font-semibold text-[#1E293B] truncate">{{ route.destination.location }}</div>
                       <div class="port text-xs text-[#64748B] truncate">{{ route.destination.port }}</div>
                     </div>
                   </div>
                 </div>
               </td>
-              <td class="duration p-4">
-                <div class="space-y-1">
-                  <div class="flex items-center gap-1">
-                    <svg class="w-3 h-3 text-gray-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <td class="duration p-5">
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-gray-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="10"></circle>
                       <polyline points="12,6 12,12 16,14"></polyline>
                     </svg>
@@ -441,7 +441,7 @@
                   </div>
                   <div class="duration-badge" v-if="getDurationComparison(route.duration)">
                     <span 
-                      class="text-xs px-1.5 py-0.5 rounded font-medium"
+                      class="text-xs px-2 py-1 rounded-md font-medium"
                       :class="getDurationBadgeClass(route.duration)"
                     >
                       {{ getDurationComparison(route.duration) }}
@@ -449,11 +449,15 @@
                   </div>
                 </div>
               </td>
-              <td class="distance p-4">
-                <div class="space-y-2">
+              <td class="distance p-5">
+                <div class="space-y-3">
                   <div class="distance-value text-sm font-semibold text-[#1E293B]">{{ formatNumber(route.distance) }} km</div>
                   <div class="distance-bar-container">
-                    <div class="distance-bar w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                    <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+                      <span>Distance</span>
+                      <span>{{ Math.round(getDistancePercentage(route.distance)) }}%</span>
+                    </div>
+                    <div class="distance-bar w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div 
                         class="distance-fill h-full rounded-full transition-all duration-700 ease-out"
                         :style="{ 
@@ -465,13 +469,13 @@
                   </div>
                 </div>
               </td>
-              <td class="p-4">
+              <td class="p-5">
                 <div class="status-container">
                   <span 
-                    class="status-badge inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200"
+                    class="status-badge inline-flex items-center gap-2 px-3 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200"
                     :class="getStatusBadgeClass(route.status)"
                   >
-                    <div class="status-icon w-3 h-3 flex-shrink-0">
+                    <div class="status-icon w-3.5 h-3.5 flex-shrink-0">
                       <!-- Active Status Icon -->
                       <svg v-if="route.status === 'active'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -490,11 +494,15 @@
                         <line x1="14" y1="15" x2="14" y2="9"></line>
                       </svg>
                     </div>
-                    <span class="truncate">{{ route.status }}</span>
+                    {{ route.status }}
                   </span>
+                  <!-- Status timestamp -->
+                  <div class="mt-2 text-xs text-gray-400">
+                    {{ getStatusTimestamp(route.status) }}
+                  </div>
                 </div>
               </td>
-              <td class="shipments-count p-4">
+              <td class="shipments-count p-5">
                 <div class="shipments-info text-center">
                   <div class="count-value text-lg font-bold text-[#1E293B] mb-1">{{ route.activeShipments }}</div>
                   <div class="count-label text-xs text-[#64748B] mb-2 truncate">
@@ -519,28 +527,28 @@
                   </div>
                 </div>
               </td>
-              <td class="actions-cell p-4">
-                <div class="actions-container flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <td class="actions-cell p-5">
+                <div class="actions-container flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                   <button 
-                    class="action-btn view w-7 h-7 flex items-center justify-center rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-all duration-150 flex-shrink-0"
+                    class="action-btn view w-8 h-8 flex items-center justify-center rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-all duration-150 flex-shrink-0"
                     @click.stop="viewRoute(route)"
                     title="View Route Details"
                   >
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                       <circle cx="12" cy="12" r="3"></circle>
                     </svg>
                   </button>
                   <button 
-                    class="action-btn optimize flex items-center gap-1 px-2 py-1 border border-gray-300 rounded-lg text-xs font-semibold hover:border-green-500 hover:bg-green-50 hover:text-green-700 transition-all duration-150 flex-shrink-0"
+                    class="action-btn optimize flex items-center justify-center gap-1.5 px-3 py-2 border border-gray-300 rounded-lg text-xs font-semibold hover:border-green-500 hover:bg-green-50 hover:text-green-700 transition-all duration-150 flex-shrink-0"
                     @click.stop="optimizeRoute(route)"
                     :disabled="route.status === 'inactive'"
                     :class="{ 'opacity-50 cursor-not-allowed': route.status === 'inactive' }"
                   >
-                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
                     </svg>
-                    <span class="hidden sm:inline">Opt</span>
+                    <span>Opt</span>
                   </button>
                 </div>
               </td>
