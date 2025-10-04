@@ -32,12 +32,10 @@
         :to="link.path"
         :class="[
           'group flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ease-out relative overflow-hidden',
-          'hover:bg-gradient-to-r hover:from-[#EFF6FF] hover:to-[#F0F9FF]',
-          'hover:shadow-[0_2px_8px_rgba(59,130,246,0.08)]',
           'active:scale-[0.98]',
           $route.path === link.path 
             ? 'bg-gradient-to-r from-[#3B82F6] to-[#2563EB] text-white shadow-[0_4px_16px_rgba(59,130,246,0.25)]'
-            : 'text-[#64748B] hover:text-[#334155]',
+            : 'text-[#64748B] hover:text-[#334155] hover:bg-gradient-to-r hover:from-[#EFF6FF] hover:to-[#F0F9FF] hover:shadow-[0_2px_8px_rgba(59,130,246,0.08)]',
           { 'justify-center': isCollapsed }
         ]"
         :title="isCollapsed ? link.label : ''"
@@ -95,12 +93,10 @@
         :to="link.path"
         :class="[
           'group flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ease-out relative overflow-hidden',
-          'hover:bg-gradient-to-r hover:from-[#EFF6FF] hover:to-[#F0F9FF]',
-          'hover:shadow-[0_2px_8px_rgba(59,130,246,0.08)]',
           'active:scale-[0.98]',
           $route.path === link.path 
             ? 'bg-gradient-to-r from-[#3B82F6] to-[#2563EB] text-white shadow-[0_4px_16px_rgba(59,130,246,0.25)]'
-            : 'text-[#64748B] hover:text-[#334155]',
+            : 'text-[#64748B] hover:text-[#334155] hover:bg-gradient-to-r hover:from-[#EFF6FF] hover:to-[#F0F9FF] hover:shadow-[0_2px_8px_rgba(59,130,246,0.08)]',
           { 'justify-center': isCollapsed }
         ]"
         :title="isCollapsed ? link.label : ''"
