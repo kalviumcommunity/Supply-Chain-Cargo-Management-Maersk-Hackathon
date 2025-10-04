@@ -39,31 +39,133 @@
     <!-- Metrics Grid -->
     <div class="metrics-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
       <div
-        v-for="metric in metricsCards"
+        v-for="(metric, index) in metricsCards"
         :key="metric.id"
-        class="metric-card bg-white p-7 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-250 cursor-pointer"
+        class="metric-card bg-white p-7 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 cursor-pointer group border border-transparent hover:border-opacity-20"
+        :class="metric.hoverBorder"
+        :style="{ animationDelay: `${index * 80}ms` }"
         @click="handleMetricClick(metric)"
       >
-        <div class="flex items-start justify-between">
-          <div class="metric-content">
+        <div class="flex items-start justify-between relative">
+          <div class="metric-content flex-1">
+            <!-- Icon with enhanced styling -->
             <div 
-              class="metric-icon w-14 h-14 rounded-full flex items-center justify-center mb-6"
+              class="metric-icon w-14 h-14 rounded-full flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110"
               :class="metric.iconBg"
             >
-              <component :is="metric.icon" :class="['w-7 h-7', metric.iconColor]" />
+              <div :class="['w-7 h-7 transition-colors duration-300', metric.iconColor]">
+                <!-- Network Icon -->
+                <svg v-if="metric.iconName === 'Network'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="16" y="16" width="6" height="6" rx="1"></rect>
+                  <rect x="2" y="16" width="6" height="6" rx="1"></rect>
+                  <rect x="9" y="2" width="6" height="6" rx="1"></rect>
+                  <path d="m5 16 3-8 3 8"></path>
+                  <path d="m19 16-3-8-3 8"></path>
+                </svg>
+                <!-- Activity Icon -->
+                <svg v-else-if="metric.iconName === 'Activity'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m22 12-4-4-6 6-4-4-6 6"></path>
+                  <path d="m2 16 4-4 6 6 4-4 6 6"></path>
+                </svg>
+                <!-- Compass Icon -->
+                <svg v-else-if="metric.iconName === 'Compass'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88"></polygon>
+                </svg>
+                <!-- Clock Icon -->
+                <svg v-else-if="metric.iconName === 'Clock'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12,6 12,12 16,14"></polyline>
+                </svg>
+              </div>
             </div>
-            <div class="metric-number text-5xl font-bold text-[#0F172A] tracking-tight mb-2">
-              {{ metric.value }}
+            
+            <!-- Animated number with count-up effect -->
+            <div class="metric-number text-5xl font-bold text-[#0F172A] tracking-tight mb-2 font-mono">
+              <span ref="numberElement" :data-target="metric.rawValue" :data-suffix="metric.suffix || ''">
+                {{ metric.displayValue }}
+              </span>
             </div>
+            
             <div class="metric-label text-sm font-semibold text-[#374151] mb-1">
               {{ metric.label }}
             </div>
-            <div class="metric-subtitle text-xs font-medium text-[#94A3B8]">
-              {{ metric.subtitle }}
+            
+            <div class="flex items-center gap-2">
+              <div class="metric-subtitle text-xs font-medium text-[#94A3B8]">
+                {{ metric.subtitle }}
+              </div>
+              <!-- Live indicator for active routes -->
+              <div v-if="metric.id === 'active-routes'" class="flex items-center gap-1">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="text-xs text-green-600 font-medium">Live</span>
+              </div>
+            </div>
+            
+            <!-- Progress ring for active routes -->
+            <div v-if="metric.id === 'active-routes'" class="mt-3">
+              <div class="flex items-center justify-between text-xs text-gray-500 mb-1">
+                <span>Active</span>
+                <span>{{ Math.round((metrics.activeRoutes / metrics.totalRoutes) * 100) }}%</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-1.5">
+                <div 
+                  class="bg-green-500 h-1.5 rounded-full transition-all duration-1000 ease-out"
+                  :style="{ width: `${(metrics.activeRoutes / metrics.totalRoutes) * 100}%` }"
+                ></div>
+              </div>
+            </div>
+            
+            <!-- Mini bar chart for distance -->
+            <div v-if="metric.id === 'total-distance'" class="mt-3">
+              <div class="flex items-end gap-1 h-8">
+                <div 
+                  v-for="(route, i) in routes.slice(0, 4)" 
+                  :key="i"
+                  class="bg-yellow-300 rounded-sm flex-1 transition-all duration-500 hover:bg-yellow-400"
+                  :style="{ 
+                    height: `${(route.distance / Math.max(...routes.map(r => r.distance))) * 100}%`,
+                    animationDelay: `${i * 100}ms` 
+                  }"
+                ></div>
+              </div>
+            </div>
+            
+            <!-- Efficiency badge for duration -->
+            <div v-if="metric.id === 'avg-duration'" class="mt-3">
+              <span 
+                class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md"
+                :class="getEfficiencyBadge()"
+              >
+                {{ getEfficiencyText() }}
+              </span>
             </div>
           </div>
-          <div v-if="metric.indicator" class="metric-indicator">
-            <component :is="metric.indicator" />
+          
+          <!-- Background pattern -->
+          <div class="absolute top-0 right-0 opacity-5 pointer-events-none">
+            <div class="w-20 h-20 text-current">
+              <!-- Background Icon -->
+              <svg v-if="metric.iconName === 'Network'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="16" y="16" width="6" height="6" rx="1"></rect>
+                <rect x="2" y="16" width="6" height="6" rx="1"></rect>
+                <rect x="9" y="2" width="6" height="6" rx="1"></rect>
+                <path d="m5 16 3-8 3 8"></path>
+                <path d="m19 16-3-8-3 8"></path>
+              </svg>
+              <svg v-else-if="metric.iconName === 'Activity'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m22 12-4-4-6 6-4-4-6 6"></path>
+                <path d="m2 16 4-4 6 6 4-4 6 6"></path>
+              </svg>
+              <svg v-else-if="metric.iconName === 'Compass'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88"></polygon>
+              </svg>
+              <svg v-else-if="metric.iconName === 'Clock'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12,6 12,12 16,14"></polyline>
+              </svg>
+            </div>
           </div>
         </div>
       </div>
@@ -437,12 +539,14 @@ interface RouteMetrics {
 interface MetricCard {
   id: string
   label: string
-  value: string
+  displayValue: string
+  rawValue: number
+  suffix?: string
   subtitle: string
-  icon: any
+  iconName: string
   iconBg: string
   iconColor: string
-  indicator?: any
+  hoverBorder: string
 }
 
 // Reactive State
@@ -526,38 +630,48 @@ const metricsCards = computed<MetricCard[]>(() => [
   {
     id: 'total-routes',
     label: 'Total Routes',
-    value: metrics.value.totalRoutes.toString(),
+    displayValue: metrics.value.totalRoutes.toString(),
+    rawValue: metrics.value.totalRoutes,
     subtitle: 'Established paths',
-    icon: 'NetworkIcon',
+    iconName: 'Network',
     iconBg: 'bg-blue-100',
-    iconColor: 'text-blue-500'
+    iconColor: 'text-blue-500',
+    hoverBorder: 'hover:border-blue-200'
   },
   {
     id: 'active-routes',
     label: 'Active Routes',
-    value: metrics.value.activeRoutes.toString(),
+    displayValue: metrics.value.activeRoutes.toString(),
+    rawValue: metrics.value.activeRoutes,
     subtitle: 'Currently operational',
-    icon: 'ActivityIcon',
+    iconName: 'Activity',
     iconBg: 'bg-green-100',
-    iconColor: 'text-green-500'
+    iconColor: 'text-green-500',
+    hoverBorder: 'hover:border-green-200'
   },
   {
     id: 'total-distance',
     label: 'Total Distance',
-    value: `${formatNumber(metrics.value.totalDistance)} km`,
+    displayValue: `${formatNumber(metrics.value.totalDistance)} km`,
+    rawValue: metrics.value.totalDistance,
+    suffix: ' km',
     subtitle: 'Combined coverage',
-    icon: 'CompassIcon',
+    iconName: 'Compass',
     iconBg: 'bg-yellow-100',
-    iconColor: 'text-yellow-600'
+    iconColor: 'text-yellow-600',
+    hoverBorder: 'hover:border-yellow-200'
   },
   {
     id: 'avg-duration',
     label: 'Avg. Duration',
-    value: `${metrics.value.avgDuration}h`,
+    displayValue: `${metrics.value.avgDuration}h`,
+    rawValue: metrics.value.avgDuration,
+    suffix: 'h',
     subtitle: 'Per route',
-    icon: 'ClockIcon',
+    iconName: 'Clock',
     iconBg: 'bg-purple-100',
-    iconColor: 'text-purple-500'
+    iconColor: 'text-purple-500',
+    hoverBorder: 'hover:border-purple-200'
   }
 ])
 
@@ -712,6 +826,21 @@ const openCreateRouteModal = () => {
   console.log('Open create route modal')
 }
 
+// Efficiency helper functions
+const getEfficiencyBadge = (): string => {
+  const avgEfficiency = routes.value.reduce((sum, route) => sum + route.efficiencyScore, 0) / routes.value.length
+  if (avgEfficiency >= 85) return 'bg-green-100 text-green-700'
+  if (avgEfficiency >= 70) return 'bg-yellow-100 text-yellow-700'
+  return 'bg-red-100 text-red-700'
+}
+
+const getEfficiencyText = (): string => {
+  const avgEfficiency = routes.value.reduce((sum, route) => sum + route.efficiencyScore, 0) / routes.value.length
+  if (avgEfficiency >= 85) return 'Efficient'
+  if (avgEfficiency >= 70) return 'Good'
+  return 'Needs Optimization'
+}
+
 // Lifecycle
 onMounted(() => {
   console.log('Route Management component mounted')
@@ -736,5 +865,74 @@ onMounted(() => {
 .slide-up-leave-to {
   transform: translateY(100%) translateX(-50%);
   opacity: 0;
+}
+
+/* Metric card animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.metric-card {
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+/* Pulse animation for live indicator */
+@keyframes pulse-green {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.animate-pulse {
+  animation: pulse-green 2s infinite;
+}
+
+/* Mini bar chart animation */
+@keyframes slideUp {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--target-height);
+  }
+}
+
+/* Smooth number transitions */
+.metric-number {
+  transition: all 0.3s ease-out;
+}
+
+/* Hover effects for cards */
+.metric-card:hover .metric-number {
+  transform: scale(1.05);
+}
+
+/* Custom scrollbar */
+.table-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: #F3F4F6;
+  border-radius: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
 }
 </style>
