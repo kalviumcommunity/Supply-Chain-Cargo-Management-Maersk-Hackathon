@@ -3,7 +3,7 @@ import Dashboard from '../components/Dashboard.vue'
 import CargoManagement from '../components/CargoManagement.vue'
 import ShipmentTracking from '../components/ShipmentTracking.vue'
 import RouteManagement from '../components/RouteManagement.vue'
-import VendorCoordination from '../components/VendorCoordination.vue'
+import VendorManagement from '../components/VendorManagement.vue'
 
 // Create placeholder components for other routes
 const Analytics = { template: '<div class="p-8"><h1 class="text-2xl font-bold mb-4">Analytics</h1><p>View analytics and reports.</p></div>' }
@@ -48,10 +48,10 @@ const routes = [
   },
   {
     path: '/vendors',
-    name: 'VendorCoordination',
-    component: VendorCoordination,
+    name: 'VendorManagement',
+    component: VendorManagement,
     meta: {
-      title: 'Vendor Coordination',
+      title: 'Vendor Management',
       subtitle: 'Manage vendor relationships and partnerships'
     }
   },
