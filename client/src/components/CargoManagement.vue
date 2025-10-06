@@ -173,7 +173,8 @@
                   <button @click="editCargo(cargo)" class="text-blue-600 hover:text-blue-800 transition-colors duration-150">
                     <Pencil class="w-4 h-4" />
                   </button>
-                  <button @click="deleteCargo(cargo)" class="text-red-600 hover:text-red-800 transition-colors duration-150">
+                  <!-- MODIFICATION: Changed the @click handler to call a new method that opens our custom dialog -->
+                  <button @click.stop="promptDeleteCargo(cargo)" class="text-red-600 hover:text-red-800 transition-colors duration-150">
                     <Trash2 class="w-4 h-4" />
                   </button>
                 </div>
@@ -191,17 +192,21 @@
       </div>
     </div>
 
-    <!-- Simple Add Cargo Modal -->
-    <div v-if="showCargoModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-2xl w-full max-w-md">
-        <div class="p-6 border-b border-gray-200">
-          <h3 class="text-lg font-semibold text-gray-900">Add New Cargo</h3>
-        </div>
-        
-        <form @submit.prevent="saveCargo" class="p-6 space-y-4">
+    <!-- 
+      MODIFICATION: Replaced the old modal div with the new reusable BaseModal component.
+      - We bind the `show` prop to our local `showCargoModal` ref.
+      - We listen for the `@close` event to hide the modal.
+      - The form is now placed inside the named slots for header, body, and footer.
+    -->
+    <BaseModal :show="showCargoModal" @close="closeCargoModal" max-width="md">
+      <template #header>
+        <h3 class="text-lg font-semibold text-gray-900">{{ isEditMode ? 'Edit Cargo' : 'Add New Cargo' }}</h3>
+      </template>
+      <template #body>
+        <form @submit.prevent="saveCargo" id="cargoForm" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Cargo ID</label>
-            <input type="text" v-model="cargoForm.id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <input type="text" v-model="cargoForm.id" :disabled="isEditMode" :class="isEditMode ? 'w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none' : 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'" />
           </div>
           
           <div>
@@ -232,18 +237,28 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea v-model="cargoForm.description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
           </div>
-          
-          <div class="flex gap-3 pt-4">
-            <button type="button" @click="closeCargoModal" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
-              Cancel
-            </button>
-            <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              Add Cargo
-            </button>
-          </div>
         </form>
-      </div>
-    </div>
+      </template>
+      <template #footer>
+        <button type="button" @click="closeCargoModal" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+          Cancel
+        </button>
+        <button type="submit" form="cargoForm" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+          {{ isEditMode ? 'Save Changes' : 'Add Cargo' }}
+        </button>
+      </template>
+    </BaseModal>
+
+    <!-- MODIFICATION: Add the ConfirmDialog component -->
+    <ConfirmDialog
+      :show="showConfirmDialog"
+      title="Delete Cargo Item"
+      :message="`Are you sure you want to permanently delete cargo item ${cargoToDelete?.id}? This action cannot be undone.`"
+      confirm-text="Delete"
+      variant="danger"
+      @confirm="handleConfirmDelete"
+      @cancel="cancelDelete"
+    />
   </div>
 </template>
 
@@ -252,6 +267,9 @@ import { ref, computed } from 'vue'
 import { 
   Package, Plus, Search, Pencil, Trash2, IndianRupee, Grid3X3, TrendingUp
 } from 'lucide-vue-next'
+import BaseModal from './shared/BaseModal.vue'
+// MODIFICATION: Import the new ConfirmDialog component
+import ConfirmDialog from './shared/ConfirmDialog.vue'
 
 // Simple reactive data
 const searchQuery = ref('')
@@ -259,6 +277,11 @@ const filterType = ref('')
 const currentSort = ref('value-desc')
 const showCargoModal = ref(false)
 const isLoading = ref(false)
+const isEditMode = ref(false)
+
+// MODIFICATION: Add new state for the confirmation dialog
+const showConfirmDialog = ref(false)
+const cargoToDelete = ref(null)
 
 // Simple form data
 const cargoForm = ref({
@@ -406,6 +429,7 @@ const getTypeBadgeClass = (type) => {
 }
 
 const openAddCargoModal = () => {
+  isEditMode.value = false
   cargoForm.value = {
     id: `CG${String(cargoData.value.length + 1).padStart(3, '0')}`,
     shipmentId: '',
@@ -419,27 +443,55 @@ const openAddCargoModal = () => {
 
 const closeCargoModal = () => {
   showCargoModal.value = false
+  isEditMode.value = false
 }
 
 const saveCargo = () => {
   if (cargoForm.value.id && cargoForm.value.type) {
-    cargoData.value.push({
-      ...cargoForm.value,
-      shipmentRoute: { origin: 'Mumbai', destination: 'Chennai' }
-    })
+    if (isEditMode.value) {
+      // Update existing cargo
+      const index = cargoData.value.findIndex(c => c.id === cargoForm.value.id)
+      if (index !== -1) {
+        cargoData.value[index] = {
+          ...cargoForm.value,
+          shipmentRoute: cargoData.value[index].shipmentRoute || { origin: 'Mumbai', destination: 'Chennai' }
+        }
+      }
+    } else {
+      // Add new cargo
+      cargoData.value.push({
+        ...cargoForm.value,
+        shipmentRoute: { origin: 'Mumbai', destination: 'Chennai' }
+      })
+    }
     closeCargoModal()
   }
 }
 
 const editCargo = (cargo) => {
+  isEditMode.value = true
   cargoForm.value = { ...cargo }
   showCargoModal.value = true
 }
 
-const deleteCargo = (cargo) => {
-  if (confirm(`Delete cargo ${cargo.id}?`)) {
-    cargoData.value = cargoData.value.filter(c => c.id !== cargo.id)
+// MODIFICATION: This function now opens the confirmation dialog instead of using window.confirm
+const promptDeleteCargo = (cargo) => {
+  cargoToDelete.value = cargo
+  showConfirmDialog.value = true
+}
+
+// MODIFICATION: This function handles the actual deletion after confirmation
+const handleConfirmDelete = () => {
+  if (cargoToDelete.value) {
+    cargoData.value = cargoData.value.filter(c => c.id !== cargoToDelete.value.id)
   }
+  cancelDelete() // Close the dialog and reset state
+}
+
+// MODIFICATION: This function closes the dialog and resets the state when canceled
+const cancelDelete = () => {
+  showConfirmDialog.value = false
+  cargoToDelete.value = null
 }
 </script>
 
