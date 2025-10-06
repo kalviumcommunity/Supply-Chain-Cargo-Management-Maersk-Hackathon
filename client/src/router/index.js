@@ -3,9 +3,9 @@ import Dashboard from '../components/Dashboard.vue'
 import CargoManagement from '../components/CargoManagement.vue'
 import ShipmentTracking from '../components/ShipmentTracking.vue'
 import RouteManagement from '../components/RouteManagement.vue'
+import VendorCoordination from '../components/VendorCoordination.vue'
 
 // Create placeholder components for other routes
-const VendorCoordination = { template: '<div class="p-8"><h1 class="text-2xl font-bold mb-4">Vendor Coordination</h1><p>Coordinate with vendors and partners.</p></div>' }
 const Analytics = { template: '<div class="p-8"><h1 class="text-2xl font-bold mb-4">Analytics</h1><p>View analytics and reports.</p></div>' }
 const Settings = { template: '<div class="p-8"><h1 class="text-2xl font-bold mb-4">Settings</h1><p>Configure application settings.</p></div>' }
 
