@@ -40,6 +40,15 @@ public class Route {
     @Column(name = "status", nullable = false, length = 20)  // Default 'Active' via field init
     private String status = "Active";  // Java default for insert
 
+    @Column(name = "distance")
+    private Double distance;  // Distance in kilometers
+
+    @Column(name = "transportation_mode", length = 50)
+    private String transportationMode;  // e.g., Sea, Air, Land, Rail
+
+    @Column(name = "cost")
+    private Double cost;  // Route cost
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
