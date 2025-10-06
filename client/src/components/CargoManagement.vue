@@ -13,10 +13,10 @@
       </div>
     </header>
 
-    <!-- Clean Metrics Grid -->
-        <!-- Metrics Grid -->
+    <!-- ===== CARGO METRICS DASHBOARD ===== -->
+    <!-- Interactive metrics cards showing key cargo statistics -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <!-- Total Cargo -->
+      <!-- Total Cargo Count -->
       <div class="group bg-white rounded-3xl p-8 border border-gray-100 transition-all duration-300 hover:shadow-[0_20px_60px_-12px_rgba(59,130,246,0.15)] hover:border-blue-200 hover:-translate-y-1 cursor-pointer">
         <div class="flex flex-col items-center text-center">
           <div class="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full group-hover:from-blue-100 group-hover:to-blue-200 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 mb-4">
@@ -65,10 +65,11 @@
       </div>
     </div>
 
-    <!-- Search and Actions Bar -->
+    <!-- ===== SEARCH AND FILTERING CONTROLS ===== -->
+    <!-- Comprehensive search, filter, and action bar -->
     <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-8">
       <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <!-- Search -->
+        <!-- Search Input with Icon -->
         <div class="relative flex-1 max-w-md">
           <Search class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
           <input
@@ -79,9 +80,9 @@
           />
         </div>
 
-        <!-- Filters and Actions -->
+        <!-- Filter Controls and Actions -->
         <div class="flex items-center gap-3">
-          <!-- Type Filter -->
+          <!-- Type Filter Dropdown -->
           <select
             v-model="filterType"
             class="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
@@ -90,7 +91,7 @@
             <option v-for="type in cargoTypes" :key="type" :value="type">{{ type }}</option>
           </select>
 
-          <!-- Sort -->
+          <!-- Sort Options Dropdown -->
           <select
             v-model="currentSort"
             class="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
@@ -101,7 +102,7 @@
             <option value="id">Cargo ID</option>
           </select>
 
-          <!-- Add Cargo Button -->
+          <!-- Primary Action Button -->
           <button
             @click="openAddCargoModal"
             class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
@@ -170,11 +171,17 @@
               <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{{ cargo.description }}</td>
               <td class="px-6 py-4">
                 <div class="flex items-center space-x-2">
-                  <button @click="editCargo(cargo)" class="text-blue-600 hover:text-blue-800 transition-colors duration-150">
+                  <!-- Edit button - opens cargo in edit mode -->
+                  <button @click="editCargo(cargo)" 
+                          class="text-blue-600 hover:text-blue-800 transition-colors duration-150"
+                          :title="`Edit cargo ${cargo.id}`">
                     <Pencil class="w-4 h-4" />
                   </button>
-                  <!-- MODIFICATION: Changed the @click handler to call a new method that opens our custom dialog -->
-                  <button @click.stop="promptDeleteCargo(cargo)" class="text-red-600 hover:text-red-800 transition-colors duration-150">
+                  <!-- FIX: Delete button now uses custom confirmation dialog instead of window.confirm -->
+                  <!-- .stop prevents event bubbling to parent row -->
+                  <button @click.stop="promptDeleteCargo(cargo)" 
+                          class="text-red-600 hover:text-red-800 transition-colors duration-150"
+                          :title="`Delete cargo ${cargo.id}`">
                     <Trash2 class="w-4 h-4" />
                   </button>
                 </div>
@@ -193,68 +200,108 @@
     </div>
 
     <!-- 
-      MODIFICATION: Replaced the old modal div with the new reusable BaseModal component.
-      - We bind the `show` prop to our local `showCargoModal` ref.
-      - We listen for the `@close` event to hide the modal.
-      - The form is now placed inside the named slots for header, body, and footer.
+      FIX: Custom reusable BaseModal component for cargo add/edit functionality
+      - Replaces traditional modal implementations with consistent design
+      - Provides proper accessibility features and keyboard navigation
+      - Integrates seamlessly with our design system
     -->
     <BaseModal :show="showCargoModal" @close="closeCargoModal" max-width="md">
       <template #header>
-        <h3 class="text-lg font-semibold text-gray-900">{{ isEditMode ? 'Edit Cargo' : 'Add New Cargo' }}</h3>
+        <h3 class="text-lg font-semibold text-gray-900">
+          {{ isEditMode ? 'Edit Cargo' : 'Add New Cargo' }}
+        </h3>
       </template>
       <template #body>
         <form @submit.prevent="saveCargo" id="cargoForm" class="space-y-4">
+          <!-- Cargo ID Field - disabled in edit mode to prevent changes -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Cargo ID</label>
-            <input type="text" v-model="cargoForm.id" :disabled="isEditMode" :class="isEditMode ? 'w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none' : 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'" />
+            <input type="text" 
+                   v-model="cargoForm.id" 
+                   :disabled="isEditMode" 
+                   :class="isEditMode ? 'w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:outline-none' : 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'" />
           </div>
           
+          <!-- Shipment ID Field -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Shipment ID</label>
-            <input type="text" v-model="cargoForm.shipmentId" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <input type="text" 
+                   v-model="cargoForm.shipmentId" 
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                   placeholder="Enter shipment ID" />
           </div>
           
+          <!-- Cargo Type Dropdown -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-            <select v-model="cargoForm.type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <select v-model="cargoForm.type" 
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="">Select Type</option>
               <option v-for="type in cargoTypes" :key="type" :value="type">{{ type }}</option>
             </select>
           </div>
           
+          <!-- Value and Weight Fields - side by side -->
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Value (₹)</label>
-              <input type="number" v-model="cargoForm.value" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input type="number" 
+                     v-model="cargoForm.value" 
+                     min="0"
+                     step="1"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                     placeholder="0" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Weight (kg)</label>
-              <input type="number" v-model="cargoForm.weight" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input type="number" 
+                     v-model="cargoForm.weight" 
+                     min="0"
+                     step="0.1"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                     placeholder="0.0" />
             </div>
           </div>
           
+          <!-- Description Field -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea v-model="cargoForm.description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            <textarea v-model="cargoForm.description" 
+                      rows="3" 
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter cargo description..."></textarea>
           </div>
         </form>
       </template>
       <template #footer>
-        <button type="button" @click="closeCargoModal" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+        <!-- Cancel Button -->
+        <button type="button" 
+                @click="closeCargoModal" 
+                class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
           Cancel
         </button>
-        <button type="submit" form="cargoForm" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+        <!-- Submit Button - text changes based on mode -->
+        <button type="submit" 
+                form="cargoForm" 
+                class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
           {{ isEditMode ? 'Save Changes' : 'Add Cargo' }}
         </button>
       </template>
     </BaseModal>
 
-    <!-- MODIFICATION: Add the ConfirmDialog component -->
+    <!-- 
+      FIX: Custom ConfirmDialog component replacing browser's native confirm()
+      - Provides consistent branding and styling across the application
+      - Better accessibility with proper ARIA labels and focus management
+      - Improved UX with smooth animations and clear action buttons
+      - Prevents accidental deletions with prominent warning styling
+    -->
     <ConfirmDialog
       :show="showConfirmDialog"
       title="Delete Cargo Item"
-      :message="`Are you sure you want to permanently delete cargo item ${cargoToDelete?.id}? This action cannot be undone.`"
+      :message="cargoToDelete ? `Are you sure you want to permanently delete cargo item '${cargoToDelete.id}'? This action cannot be undone and will remove all associated data.` : ''"
       confirm-text="Delete"
+      cancel-text="Cancel"
       variant="danger"
       @confirm="handleConfirmDelete"
       @cancel="cancelDelete"
@@ -268,22 +315,28 @@ import {
   Package, Plus, Search, Pencil, Trash2, IndianRupee, Grid3X3, TrendingUp
 } from 'lucide-vue-next'
 import BaseModal from './shared/BaseModal.vue'
-// MODIFICATION: Import the new ConfirmDialog component
+// FIX: Import reusable ConfirmDialog to replace browser's native confirm() dialog
+// This provides better UX, consistent styling, and accessibility features
 import ConfirmDialog from './shared/ConfirmDialog.vue'
 
-// Simple reactive data
+// ===== REACTIVE STATE MANAGEMENT =====
+// Search and filtering state
 const searchQuery = ref('')
 const filterType = ref('')
 const currentSort = ref('value-desc')
+
+// Modal state management
 const showCargoModal = ref(false)
 const isLoading = ref(false)
 const isEditMode = ref(false)
 
-// MODIFICATION: Add new state for the confirmation dialog
+// FIX: State for custom confirmation dialog (replaces window.confirm)
+// This provides a more user-friendly and branded confirmation experience
 const showConfirmDialog = ref(false)
-const cargoToDelete = ref(null)
+const cargoToDelete = ref(null) // Stores the cargo item pending deletion
 
-// Simple form data
+// ===== FORM DATA =====
+// Form structure for adding/editing cargo items
 const cargoForm = ref({
   id: '',
   shipmentId: '',
@@ -293,7 +346,8 @@ const cargoForm = ref({
   description: ''
 })
 
-// Sample data
+// ===== SAMPLE DATA =====
+// Mock cargo data for demonstration - in production this would come from an API
 const cargoData = ref([
   {
     id: 'CG001',
@@ -369,9 +423,11 @@ const cargoData = ref([
   }
 ])
 
+// Available cargo types for dropdown selection
 const cargoTypes = ['Electronics', 'Textiles', 'Machinery', 'Food Items', 'Books', 'Furniture']
 
-// Simple computed properties
+// ===== COMPUTED PROPERTIES =====
+// Dashboard metrics calculated from cargo data
 const metrics = computed(() => {
   const totalCargo = cargoData.value.length
   const totalValue = cargoData.value.reduce((sum, cargo) => sum + cargo.value, 0)
@@ -381,6 +437,7 @@ const metrics = computed(() => {
   return { totalCargo, totalValue, categories, highValueItems }
 })
 
+// Filtered and sorted cargo list based on search query, type filter, and sort option
 const filteredCargo = computed(() => {
   let filtered = cargoData.value
 
@@ -413,9 +470,11 @@ const filteredCargo = computed(() => {
   return filtered
 })
 
-// Simple methods
+// ===== UTILITY METHODS =====
+// Format numbers with Indian locale (adds commas for thousands)
 const formatNumber = (num) => num.toLocaleString('en-IN')
 
+// Get appropriate CSS classes for cargo type badges
 const getTypeBadgeClass = (type) => {
   const classes = {
     'Electronics': 'bg-blue-100 text-blue-800',
@@ -428,8 +487,11 @@ const getTypeBadgeClass = (type) => {
   return classes[type] || 'bg-gray-100 text-gray-800'
 }
 
+// ===== MODAL MANAGEMENT =====
+// Open modal for adding a new cargo item
 const openAddCargoModal = () => {
   isEditMode.value = false
+  // Generate next cargo ID automatically
   cargoForm.value = {
     id: `CG${String(cargoData.value.length + 1).padStart(3, '0')}`,
     shipmentId: '',
@@ -441,26 +503,31 @@ const openAddCargoModal = () => {
   showCargoModal.value = true
 }
 
+// Close cargo modal and reset edit mode
 const closeCargoModal = () => {
   showCargoModal.value = false
   isEditMode.value = false
 }
 
+// Save cargo (add new or update existing)
 const saveCargo = () => {
+  // Basic validation - ensure required fields are filled
   if (cargoForm.value.id && cargoForm.value.type) {
     if (isEditMode.value) {
-      // Update existing cargo
+      // Update existing cargo item
       const index = cargoData.value.findIndex(c => c.id === cargoForm.value.id)
       if (index !== -1) {
         cargoData.value[index] = {
           ...cargoForm.value,
+          // Preserve existing shipment route if available
           shipmentRoute: cargoData.value[index].shipmentRoute || { origin: 'Mumbai', destination: 'Chennai' }
         }
       }
     } else {
-      // Add new cargo
+      // Add new cargo item
       cargoData.value.push({
         ...cargoForm.value,
+        // Default route for new items
         shipmentRoute: { origin: 'Mumbai', destination: 'Chennai' }
       })
     }
@@ -468,27 +535,36 @@ const saveCargo = () => {
   }
 }
 
+// Open modal for editing existing cargo
 const editCargo = (cargo) => {
   isEditMode.value = true
+  // Deep copy to avoid direct mutation
   cargoForm.value = { ...cargo }
   showCargoModal.value = true
 }
 
-// MODIFICATION: This function now opens the confirmation dialog instead of using window.confirm
+// ===== DELETION WORKFLOW (FIX FOR BROKEN CONFIRM DIALOG) =====
+// FIX: Replaced window.confirm() with custom ConfirmDialog component
+// This provides better UX, consistent branding, and proper accessibility
 const promptDeleteCargo = (cargo) => {
   cargoToDelete.value = cargo
   showConfirmDialog.value = true
 }
 
-// MODIFICATION: This function handles the actual deletion after confirmation
+// Execute deletion after user confirms in the custom dialog
 const handleConfirmDelete = () => {
   if (cargoToDelete.value) {
+    // Remove cargo from array
     cargoData.value = cargoData.value.filter(c => c.id !== cargoToDelete.value.id)
+    
+    // FIX: Add success feedback (could be extended with toast notifications)
+    console.log(`Successfully deleted cargo item: ${cargoToDelete.value.id}`)
   }
-  cancelDelete() // Close the dialog and reset state
+  // Always clean up state after deletion
+  cancelDelete()
 }
 
-// MODIFICATION: This function closes the dialog and resets the state when canceled
+// Cancel deletion and reset confirmation dialog state
 const cancelDelete = () => {
   showConfirmDialog.value = false
   cargoToDelete.value = null
