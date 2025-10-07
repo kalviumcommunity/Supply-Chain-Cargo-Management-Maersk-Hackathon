@@ -1,0 +1,15 @@
+meta {
+  name: vendors-delete
+  type: http
+  seq: 4
+}
+
+delete {
+  url: http://localhost:8080/api/vendors
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

@@ -1,0 +1,25 @@
+meta {
+  name: vendors_post
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/vendors
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "FedEx Corporation",
+    "contactInfo": "support@fedex.com, +1-800-463-3339",
+    "serviceType": "Air Freight",
+    "isActive": true
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+}

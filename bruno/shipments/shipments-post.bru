@@ -1,0 +1,32 @@
+meta {
+  name: shipments-post
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/shipments
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "origin": "Frankfurt, Germany",
+    "destination": "Dubai, UAE",
+    "status": "Created",
+    "estimatedDelivery": "2025-10-15",
+    "assignedRoute": {
+      "routeId": 3
+    },
+    "assignedVendor": {
+      "vendorId": 3
+    },
+    "shipmentCode": "SH2025003"
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+}
