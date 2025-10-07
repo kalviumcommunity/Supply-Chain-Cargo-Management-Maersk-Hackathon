@@ -12,7 +12,7 @@
         </div>
       </div>
       <button 
-        @click="showAddVendorModal = true"
+        @click="openCreateVendorModal"
         class="bg-gradient-to-br from-[#3B82F6] to-[#2563EB] text-white px-7 py-[14px] rounded-xl hover:scale-102 active:scale-98 hover:shadow-[0_8px_24px_rgba(59,130,246,0.4)] shadow-[0_4px_12px_rgba(59,130,246,0.3)] transition-all duration-200 flex items-center gap-3 font-semibold text-[15px]"
       >
         <Plus class="w-5 h-5" />
@@ -544,6 +544,164 @@
         </div>
       </div>
     </transition>
+
+    <!-- Create Vendor Modal -->
+    <BaseModal :show="showCreateVendorModal" @close="closeCreateVendorModal" max-width="lg">
+      <template #header>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+            <Plus class="w-5 h-5 text-blue-600" />
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">{{ isEditMode ? 'Edit Vendor' : 'Add New Vendor' }}</h2>
+            <p class="text-sm text-gray-500">{{ isEditMode ? 'Update vendor information' : 'Add a new vendor to your network' }}</p>
+          </div>
+        </div>
+      </template>
+      
+      <template #body>
+        <form @submit.prevent="saveVendor" class="space-y-6">
+          <!-- Vendor ID -->
+          <div>
+            <label for="vendorId" class="block text-sm font-medium text-gray-700 mb-2">
+              Vendor ID
+            </label>
+            <input
+              id="vendorId"
+              v-model="vendorForm.id"
+              type="text"
+              readonly
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm"
+            />
+          </div>
+
+          <!-- Vendor Name -->
+          <div>
+            <label for="vendorName" class="block text-sm font-medium text-gray-700 mb-2">
+              Vendor Name <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="vendorName"
+              v-model="vendorForm.name"
+              type="text"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="e.g., Express Logistics Co."
+            />
+          </div>
+
+          <!-- Service Type -->
+          <div>
+            <label for="serviceType" class="block text-sm font-medium text-gray-700 mb-2">
+              Service Type <span class="text-red-500">*</span>
+            </label>
+            <select
+              id="serviceType"
+              v-model="vendorForm.serviceType"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Select service type</option>
+              <option v-for="service in serviceTypes" :key="service" :value="service">{{ service }}</option>
+            </select>
+          </div>
+
+          <!-- Contact Information -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="contactPhone" class="block text-sm font-medium text-gray-700 mb-2">
+                Phone Number <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="contactPhone"
+                v-model="vendorForm.contactPhone"
+                type="tel"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="+91 98765 43210"
+              />
+            </div>
+            <div>
+              <label for="contactEmail" class="block text-sm font-medium text-gray-700 mb-2">
+                Email Address <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="contactEmail"
+                v-model="vendorForm.contactEmail"
+                type="email"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="info@vendor.com"
+              />
+            </div>
+          </div>
+
+          <!-- Rating and Status -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="rating" class="block text-sm font-medium text-gray-700 mb-2">
+                Initial Rating
+              </label>
+              <select
+                id="rating"
+                v-model.number="vendorForm.rating"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option :value="5.0">5.0 ⭐⭐⭐⭐⭐</option>
+                <option :value="4.5">4.5 ⭐⭐⭐⭐☆</option>
+                <option :value="4.0">4.0 ⭐⭐⭐⭐</option>
+                <option :value="3.5">3.5 ⭐⭐⭐☆</option>
+                <option :value="3.0">3.0 ⭐⭐⭐</option>
+              </select>
+            </div>
+            <div>
+              <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+                Status
+              </label>
+              <select
+                id="status"
+                v-model="vendorForm.status"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </template>
+      
+      <template #footer>
+        <button
+          type="button"
+          @click="closeCreateVendorModal"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          @click="saveVendor"
+          :disabled="isLoading"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+        >
+          <div v-if="isLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          {{ isLoading ? (isEditMode ? 'Updating...' : 'Adding...') : (isEditMode ? 'Update Vendor' : 'Add Vendor') }}
+        </button>
+      </template>
+    </BaseModal>
+
+    <!-- Delete Confirmation Dialog -->
+    <ConfirmDialog
+      :show="showDeleteConfirm"
+      title="Delete Vendor"
+      :message="`Are you sure you want to delete vendor ${vendorToDelete?.name}? This action cannot be undone.`"
+      confirm-text="Delete"
+      cancel-text="Cancel"
+      variant="danger"
+      @confirm="handleConfirmDeleteVendor"
+      @cancel="cancelDeleteVendor"
+    />
   </div>
 </template>
 
@@ -556,6 +714,9 @@ import {
   BarChart3, History, User, Clock
 } from 'lucide-vue-next'
 
+import BaseModal from './shared/BaseModal.vue'
+import ConfirmDialog from './shared/ConfirmDialog.vue'
+
 // Reactive data
 const showAddVendorModal = ref(false)
 const showVendorDetails = ref(false)
@@ -564,6 +725,36 @@ const selectedVendor = ref(null)
 const searchQuery = ref('')
 const showQuickActions = ref(null)
 const activeDetailTab = ref('overview')
+
+// Vendor Form State
+const showCreateVendorModal = ref(false)
+const isLoading = ref(false)
+const isEditMode = ref(false)
+
+// Delete Confirmation State
+const showDeleteConfirm = ref(false)
+const vendorToDelete = ref(null)
+
+// Form Data
+const vendorForm = ref({
+  id: '',
+  name: '',
+  serviceType: '',
+  contactPhone: '',
+  contactEmail: '',
+  rating: 5.0,
+  status: 'Active'
+})
+
+// Available options
+const serviceTypes = [
+  'Road Transport',
+  'Sea Transport', 
+  'Air Transport',
+  'Rail Transport',
+  'Warehousing',
+  'Last Mile Delivery'
+]
 
 // Vendor metrics for dashboard cards
 const vendorMetrics = reactive([
@@ -802,7 +993,7 @@ const handleQuickAction = (action, vendor) => {
   
   switch (action.action) {
     case 'edit':
-      console.log('Edit vendor:', vendor)
+      editVendor(vendor)
       break
     case 'assign-shipment':
       console.log('Assign shipment to vendor:', vendor.id)
@@ -814,10 +1005,11 @@ const handleQuickAction = (action, vendor) => {
       console.log('Download report for vendor:', vendor.id)
       break
     case 'mark-inactive':
-      console.log('Mark vendor inactive:', vendor.id)
+      vendor.status = 'Inactive'
+      console.log('Marked vendor as inactive:', vendor.id)
       break
     case 'delete':
-      console.log('Delete vendor:', vendor)
+      promptDeleteVendor(vendor)
       break
     default:
       console.log('Quick action:', action.action, vendor)
@@ -838,6 +1030,104 @@ const closeVendorDetails = () => {
 const messageVendor = (vendor) => {
   console.log('Message vendor:', vendor)
   // Handle message vendor logic
+}
+
+// Vendor Form Methods
+const openCreateVendorModal = () => {
+  isEditMode.value = false
+  vendorForm.value = {
+    id: `VEN${String(vendors.length + 1).padStart(3, '0')}`,
+    name: '',
+    serviceType: '',
+    contactPhone: '',
+    contactEmail: '',
+    rating: 5.0,
+    status: 'Active'
+  }
+  showCreateVendorModal.value = true
+}
+
+const closeCreateVendorModal = () => {
+  showCreateVendorModal.value = false
+  isEditMode.value = false
+}
+
+const saveVendor = async () => {
+  if (!vendorForm.value.name || !vendorForm.value.serviceType || 
+      !vendorForm.value.contactPhone || !vendorForm.value.contactEmail) {
+    return
+  }
+
+  isLoading.value = true
+
+  try {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    const newVendor = {
+      id: vendorForm.value.id,
+      name: vendorForm.value.name,
+      logo: null,
+      serviceType: vendorForm.value.serviceType,
+      rating: vendorForm.value.rating,
+      contact: {
+        phone: vendorForm.value.contactPhone,
+        email: vendorForm.value.contactEmail
+      },
+      activeShipments: 0,
+      status: vendorForm.value.status
+    }
+
+    if (isEditMode.value) {
+      const index = vendors.findIndex(v => v.id === vendorForm.value.id)
+      if (index !== -1) {
+        vendors[index] = { ...vendors[index], ...newVendor }
+      }
+    } else {
+      vendors.unshift(newVendor)
+    }
+
+    closeCreateVendorModal()
+  } catch (error) {
+    console.error('Error saving vendor:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const editVendor = (vendor) => {
+  isEditMode.value = true
+  vendorForm.value = {
+    id: vendor.id,
+    name: vendor.name,
+    serviceType: vendor.serviceType,
+    contactPhone: vendor.contact.phone,
+    contactEmail: vendor.contact.email,
+    rating: vendor.rating,
+    status: vendor.status
+  }
+  showCreateVendorModal.value = true
+}
+
+const promptDeleteVendor = (vendor) => {
+  vendorToDelete.value = vendor
+  showDeleteConfirm.value = true
+}
+
+const handleConfirmDeleteVendor = () => {
+  if (vendorToDelete.value) {
+    const index = vendors.findIndex(v => v.id === vendorToDelete.value.id)
+    if (index !== -1) {
+      vendors.splice(index, 1)
+    }
+    console.log(`Successfully deleted vendor: ${vendorToDelete.value.id}`)
+  }
+  cancelDeleteVendor()
+}
+
+const cancelDeleteVendor = () => {
+  showDeleteConfirm.value = false
+  vendorToDelete.value = null
 }
 
 // Handle escape key and click outside

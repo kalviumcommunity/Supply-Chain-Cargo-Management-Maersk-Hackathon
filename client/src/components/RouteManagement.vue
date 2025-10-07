@@ -540,6 +540,28 @@
                     </svg>
                   </button>
                   <button 
+                    class="action-btn edit w-8 h-8 flex items-center justify-center rounded-lg hover:bg-green-50 hover:text-green-600 transition-all duration-150 flex-shrink-0"
+                    @click.stop="editRoute(route)"
+                    title="Edit Route"
+                  >
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  </button>
+                  <button 
+                    class="action-btn delete w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50 hover:text-red-600 transition-all duration-150 flex-shrink-0"
+                    @click.stop="promptDeleteRoute(route)"
+                    title="Delete Route"
+                  >
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3,6 5,6 21,6"></polyline>
+                      <path d="m19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2"></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line>
+                      <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                  </button>
+                  <button 
                     class="action-btn optimize flex items-center justify-center gap-1.5 px-3 py-2 border border-gray-300 rounded-lg text-xs font-semibold hover:border-green-500 hover:bg-green-50 hover:text-green-700 transition-all duration-150 flex-shrink-0"
                     @click.stop="optimizeRoute(route)"
                     :disabled="route.status === 'inactive'"
@@ -605,11 +627,218 @@
         </div>
       </div>
     </transition>
+    
+    <!-- Create Route Modal -->
+    <BaseModal :show="showCreateRouteModal" @close="closeCreateRouteModal" max-width="lg">
+      <template #header>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+            <svg class="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">{{ isEditMode ? 'Edit Route' : 'Create New Route' }}</h2>
+            <p class="text-sm text-gray-500">{{ isEditMode ? 'Update route details' : 'Set up a new shipping route' }}</p>
+          </div>
+        </div>
+      </template>
+      
+      <template #body>
+        <form @submit.prevent="saveRoute" class="space-y-6">
+          <!-- Route ID -->
+          <div>
+            <label for="routeId" class="block text-sm font-medium text-gray-700 mb-2">
+              Route ID
+            </label>
+            <input
+              id="routeId"
+              v-model="routeForm.id"
+              type="text"
+              readonly
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm"
+            />
+          </div>
+
+          <!-- Route Name -->
+          <div>
+            <label for="routeName" class="block text-sm font-medium text-gray-700 mb-2">
+              Route Name <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="routeName"
+              v-model="routeForm.name"
+              type="text"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="e.g., Mumbai-Chennai Corridor"
+            />
+          </div>
+
+          <!-- Origin -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="originLocation" class="block text-sm font-medium text-gray-700 mb-2">
+                Origin City <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="originLocation"
+                v-model="routeForm.originLocation"
+                type="text"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., Mumbai"
+              />
+            </div>
+            <div>
+              <label for="originPort" class="block text-sm font-medium text-gray-700 mb-2">
+                Origin Port
+              </label>
+              <input
+                id="originPort"
+                v-model="routeForm.originPort"
+                type="text"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., Jawaharlal Nehru Port"
+              />
+            </div>
+          </div>
+
+          <!-- Destination -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="destinationLocation" class="block text-sm font-medium text-gray-700 mb-2">
+                Destination City <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="destinationLocation"
+                v-model="routeForm.destinationLocation"
+                type="text"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., Chennai"
+              />
+            </div>
+            <div>
+              <label for="destinationPort" class="block text-sm font-medium text-gray-700 mb-2">
+                Destination Port
+              </label>
+              <input
+                id="destinationPort"
+                v-model="routeForm.destinationPort"
+                type="text"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., Chennai Port"
+              />
+            </div>
+          </div>
+
+          <!-- Duration and Distance -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="duration" class="block text-sm font-medium text-gray-700 mb-2">
+                Duration (hours) <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="duration"
+                v-model.number="routeForm.duration"
+                type="number"
+                min="1"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., 48"
+              />
+            </div>
+            <div>
+              <label for="distance" class="block text-sm font-medium text-gray-700 mb-2">
+                Distance (km) <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="distance"
+                v-model.number="routeForm.distance"
+                type="number"
+                min="1"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="e.g., 1350"
+              />
+            </div>
+          </div>
+
+          <!-- Route Type and Status -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="routeType" class="block text-sm font-medium text-gray-700 mb-2">
+                Route Type <span class="text-red-500">*</span>
+              </label>
+              <select
+                id="routeType"
+                v-model="routeForm.routeType"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option v-for="type in routeTypes" :key="type.value" :value="type.value">
+                  {{ type.label }}
+                </option>
+              </select>
+            </div>
+            <div>
+              <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+                Status <span class="text-red-500">*</span>
+              </label>
+              <select
+                id="status"
+                v-model="routeForm.status"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option v-for="status in statusOptions" :key="status.value" :value="status.value">
+                  {{ status.label }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </template>
+      
+      <template #footer>
+        <button
+          type="button"
+          @click="closeCreateRouteModal"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          @click="saveRoute"
+          :disabled="isLoading"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+        >
+          <div v-if="isLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          {{ isLoading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Route' : 'Create Route') }}
+        </button>
+      </template>
+    </BaseModal>
+
+    <!-- Delete Confirmation Dialog -->
+    <ConfirmDialog
+      :show="showDeleteConfirm"
+      title="Delete Route"
+      :message="`Are you sure you want to delete route ${routeToDelete?.id} (${routeToDelete?.name})? This action cannot be undone.`"
+      confirm-text="Delete"
+      cancel-text="Cancel"
+      variant="danger"
+      @confirm="handleConfirmDelete"
+      @cancel="cancelDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import BaseModal from './shared/BaseModal.vue'
+import ConfirmDialog from './shared/ConfirmDialog.vue'
 
 // TypeScript Interfaces
 interface Route {
@@ -668,6 +897,42 @@ const sortBy = ref<'duration' | 'distance' | 'name'>('name')
 const sortOrder = ref<'asc' | 'desc'>('asc')
 const showFilterMenu = ref(false)
 const showSortMenu = ref(false)
+
+// Route Form State
+const showCreateRouteModal = ref(false)
+const isLoading = ref(false)
+const isEditMode = ref(false)
+
+// Delete Confirmation State
+const showDeleteConfirm = ref(false)
+const routeToDelete = ref<Route | null>(null)
+
+// Form Data
+const routeForm = ref({
+  id: '',
+  name: '',
+  originLocation: '',
+  originPort: '',
+  destinationLocation: '',
+  destinationPort: '',
+  duration: 0,
+  distance: 0,
+  routeType: 'standard' as 'express' | 'standard' | 'priority',
+  status: 'active' as 'active' | 'delayed' | 'inactive'
+})
+
+// Available options
+const routeTypes = [
+  { value: 'express', label: 'Express' },
+  { value: 'standard', label: 'Standard' },
+  { value: 'priority', label: 'Priority' }
+]
+
+const statusOptions = [
+  { value: 'active', label: 'Active' },
+  { value: 'delayed', label: 'Delayed' },
+  { value: 'inactive', label: 'Inactive' }
+]
 
 // Mock Data
 const routes = ref<Route[]>([
@@ -1014,7 +1279,132 @@ const clearSelection = () => {
 }
 
 const openCreateRouteModal = () => {
-  console.log('Open create route modal')
+  isEditMode.value = false
+  routeForm.value = {
+    id: `RT${String(routes.value.length + 1).padStart(3, '0')}`,
+    name: '',
+    originLocation: '',
+    originPort: '',
+    destinationLocation: '',
+    destinationPort: '',
+    duration: 0,
+    distance: 0,
+    routeType: 'standard',
+    status: 'active'
+  }
+  showCreateRouteModal.value = true
+}
+
+const closeCreateRouteModal = () => {
+  showCreateRouteModal.value = false
+  isEditMode.value = false
+}
+
+const saveRoute = async () => {
+  if (!routeForm.value.name || !routeForm.value.originLocation || 
+      !routeForm.value.destinationLocation || !routeForm.value.duration || 
+      !routeForm.value.distance) {
+    return
+  }
+
+  isLoading.value = true
+
+  try {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    const newRoute: Route = {
+      id: routeForm.value.id,
+      name: routeForm.value.name,
+      origin: {
+        location: routeForm.value.originLocation,
+        port: routeForm.value.originPort || `${routeForm.value.originLocation} Port`
+      },
+      destination: {
+        location: routeForm.value.destinationLocation,
+        port: routeForm.value.destinationPort || `${routeForm.value.destinationLocation} Port`
+      },
+      duration: routeForm.value.duration,
+      distance: routeForm.value.distance,
+      status: routeForm.value.status,
+      activeShipments: 0,
+      efficiencyScore: Math.floor(Math.random() * 20) + 80, // Random score between 80-100
+      routeType: routeForm.value.routeType,
+      createdAt: new Date()
+    }
+
+    if (isEditMode.value) {
+      const index = routes.value.findIndex(r => r.id === routeForm.value.id)
+      if (index !== -1) {
+        routes.value[index] = { ...routes.value[index], ...newRoute }
+      }
+    } else {
+      routes.value.unshift(newRoute)
+      // Update metrics
+      metrics.value.totalRoutes++
+      if (newRoute.status === 'active') {
+        metrics.value.activeRoutes++
+      }
+      metrics.value.totalDistance += newRoute.distance
+      metrics.value.avgDuration = Math.round(
+        routes.value.reduce((sum, route) => sum + route.duration, 0) / routes.value.length
+      )
+    }
+
+    closeCreateRouteModal()
+  } catch (error) {
+    console.error('Error saving route:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const editRoute = (route: Route) => {
+  isEditMode.value = true
+  routeForm.value = {
+    id: route.id,
+    name: route.name,
+    originLocation: route.origin.location,
+    originPort: route.origin.port,
+    destinationLocation: route.destination.location,
+    destinationPort: route.destination.port,
+    duration: route.duration,
+    distance: route.distance,
+    routeType: route.routeType,
+    status: route.status
+  }
+  showCreateRouteModal.value = true
+}
+
+const promptDeleteRoute = (route: Route) => {
+  routeToDelete.value = route
+  showDeleteConfirm.value = true
+}
+
+const handleConfirmDelete = () => {
+  if (routeToDelete.value) {
+    routes.value = routes.value.filter(r => r.id !== routeToDelete.value!.id)
+    
+    // Update metrics
+    metrics.value.totalRoutes--
+    if (routeToDelete.value.status === 'active') {
+      metrics.value.activeRoutes--
+    }
+    metrics.value.totalDistance -= routeToDelete.value.distance
+    if (routes.value.length > 0) {
+      metrics.value.avgDuration = Math.round(
+        routes.value.reduce((sum, route) => sum + route.duration, 0) / routes.value.length
+      )
+    }
+    
+    console.log(`Successfully deleted route: ${routeToDelete.value.id}`)
+  }
+  cancelDelete()
+}
+
+const cancelDelete = () => {
+  showDeleteConfirm.value = false
+  routeToDelete.value = null
 }
 
 // Efficiency helper functions
