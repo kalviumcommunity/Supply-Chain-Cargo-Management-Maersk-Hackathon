@@ -1,0 +1,27 @@
+meta {
+  name: routes-post
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/api/routes
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "originPort": "Frankfurt Airport",
+    "destinationPort": "Dubai Airport",
+    "duration": 1,
+    "status": "Active",
+    "distance": 4800.0,
+    "transportationMode": "Air",
+    "cost": 5500.00
+  }
+}
+
+settings {
+  encodeUrl: true
+}

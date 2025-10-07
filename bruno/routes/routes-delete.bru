@@ -1,0 +1,15 @@
+meta {
+  name: routes-delete
+  type: http
+  seq: 4
+}
+
+delete {
+  url: http://localhost:8080/api/routes
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
