@@ -21,7 +21,7 @@ public class KafkaProducerService {
             System.out.println("Message sent successfully");
         } catch (Exception e) {
             System.err.println("Failed to send Kafka message: " + e.getMessage());
-            // Doesn't throw the exception - just logs it
+            // Don't throw the exception - just log it
         }
     }
 }
