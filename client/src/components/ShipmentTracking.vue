@@ -438,6 +438,169 @@
         </div>
       </div>
     </div>
+
+    <!-- New Shipment Modal -->
+    <BaseModal :show="showNewShipmentModal" @close="closeNewShipmentModal" max-width="lg">
+      <template #header>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+            <Plus class="w-5 h-5 text-blue-600" />
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">{{ isEditMode ? 'Edit Shipment' : 'Create New Shipment' }}</h2>
+            <p class="text-sm text-gray-500">{{ isEditMode ? 'Update shipment details' : 'Fill out the shipment details' }}</p>
+          </div>
+        </div>
+      </template>
+      
+      <template #body>
+        <form @submit.prevent="saveShipment" class="space-y-6">
+          <!-- Shipment ID -->
+          <div>
+            <label for="shipmentId" class="block text-sm font-medium text-gray-700 mb-2">
+              Shipment ID
+            </label>
+            <input
+              id="shipmentId"
+              v-model="shipmentForm.id"
+              type="text"
+              readonly
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm"
+            />
+          </div>
+
+          <!-- Route Selection -->
+          <div>
+            <label for="route" class="block text-sm font-medium text-gray-700 mb-2">
+              Route <span class="text-red-500">*</span>
+            </label>
+            <select
+              id="route"
+              v-model="shipmentForm.route"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Select a route</option>
+              <option v-for="route in availableRoutes" :key="route" :value="route">{{ route }}</option>
+            </select>
+          </div>
+
+          <!-- Status -->
+          <div>
+            <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+              Status <span class="text-red-500">*</span>
+            </label>
+            <select
+              id="status"
+              v-model="shipmentForm.status"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Select status</option>
+              <option value="created">Created</option>
+              <option value="picked-up">Picked Up</option>
+              <option value="in-transit">In Transit</option>
+              <option value="delivered">Delivered</option>
+              <option value="delayed">Delayed</option>
+            </select>
+          </div>
+
+          <!-- Cargo Value -->
+          <div>
+            <label for="cargoValue" class="block text-sm font-medium text-gray-700 mb-2">
+              Cargo Value (₹) <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="cargoValue"
+              v-model.number="shipmentForm.cargoValue"
+              type="number"
+              min="0"
+              step="1000"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter cargo value"
+            />
+          </div>
+
+          <!-- Cargo Weight -->
+          <div>
+            <label for="cargoWeight" class="block text-sm font-medium text-gray-700 mb-2">
+              Cargo Weight (kg) <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="cargoWeight"
+              v-model.number="shipmentForm.cargoWeight"
+              type="number"
+              min="0"
+              step="0.1"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter cargo weight"
+            />
+          </div>
+
+          <!-- Estimated Delivery Date -->
+          <div>
+            <label for="estimatedDelivery" class="block text-sm font-medium text-gray-700 mb-2">
+              Estimated Delivery Date <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="estimatedDelivery"
+              v-model="shipmentForm.estimatedDelivery"
+              type="date"
+              required
+              :min="new Date().toISOString().split('T')[0]"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <!-- Notes -->
+          <div>
+            <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+              Notes
+            </label>
+            <textarea
+              id="notes"
+              v-model="shipmentForm.notes"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Add any additional notes or special instructions..."
+            ></textarea>
+          </div>
+        </form>
+      </template>
+      
+      <template #footer>
+        <button
+          type="button"
+          @click="closeNewShipmentModal"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          @click="saveShipment"
+          :disabled="isLoading"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+        >
+          <div v-if="isLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          {{ isLoading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Shipment' : 'Create Shipment') }}
+        </button>
+      </template>
+    </BaseModal>
+
+    <!-- Delete Confirmation Dialog -->
+    <ConfirmDialog
+      :show="showDeleteConfirm"
+      title="Delete Shipment"
+      :message="`Are you sure you want to delete shipment ${shipmentToDelete?.id}? This action cannot be undone.`"
+      confirm-text="Delete"
+      cancel-text="Cancel"
+      variant="danger"
+      @confirm="handleConfirmDelete"
+      @cancel="cancelDelete"
+    />
   </div>
 </template>
 
@@ -448,6 +611,8 @@ import {
   Package, MapPin, ArrowRight, Calendar, CheckCircle, AlertTriangle,
   FileText, Clock
 } from 'lucide-vue-next'
+import BaseModal from './shared/BaseModal.vue'
+import ConfirmDialog from './shared/ConfirmDialog.vue'
 
 // ============================================================================
 // REACTIVE STATE
@@ -462,6 +627,36 @@ const showSearchSuggestions = ref(false)
 const showShipmentModal = ref(false)
 const selectedShipment = ref(null)
 const sortBy = ref('created-desc')
+
+// New Shipment Form State
+const showNewShipmentModal = ref(false)
+const isLoading = ref(false)
+const isEditMode = ref(false)
+
+// Delete Confirmation State
+const showDeleteConfirm = ref(false)
+const shipmentToDelete = ref(null)
+
+// Form Data
+const shipmentForm = ref({
+  id: '',
+  route: '',
+  status: '',
+  cargoValue: 0,
+  cargoWeight: 0,
+  estimatedDelivery: '',
+  notes: ''
+})
+
+// Available options
+const availableRoutes = [
+  'Mumbai → Chennai',
+  'Delhi → Bangalore',
+  'Kolkata → Hyderabad',
+  'Pune → Kochi',
+  'Ahmedabad → Goa',
+  'Jaipur → Lucknow'
+]
 
 // Sample shipment data
 const shipments = ref([
@@ -856,7 +1051,94 @@ const closeShipmentModal = () => {
 }
 
 const createNewShipment = () => {
-  console.log('Create new shipment')
+  openNewShipmentModal()
+}
+
+const openNewShipmentModal = () => {
+  isEditMode.value = false
+  shipmentForm.value = {
+    id: `SH${String(shipments.value.length + 1).padStart(3, '0')}`,
+    route: '',
+    status: 'created',
+    cargoValue: 0,
+    cargoWeight: 0,
+    estimatedDelivery: '',
+    notes: ''
+  }
+  showNewShipmentModal.value = true
+}
+
+const closeNewShipmentModal = () => {
+  showNewShipmentModal.value = false
+  isEditMode.value = false
+}
+
+const saveShipment = async () => {
+  if (!shipmentForm.value.route || !shipmentForm.value.status || 
+      !shipmentForm.value.cargoValue || !shipmentForm.value.cargoWeight || 
+      !shipmentForm.value.estimatedDelivery) {
+    return
+  }
+
+  isLoading.value = true
+
+  try {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
+    const newShipment = {
+      id: shipmentForm.value.id,
+      route: shipmentForm.value.route,
+      status: shipmentForm.value.status,
+      cargoValue: shipmentForm.value.cargoValue,
+      cargoWeight: shipmentForm.value.cargoWeight,
+      cargoItems: Math.floor(shipmentForm.value.cargoWeight / 10), // Mock calculation
+      estimatedDelivery: new Date(shipmentForm.value.estimatedDelivery),
+      created: new Date(),
+      notes: shipmentForm.value.notes
+    }
+
+    shipments.value.unshift(newShipment)
+    closeNewShipmentModal()
+  } catch (error) {
+    console.error('Error saving shipment:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const editShipment = (shipment) => {
+  isEditMode.value = true
+  shipmentForm.value = {
+    id: shipment.id,
+    route: shipment.route,
+    status: shipment.status,
+    cargoValue: shipment.cargoValue,
+    cargoWeight: shipment.cargoWeight,
+    estimatedDelivery: shipment.estimatedDelivery instanceof Date 
+      ? shipment.estimatedDelivery.toISOString().split('T')[0]
+      : shipment.estimatedDelivery,
+    notes: shipment.notes || ''
+  }
+  showNewShipmentModal.value = true
+}
+
+const promptDeleteShipment = (shipment) => {
+  shipmentToDelete.value = shipment
+  showDeleteConfirm.value = true
+}
+
+const handleConfirmDelete = () => {
+  if (shipmentToDelete.value) {
+    shipments.value = shipments.value.filter(s => s.id !== shipmentToDelete.value.id)
+    console.log(`Successfully deleted shipment: ${shipmentToDelete.value.id}`)
+  }
+  cancelDelete()
+}
+
+const cancelDelete = () => {
+  showDeleteConfirm.value = false
+  shipmentToDelete.value = null
 }
 
 const exportShipments = () => {
