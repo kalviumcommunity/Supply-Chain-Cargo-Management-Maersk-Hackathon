@@ -1,0 +1,29 @@
+meta {
+  name: cargos-post
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8080/api/cargo
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "shipment": {
+      "shipmentId": 3
+    },
+    "type": "Electronics",
+    "value": 125000.50,
+    "description": "High-end smartphones and laptops for retail distribution",
+    "weight": 2500.75,
+    "volume": 45.20,
+    "weightUnit": "kg"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
