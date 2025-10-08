@@ -430,7 +430,17 @@ const cargoData = ref([
 ])
 
 // Available cargo types for dropdown selection
-const cargoTypes = ['Electronics', 'Textiles', 'Machinery', 'Food Items', 'Books', 'Furniture']
+// DB Schema allows: 'Electronics', 'Perishables', 'Hazardous', 'General'
+// CHECK constraint: type IN ('Electronics', 'Perishables', 'Hazardous', 'General')
+const cargoTypes = ['Electronics', 'Perishables', 'Hazardous', 'General']
+
+// ===== COMMENTED OUT - UI options not supported by current DB schema =====
+// To be re-enabled after schema update and Kafka integration
+// const cargoTypesExtended = ['Electronics', 'Textiles', 'Machinery', 'Food Items', 'Books', 'Furniture']
+// Mapping suggestions for future:
+// - 'Food Items' -> 'Perishables'
+// - 'Books', 'Furniture' -> 'General' 
+// - 'Textiles', 'Machinery' -> New constraint values needed
 
 // ===== COMPUTED PROPERTIES =====
 // Dashboard metrics calculated from cargo data
@@ -481,14 +491,22 @@ const filteredCargo = computed(() => {
 const formatNumber = (num) => num.toLocaleString('en-IN')
 
 // Get appropriate CSS classes for cargo type badges
+// Updated to match DB schema constraints
 const getTypeBadgeClass = (type) => {
   const classes = {
+    // Current DB-allowed types
     'Electronics': 'bg-blue-100 text-blue-800',
-    'Textiles': 'bg-pink-100 text-pink-800',
-    'Machinery': 'bg-purple-100 text-purple-800',
-    'Food Items': 'bg-green-100 text-green-800',
-    'Books': 'bg-yellow-100 text-yellow-800',
-    'Furniture': 'bg-orange-100 text-orange-800'
+    'Perishables': 'bg-green-100 text-green-800',
+    'Hazardous': 'bg-red-100 text-red-800',
+    'General': 'bg-gray-100 text-gray-800'
+    
+    // ===== COMMENTED OUT - Not supported by current DB schema =====
+    // To be re-enabled after schema update
+    // 'Textiles': 'bg-pink-100 text-pink-800',
+    // 'Machinery': 'bg-purple-100 text-purple-800', 
+    // 'Food Items': 'bg-green-100 text-green-800',  // Consider mapping to 'Perishables'
+    // 'Books': 'bg-yellow-100 text-yellow-800',     // Consider mapping to 'General'
+    // 'Furniture': 'bg-orange-100 text-orange-800'  // Consider mapping to 'General'
   }
   return classes[type] || 'bg-gray-100 text-gray-800'
 }

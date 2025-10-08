@@ -712,11 +712,13 @@ const shipments = ref([
 // ============================================================================
 
 // Status card configurations
+// Note: Updated to match database schema - status values use proper case
+// 'Picked Up' status commented out as it's not in database CHECK constraint
 const statusCards = computed(() => [
   {
-    id: 'in-transit',
+    id: 'In Transit',
     icon: Truck,
-    count: shipments.value.filter(s => s.status === 'in-transit').length,
+    count: shipments.value.filter(s => s.status === 'In Transit').length,
     label: 'In Transit',
     iconBg: 'bg-gradient-to-br from-teal-50 to-teal-100',
     iconColor: 'text-teal-600',
@@ -727,9 +729,9 @@ const statusCards = computed(() => [
     progress: 75
   },
   {
-    id: 'delivered',
+    id: 'Delivered',
     icon: CheckCircle,
-    count: shipments.value.filter(s => s.status === 'delivered').length,
+    count: shipments.value.filter(s => s.status === 'Delivered').length,
     label: 'Delivered',
     iconBg: 'bg-gradient-to-br from-green-50 to-green-100',
     iconColor: 'text-green-600',
@@ -739,10 +741,13 @@ const statusCards = computed(() => [
     progressColor: 'bg-green-500',
     progress: 100
   },
+  // Picked Up status commented out - not supported in current database schema
+  // Can be restored when schema is updated to support this status after Kafka integration
+  /*
   {
-    id: 'picked-up',
+    id: 'Picked Up',
     icon: Package,
-    count: shipments.value.filter(s => s.status === 'picked-up').length,
+    count: shipments.value.filter(s => s.status === 'Picked Up').length,
     label: 'Picked Up',
     iconBg: 'bg-gradient-to-br from-blue-50 to-blue-100',
     iconColor: 'text-blue-600',
@@ -752,10 +757,11 @@ const statusCards = computed(() => [
     progressColor: 'bg-blue-500',
     progress: 50
   },
+  */
   {
-    id: 'created',
+    id: 'Created',
     icon: FileText,
-    count: shipments.value.filter(s => s.status === 'created').length,
+    count: shipments.value.filter(s => s.status === 'Created').length,
     label: 'Created',
     iconBg: 'bg-gradient-to-br from-gray-50 to-gray-100',
     iconColor: 'text-gray-600',
@@ -766,9 +772,9 @@ const statusCards = computed(() => [
     progress: 25
   },
   {
-    id: 'delayed',
+    id: 'Delayed',
     icon: AlertTriangle,
-    count: shipments.value.filter(s => s.status === 'delayed').length,
+    count: shipments.value.filter(s => s.status === 'Delayed').length,
     label: 'Delayed',
     iconBg: 'bg-gradient-to-br from-red-50 to-red-100',
     iconColor: 'text-red-600',
@@ -781,12 +787,15 @@ const statusCards = computed(() => [
 ])
 
 // Status options for filter dropdown
+// Note: Aligned with database CHECK constraint: shipment_status IN ('Created', 'In Transit', 'Delivered', 'Delayed')
+// Updated 2024: Removed 'picked-up' status as it's not supported in database schema
+// 'Picked Up' status commented out below - can be restored when schema supports it after Kafka integration
 const statusOptions = computed(() => [
-  { value: 'in-transit', label: 'In Transit', icon: Truck, color: 'text-teal-600' },
-  { value: 'delivered', label: 'Delivered', icon: CheckCircle, color: 'text-green-600' },
-  { value: 'picked-up', label: 'Picked Up', icon: Package, color: 'text-blue-600' },
-  { value: 'created', label: 'Created', icon: FileText, color: 'text-gray-600' },
-  { value: 'delayed', label: 'Delayed', icon: AlertTriangle, color: 'text-red-600' }
+  { value: 'In Transit', label: 'In Transit', icon: Truck, color: 'text-teal-600' },
+  { value: 'Delivered', label: 'Delivered', icon: CheckCircle, color: 'text-green-600' },
+  // { value: 'Picked Up', label: 'Picked Up', icon: Package, color: 'text-blue-600' }, // Not in DB schema
+  { value: 'Created', label: 'Created', icon: FileText, color: 'text-gray-600' },
+  { value: 'Delayed', label: 'Delayed', icon: AlertTriangle, color: 'text-red-600' }
 ])
 
 // Sort options
@@ -932,14 +941,21 @@ const getStatusLabel = (status) => {
 }
 
 const getStatusBadgeClass = (status) => {
+  // Updated to match database schema status values (proper case)
+  // Added mapping for backward compatibility with any legacy lowercase values
   const classes = {
+    'In Transit': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-teal-100 to-teal-200 text-teal-800 border-l-2 border-teal-500',
+    'Delivered': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-l-2 border-green-500',
+    // 'Picked Up': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-l-2 border-blue-500', // Not in DB schema
+    'Created': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border-l-2 border-gray-500',
+    'Delayed': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-l-2 border-red-500 animate-pulse',
+    // Legacy mappings for backward compatibility (remove after full migration)
     'in-transit': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-teal-100 to-teal-200 text-teal-800 border-l-2 border-teal-500',
     'delivered': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-l-2 border-green-500',
-    'picked-up': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-l-2 border-blue-500',
     'created': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border-l-2 border-gray-500',
     'delayed': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-l-2 border-red-500 animate-pulse'
   }
-  return classes[status] || classes.created
+  return classes[status] || classes['Created']
 }
 
 // ============================================================================

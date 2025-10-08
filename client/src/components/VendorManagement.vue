@@ -894,14 +894,14 @@ const recentShipments = [
   { id: 'SH001', route: 'Mumbai → Delhi', status: 'Delivered', date: '2 days ago' },
   { id: 'SH002', route: 'Chennai → Bangalore', status: 'In Transit', date: '1 day ago' },
   { id: 'SH003', route: 'Kolkata → Hyderabad', status: 'Delivered', date: '3 days ago' },
-  { id: 'SH004', route: 'Pune → Ahmedabad', status: 'Picked Up', date: '4 hours ago' },
+  { id: 'SH004', route: 'Pune → Ahmedabad', status: 'Delayed', date: '4 hours ago' }, // Changed from 'Picked Up' to 'Delayed'
   { id: 'SH005', route: 'Jaipur → Lucknow', status: 'Created', date: '1 hour ago' }
 ]
 
 const shipmentHistory = [
   { id: 1, shipmentId: 'SH001', description: 'Shipment delivered successfully', status: 'Delivered', timestamp: '2 days ago', type: 'delivered' },
   { id: 2, shipmentId: 'SH002', description: 'Package in transit to destination', status: 'In Transit', timestamp: '1 day ago', type: 'transit' },
-  { id: 3, shipmentId: 'SH003', description: 'Pickup completed from origin', status: 'Picked Up', timestamp: '3 days ago', type: 'pickup' },
+  { id: 3, shipmentId: 'SH003', description: 'Shipment delayed due to weather conditions', status: 'Delayed', timestamp: '3 days ago', type: 'delayed' }, // Changed from 'Picked Up' to 'Delayed'
   { id: 4, shipmentId: 'SH004', description: 'Shipment created and scheduled', status: 'Created', timestamp: '4 days ago', type: 'created' }
 ]
 
@@ -960,11 +960,14 @@ const getServiceBadgeClass = (serviceType) => {
 }
 
 const getShipmentStatusClass = (status) => {
+  // Updated to match database schema shipment status values
+  // Removed 'Picked Up' as it's not supported in current database schema
   switch (status) {
     case 'Delivered': return 'bg-[#D1FAE5] text-[#065F46]'
     case 'In Transit': return 'bg-[#DBEAFE] text-[#1E40AF]'
-    case 'Picked Up': return 'bg-[#E0F2FE] text-[#0C4A6E]'
+    // case 'Picked Up': return 'bg-[#E0F2FE] text-[#0C4A6E]' // Not in DB schema
     case 'Created': return 'bg-[#F3F4F6] text-[#374151]'
+    case 'Delayed': return 'bg-[#FEF2F2] text-[#991B1B]' // Added Delayed status
     default: return 'bg-[#F3F4F6] text-[#374151]'
   }
 }
@@ -973,7 +976,7 @@ const getEventDotColor = (type) => {
   switch (type) {
     case 'delivered': return 'bg-[#10B981]'
     case 'transit': return 'bg-[#3B82F6]'
-    case 'pickup': return 'bg-[#F59E0B]'
+    case 'delayed': return 'bg-[#EF4444]' // Updated from 'pickup' to 'delayed'
     case 'created': return 'bg-[#6B7280]'
     default: return 'bg-[#6B7280]'
   }
