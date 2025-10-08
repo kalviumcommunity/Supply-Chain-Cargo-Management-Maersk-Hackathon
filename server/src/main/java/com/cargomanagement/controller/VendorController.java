@@ -2,146 +2,105 @@ package com.cargomanagement.controller;
 
 import com.cargomanagement.models.Vendor;
 import com.cargomanagement.repository.VendorRepository;
-import jakarta.validation.Valid;
+import com.cargomanagement.service.KafkaProducerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/vendors")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 public class VendorController {
 
-    @Autowired
-    private VendorRepository vendorRepository;
+    private final VendorRepository vendorRepository;
+    private final KafkaProducerService kafkaProducerService;
 
-    // GET all vendors
-    @GetMapping
-    public ResponseEntity<List<Vendor>> getAllVendors() {
-        try {
-            List<Vendor> vendors = vendorRepository.findAll();
-            if (vendors.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok(vendors);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    @Autowired
+    public VendorController(VendorRepository vendorRepository, KafkaProducerService kafkaProducerService) {
+        this.vendorRepository = vendorRepository;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
-    // GET vendor by ID
+    @GetMapping
+    public List<Vendor> getAllVendors() {
+        return vendorRepository.findAll();
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createVendor(@RequestBody Vendor vendor) {
+        try {
+            System.out.println("Received vendor request: " + vendor);
+            
+            // Set default for isActive if not provided
+            if (vendor.getIsActive() == null) {
+                vendor.setIsActive(true);
+            }
+            
+            Vendor savedVendor = vendorRepository.save(vendor);
+            String message = "Vendor created: ID=" + savedVendor.getVendorId() + ", Name=" + savedVendor.getName();
+            kafkaProducerService.sendMessage("vendor-events", message);
+            return ResponseEntity.ok(savedVendor);
+        } catch (Exception e) {
+            System.err.println("Error creating vendor: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error creating vendor: " + e.getMessage());
+        }
+    }
+    
     @GetMapping("/{id}")
     public ResponseEntity<Vendor> getVendorById(@PathVariable Long id) {
-        try {
-            Optional<Vendor> vendor = vendorRepository.findById(id);
-            if (vendor.isPresent()) {
-                return ResponseEntity.ok(vendor.get());
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        Vendor vendor = vendorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Vendor not found with id: " + id));
+        return ResponseEntity.ok(vendor);
     }
 
-    // POST create new vendor
-    @PostMapping
-    public ResponseEntity<Vendor> createVendor(@Valid @RequestBody Vendor vendor) {
-        try {
-            Vendor savedVendor = vendorRepository.save(vendor);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedVendor);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    // PUT update vendor
     @PutMapping("/{id}")
-    public ResponseEntity<Vendor> updateVendor(@PathVariable Long id, @Valid @RequestBody Vendor vendorDetails) {
-        try {
-            Optional<Vendor> optionalVendor = vendorRepository.findById(id);
-            if (optionalVendor.isPresent()) {
-                Vendor vendor = optionalVendor.get();
-                
-                // Update fields
-                vendor.setName(vendorDetails.getName());
-                vendor.setContactInfo(vendorDetails.getContactInfo());
-                vendor.setServiceType(vendorDetails.getServiceType());
-                vendor.setIsActive(vendorDetails.getIsActive());
-                
-                Vendor updatedVendor = vendorRepository.save(vendor);
-                return ResponseEntity.ok(updatedVendor);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<Vendor> updateVendor(@PathVariable Long id, @RequestBody Vendor vendorDetails) {
+        Vendor vendor = vendorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Vendor not found with id: " + id));
+
+        vendor.setName(vendorDetails.getName());
+        vendor.setContactInfo(vendorDetails.getContactInfo());
+        vendor.setServiceType(vendorDetails.getServiceType());
+
+        final Vendor updatedVendor = vendorRepository.save(vendor);
+        String message = "Vendor updated: ID=" + id + ", Name=" + updatedVendor.getName();
+        kafkaProducerService.sendMessage("vendor-events", message);
+        return ResponseEntity.ok(updatedVendor);
     }
 
-    // DELETE vendor
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteVendor(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> deleteVendor(@PathVariable Long id) {
         try {
-            if (vendorRepository.existsById(id)) {
-                vendorRepository.deleteById(id);
-                return ResponseEntity.ok("Vendor deleted successfully");
-            } else {
-                return ResponseEntity.notFound().build();
+            if (!vendorRepository.existsById(id)) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Vendor not found with ID: " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
             }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error deleting vendor: " + e.getMessage());
-        }
-    }
 
-    // GET vendors by service type
-    @GetMapping("/service-type/{serviceType}")
-    public ResponseEntity<List<Vendor>> getVendorsByServiceType(@PathVariable String serviceType) {
-        try {
-            List<Vendor> vendors = vendorRepository.findByServiceType(serviceType);
-            if (vendors.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok(vendors);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+            vendorRepository.deleteById(id);
 
-    // GET active vendors
-    @GetMapping("/active")
-    public ResponseEntity<List<Vendor>> getActiveVendors() {
-        try {
-            List<Vendor> vendors = vendorRepository.findByIsActive(true);
-            if (vendors.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok(vendors);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+            // Publish to Kafka
+            String message = "Vendor deleted: ID=" + id;
+            kafkaProducerService.sendMessage("vendor-events", message);
 
-    // PUT activate/deactivate vendor
-    @PutMapping("/{id}/status")
-    public ResponseEntity<Vendor> updateVendorStatus(@PathVariable Long id, @RequestParam Boolean isActive) {
-        try {
-            Optional<Vendor> optionalVendor = vendorRepository.findById(id);
-            if (optionalVendor.isPresent()) {
-                Vendor vendor = optionalVendor.get();
-                vendor.setIsActive(isActive);
-                Vendor updatedVendor = vendorRepository.save(vendor);
-                return ResponseEntity.ok(updatedVendor);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
+            // Return success response
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Vendor deleted successfully");
+            response.put("vendorId", id);
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error deleting vendor: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 }
