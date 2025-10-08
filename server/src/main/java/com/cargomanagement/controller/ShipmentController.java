@@ -1,39 +1,48 @@
 package com.cargomanagement.controller;
 
 import com.cargomanagement.models.Shipment;
+import com.cargomanagement.models.Delivery;
 import com.cargomanagement.repository.ShipmentRepository;
-import jakarta.validation.Valid;
+import com.cargomanagement.repository.DeliveryRepository;
+import com.cargomanagement.service.KafkaProducerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/shipments")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 public class ShipmentController {
 
-    @Autowired
-    private ShipmentRepository shipmentRepository;
+    private final ShipmentRepository shipmentRepository;
+    private final DeliveryRepository deliveryRepository;
+    private final KafkaProducerService kafkaProducerService;
 
-    // GET all shipments
+    @Autowired
+    public ShipmentController(ShipmentRepository shipmentRepository, 
+                            DeliveryRepository deliveryRepository,
+                            KafkaProducerService kafkaProducerService) {
+        this.shipmentRepository = shipmentRepository;
+        this.deliveryRepository = deliveryRepository;
+        this.kafkaProducerService = kafkaProducerService;
+    }
+
     @GetMapping
     public ResponseEntity<List<Shipment>> getAllShipments() {
         try {
             List<Shipment> shipments = shipmentRepository.findAll();
-            if (shipments.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
             return ResponseEntity.ok(shipments);
         } catch (Exception e) {
+            System.err.println("Error fetching shipments: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    // GET shipment by ID
     @GetMapping("/{id}")
     public ResponseEntity<Shipment> getShipmentById(@PathVariable Long id) {
         try {
@@ -44,75 +53,133 @@ public class ShipmentController {
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
+            System.err.println("Error fetching shipment: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    // POST create new shipment
     @PostMapping
-    public ResponseEntity<Shipment> createShipment(@Valid @RequestBody Shipment shipment) {
+    public ResponseEntity<Shipment> createShipment(@RequestBody Shipment shipment) {
         try {
+            System.out.println("Received shipment: " + shipment);
             Shipment savedShipment = shipmentRepository.save(shipment);
+            
+            // Publish Kafka event
+            String message = "Shipment created: ID=" + savedShipment.getShipmentId() + 
+                           ", Origin=" + savedShipment.getOrigin() + 
+                           ", Destination=" + savedShipment.getDestination();
+            kafkaProducerService.sendMessage("shipment-events", message);
+            
             return ResponseEntity.status(HttpStatus.CREATED).body(savedShipment);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            System.err.println("Error creating shipment: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
-    // PUT update shipment
     @PutMapping("/{id}")
-    public ResponseEntity<Shipment> updateShipment(@PathVariable Long id, @Valid @RequestBody Shipment shipmentDetails) {
+    public ResponseEntity<Shipment> updateShipment(@PathVariable Long id, @RequestBody Shipment shipmentDetails) {
         try {
-            Optional<Shipment> optionalShipment = shipmentRepository.findById(id);
-            if (optionalShipment.isPresent()) {
-                Shipment shipment = optionalShipment.get();
+            Optional<Shipment> existingShipment = shipmentRepository.findById(id);
+            if (existingShipment.isPresent()) {
+                Shipment shipment = existingShipment.get();
+                String oldStatus = shipment.getStatus(); // Store old status
                 
-                // Update fields
                 shipment.setOrigin(shipmentDetails.getOrigin());
                 shipment.setDestination(shipmentDetails.getDestination());
                 shipment.setStatus(shipmentDetails.getStatus());
                 shipment.setEstimatedDelivery(shipmentDetails.getEstimatedDelivery());
-                shipment.setAssignedRoute(shipmentDetails.getAssignedRoute());
-                shipment.setAssignedVendor(shipmentDetails.getAssignedVendor());
-                shipment.setShipmentCode(shipmentDetails.getShipmentCode());
+                
+                // Set route and vendor if provided
+                if (shipmentDetails.getAssignedRoute() != null) {
+                    shipment.setAssignedRoute(shipmentDetails.getAssignedRoute());
+                }
+                if (shipmentDetails.getAssignedVendor() != null) {
+                    shipment.setAssignedVendor(shipmentDetails.getAssignedVendor());
+                }
                 
                 Shipment updatedShipment = shipmentRepository.save(shipment);
+
+                // Automatically create delivery record when shipment status changes to "Delivered"
+                if ("Delivered".equals(shipmentDetails.getStatus()) && 
+                    !"Delivered".equals(oldStatus)) {
+                    
+                    // Check if delivery record already exists for this shipment
+                    boolean deliveryExists = deliveryRepository.findAll().stream()
+                        .anyMatch(d -> d.getShipment() != null && 
+                                      d.getShipment().getShipmentId().equals(id));
+                    
+                    if (!deliveryExists) {
+                        Delivery delivery = new Delivery();
+                        delivery.setShipment(updatedShipment);
+                        // Convert LocalDate to LocalDateTime (start of day)
+                        delivery.setActualDeliveryDate(updatedShipment.getEstimatedDelivery().atStartOfDay());
+                        delivery.setRecipient("Customer at " + updatedShipment.getDestination());
+                        deliveryRepository.save(delivery);
+                    }
+                }
+
+                // Note: For now, shipment updates work normally
+                // Delivery synchronization is handled by the improved DeliveryController.getAllDeliveries() method
+                // which filters deliveries to only show those with "Delivered" status
+
+                // Publish Kafka event
+                String message = "Shipment updated: ID=" + id + ", Status=" + updatedShipment.getStatus();
+                kafkaProducerService.sendMessage("shipment-events", message);
+                
                 return ResponseEntity.ok(updatedShipment);
             } else {
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            System.err.println("Error updating shipment: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
-    // DELETE shipment
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteShipment(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> deleteShipment(@PathVariable Long id) {
         try {
-            if (shipmentRepository.existsById(id)) {
-                shipmentRepository.deleteById(id);
-                return ResponseEntity.ok("Shipment deleted successfully");
-            } else {
-                return ResponseEntity.notFound().build();
+            if (!shipmentRepository.existsById(id)) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Shipment not found with ID: " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
             }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error deleting shipment: " + e.getMessage());
-        }
-    }
 
-    // GET shipments by status
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<Shipment>> getShipmentsByStatus(@PathVariable String status) {
-        try {
-            List<Shipment> shipments = shipmentRepository.findByStatus(status);
-            if (shipments.isEmpty()) {
-                return ResponseEntity.noContent().build();
+            // Delete associated deliveries first (to avoid foreign key constraint violation)
+            List<Delivery> associatedDeliveries = deliveryRepository.findAll().stream()
+                .filter(d -> d.getShipment() != null && d.getShipment().getShipmentId().equals(id))
+                .toList();
+            
+            if (!associatedDeliveries.isEmpty()) {
+                deliveryRepository.deleteAll(associatedDeliveries);
+                System.out.println("Deleted " + associatedDeliveries.size() + " associated delivery records");
             }
-            return ResponseEntity.ok(shipments);
+
+            // Now delete the shipment (cargo will be cascaded automatically)
+            shipmentRepository.deleteById(id);
+
+            // Publish Kafka event
+            String message = "Shipment deleted: ID=" + id;
+            kafkaProducerService.sendMessage("shipment-events", message);
+
+            // Return success response
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Shipment deleted successfully");
+            response.put("shipmentId", id);
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            System.err.println("Error deleting shipment: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error deleting shipment: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 }

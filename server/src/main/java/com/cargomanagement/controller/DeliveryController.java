@@ -2,129 +2,112 @@ package com.cargomanagement.controller;
 
 import com.cargomanagement.models.Delivery;
 import com.cargomanagement.repository.DeliveryRepository;
-import jakarta.validation.Valid;
+import com.cargomanagement.service.KafkaProducerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/deliveries")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 public class DeliveryController {
 
-    @Autowired
-    private DeliveryRepository deliveryRepository;
+    private final DeliveryRepository deliveryRepository;
+    private final KafkaProducerService kafkaProducerService;
 
-    // GET all deliveries
-    @GetMapping
-    public ResponseEntity<List<Delivery>> getAllDeliveries() {
-        try {
-            List<Delivery> deliveries = deliveryRepository.findAll();
-            if (deliveries.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok(deliveries);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    @Autowired
+    public DeliveryController(DeliveryRepository deliveryRepository, KafkaProducerService kafkaProducerService) {
+        this.deliveryRepository = deliveryRepository;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
-    // GET delivery by ID
+    @GetMapping
+    public List<Delivery> getAllDeliveries() {
+        // Only return deliveries where the associated shipment is actually "Delivered"
+        return deliveryRepository.findAll().stream()
+                .filter(delivery -> delivery.getShipment() != null && 
+                        "Delivered".equals(delivery.getShipment().getStatus()))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/cleanup")
+    public ResponseEntity<String> cleanupInconsistentDeliveries() {
+        // Find and remove deliveries where shipment status is not "Delivered"
+        List<Delivery> inconsistentDeliveries = deliveryRepository.findAll().stream()
+                .filter(delivery -> delivery.getShipment() != null && 
+                        !"Delivered".equals(delivery.getShipment().getStatus()))
+                .collect(Collectors.toList());
+        
+        int deletedCount = inconsistentDeliveries.size();
+        deliveryRepository.deleteAll(inconsistentDeliveries);
+        
+        return ResponseEntity.ok("Cleaned up " + deletedCount + " inconsistent delivery records");
+    }
+
+    @PostMapping
+    public Delivery createDelivery(@RequestBody Delivery delivery) {
+        Delivery savedDelivery = deliveryRepository.save(delivery);
+        String message = "Delivery created: ID=" + savedDelivery.getDeliveryId() + ", Recipient=" + savedDelivery.getRecipient();
+        kafkaProducerService.sendMessage("delivery-events", message);
+        return savedDelivery;
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Delivery> getDeliveryById(@PathVariable Long id) {
-        try {
-            Optional<Delivery> delivery = deliveryRepository.findById(id);
-            if (delivery.isPresent()) {
-                return ResponseEntity.ok(delivery.get());
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        Delivery delivery = deliveryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Delivery not found with id: " + id));
+        return ResponseEntity.ok(delivery);
     }
 
-    // POST create new delivery
-    @PostMapping
-    public ResponseEntity<Delivery> createDelivery(@Valid @RequestBody Delivery delivery) {
-        try {
-            Delivery savedDelivery = deliveryRepository.save(delivery);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedDelivery);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    // PUT update delivery
     @PutMapping("/{id}")
-    public ResponseEntity<Delivery> updateDelivery(@PathVariable Long id, @Valid @RequestBody Delivery deliveryDetails) {
-        try {
-            Optional<Delivery> optionalDelivery = deliveryRepository.findById(id);
-            if (optionalDelivery.isPresent()) {
-                Delivery delivery = optionalDelivery.get();
-                
-                // Update fields
-                delivery.setShipment(deliveryDetails.getShipment());
-                delivery.setActualDeliveryDate(deliveryDetails.getActualDeliveryDate());
-                delivery.setRecipient(deliveryDetails.getRecipient());
-                delivery.setStatus(deliveryDetails.getStatus());
-                
-                Delivery updatedDelivery = deliveryRepository.save(delivery);
-                return ResponseEntity.ok(updatedDelivery);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<Delivery> updateDelivery(@PathVariable Long id, @RequestBody Delivery deliveryDetails) {
+        Delivery delivery = deliveryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Delivery not found with id: " + id));
+
+        delivery.setShipment(deliveryDetails.getShipment());
+        delivery.setActualDeliveryDate(deliveryDetails.getActualDeliveryDate());
+        delivery.setRecipient(deliveryDetails.getRecipient());
+
+        final Delivery updatedDelivery = deliveryRepository.save(delivery);
+        String message = "Delivery updated: ID=" + id + ", Recipient=" + updatedDelivery.getRecipient();
+        kafkaProducerService.sendMessage("delivery-events", message);
+        return ResponseEntity.ok(updatedDelivery);
     }
 
-    // DELETE delivery
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteDelivery(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> deleteDelivery(@PathVariable Long id) {
         try {
-            if (deliveryRepository.existsById(id)) {
-                deliveryRepository.deleteById(id);
-                return ResponseEntity.ok("Delivery deleted successfully");
-            } else {
-                return ResponseEntity.notFound().build();
+            if (!deliveryRepository.existsById(id)) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Delivery not found with ID: " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
             }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error deleting delivery: " + e.getMessage());
-        }
-    }
 
-    // GET delivery by shipment ID
-    @GetMapping("/shipment/{shipmentId}")
-    public ResponseEntity<Delivery> getDeliveryByShipmentId(@PathVariable Long shipmentId) {
-        try {
-            Optional<Delivery> delivery = deliveryRepository.findByShipmentShipmentId(shipmentId);
-            if (delivery.isPresent()) {
-                return ResponseEntity.ok(delivery.get());
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+            deliveryRepository.deleteById(id);
 
-    // GET deliveries by status
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<Delivery>> getDeliveriesByStatus(@PathVariable String status) {
-        try {
-            List<Delivery> deliveries = deliveryRepository.findByStatus(status);
-            if (deliveries.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok(deliveries);
+            // Publish to Kafka
+            String message = "Delivery deleted: ID=" + id;
+            kafkaProducerService.sendMessage("delivery-events", message);
+
+            // Return success response
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Delivery deleted successfully");
+            response.put("deliveryId", id);
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error deleting delivery: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 }

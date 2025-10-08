@@ -1,132 +1,145 @@
 package com.cargomanagement.controller;
 
+import com.cargomanagement.dto.CargoCreateRequest;
 import com.cargomanagement.models.Cargo;
+import com.cargomanagement.models.Shipment;
 import com.cargomanagement.repository.CargoRepository;
-import jakarta.validation.Valid;
+import com.cargomanagement.repository.ShipmentRepository;
+import com.cargomanagement.service.KafkaProducerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/cargo")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"}) // Allow frontend access
 public class CargoController {
 
-    @Autowired
-    private CargoRepository cargoRepository;
+    private final CargoRepository cargoRepository;
+    private final ShipmentRepository shipmentRepository;
+    private final KafkaProducerService kafkaProducerService;
 
-    // GET all cargo
+    @Autowired
+    public CargoController(CargoRepository cargoRepository, ShipmentRepository shipmentRepository, KafkaProducerService kafkaProducerService) {
+        this.cargoRepository = cargoRepository;
+        this.shipmentRepository = shipmentRepository;
+        this.kafkaProducerService = kafkaProducerService;
+    }
+
     @GetMapping
-    public ResponseEntity<List<Cargo>> getAllCargo() {
+    public List<Cargo> getAllCargo() {
+        return cargoRepository.findAll();
+    }
+
+    @PostMapping(consumes = "application/json", produces = "application/json")
+    public ResponseEntity<?> createCargo(@RequestBody CargoCreateRequest request) {
         try {
-            List<Cargo> cargoList = cargoRepository.findAll();
-            if (cargoList.isEmpty()) {
-                return ResponseEntity.noContent().build();
+            System.out.println("Received cargo request: " + request);
+            
+            // Create new Cargo entity
+            Cargo cargo = new Cargo();
+            cargo.setType(request.getType());
+            cargo.setWeight(request.getWeight());
+            cargo.setValue(request.getValue());
+            cargo.setVolume(request.getVolume());
+            cargo.setWeightUnit(request.getWeightUnit());
+            cargo.setDescription(request.getDescription());
+            
+            // Handle shipment relationship if provided
+            if (request.getShipmentId() != null) {
+                Shipment shipment = shipmentRepository.findById(request.getShipmentId())
+                    .orElseThrow(() -> new RuntimeException("Shipment not found with id: " + request.getShipmentId()));
+                cargo.setShipment(shipment);
             }
-            return ResponseEntity.ok(cargoList);
+            
+            Cargo savedCargo = cargoRepository.save(cargo);
+            String message = "Cargo created: ID=" + savedCargo.getCargoId() + 
+                           ", Type=" + savedCargo.getType() + 
+                           ", Weight=" + savedCargo.getWeight() + "kg" + 
+                           ", Value=$" + savedCargo.getValue();
+            kafkaProducerService.sendMessage("cargo-events", message);
+            return ResponseEntity.ok(savedCargo);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            System.err.println("Error creating cargo: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error creating cargo: " + e.getMessage());
         }
     }
 
-    // GET cargo by ID
     @GetMapping("/{id}")
     public ResponseEntity<Cargo> getCargoById(@PathVariable Long id) {
-        try {
-            Optional<Cargo> cargo = cargoRepository.findById(id);
-            if (cargo.isPresent()) {
-                return ResponseEntity.ok(cargo.get());
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        Cargo cargo = cargoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cargo not found with id: " + id));
+        return ResponseEntity.ok(cargo);
     }
 
-    // POST create new cargo
-    @PostMapping
-    public ResponseEntity<Cargo> createCargo(@Valid @RequestBody Cargo cargo) {
-        try {
-            Cargo savedCargo = cargoRepository.save(cargo);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedCargo);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    // PUT update cargo
     @PutMapping("/{id}")
-    public ResponseEntity<Cargo> updateCargo(@PathVariable Long id, @Valid @RequestBody Cargo cargoDetails) {
+    public ResponseEntity<?> updateCargo(@PathVariable Long id, @RequestBody CargoCreateRequest request) {
         try {
-            Optional<Cargo> optionalCargo = cargoRepository.findById(id);
-            if (optionalCargo.isPresent()) {
-                Cargo cargo = optionalCargo.get();
-                
-                // Update fields
-                cargo.setShipment(cargoDetails.getShipment());
-                cargo.setType(cargoDetails.getType());
-                cargo.setValue(cargoDetails.getValue());
-                cargo.setDescription(cargoDetails.getDescription());
-                cargo.setWeight(cargoDetails.getWeight());
-                cargo.setVolume(cargoDetails.getVolume());
-                cargo.setWeightUnit(cargoDetails.getWeightUnit());
-                
-                Cargo updatedCargo = cargoRepository.save(cargo);
-                return ResponseEntity.ok(updatedCargo);
+            Cargo cargo = cargoRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Cargo not found with id: " + id));
+
+            // Update all fields
+            cargo.setType(request.getType());
+            cargo.setWeight(request.getWeight());
+            cargo.setValue(request.getValue());
+            cargo.setVolume(request.getVolume());
+            cargo.setWeightUnit(request.getWeightUnit());
+            cargo.setDescription(request.getDescription());
+            
+            // Handle shipment relationship if provided
+            if (request.getShipmentId() != null) {
+                Shipment shipment = shipmentRepository.findById(request.getShipmentId())
+                    .orElseThrow(() -> new RuntimeException("Shipment not found with id: " + request.getShipmentId()));
+                cargo.setShipment(shipment);
             } else {
-                return ResponseEntity.notFound().build();
+                cargo.setShipment(null);
             }
+
+            final Cargo updatedCargo = cargoRepository.save(cargo);
+            String message = "Cargo updated: ID=" + id + ", Type=" + updatedCargo.getType();
+            kafkaProducerService.sendMessage("cargo-events", message);
+            return ResponseEntity.ok(updatedCargo);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            System.err.println("Error updating cargo: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error updating cargo: " + e.getMessage());
         }
     }
 
-    // DELETE cargo
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteCargo(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> deleteCargo(@PathVariable Long id) {
         try {
-            if (cargoRepository.existsById(id)) {
-                cargoRepository.deleteById(id);
-                return ResponseEntity.ok("Cargo deleted successfully");
-            } else {
-                return ResponseEntity.notFound().build();
+            if (!cargoRepository.existsById(id)) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Cargo not found with ID: " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
             }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error deleting cargo: " + e.getMessage());
-        }
-    }
 
-    // GET cargo by shipment ID
-    @GetMapping("/shipment/{shipmentId}")
-    public ResponseEntity<List<Cargo>> getCargoByShipmentId(@PathVariable Long shipmentId) {
-        try {
-            List<Cargo> cargoList = cargoRepository.findByShipmentShipmentId(shipmentId);
-            if (cargoList.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok(cargoList);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+            cargoRepository.deleteById(id);
 
-    // GET cargo by type
-    @GetMapping("/type/{type}")
-    public ResponseEntity<List<Cargo>> getCargoByType(@PathVariable String type) {
-        try {
-            List<Cargo> cargoList = cargoRepository.findByType(type);
-            if (cargoList.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-            return ResponseEntity.ok(cargoList);
+            // Publish to Kafka
+            String message = "Cargo deleted: ID=" + id;
+            kafkaProducerService.sendMessage("cargo-events", message);
+
+            // Return success response with JSON body
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Cargo deleted successfully");
+            response.put("cargoId", id);
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error deleting cargo: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 }
