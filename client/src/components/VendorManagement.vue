@@ -181,7 +181,6 @@
             <span class="text-[16px] font-bold text-[#1F2937]">{{ vendor.activeShipments }}</span>
           </div>
 
-          <!-- Action Button -->
           <div class="flex items-center justify-between">
             <div class="relative">
               <button 
@@ -214,13 +213,32 @@
               </transition>
             </div>
 
-            <button 
-              @click.stop="openVendorDetails(vendor)"
-              class="flex items-center gap-2 px-3 py-1.5 border border-[#E5E7EB] rounded-lg text-[13px] font-medium text-[#374151] hover:border-[#3B82F6] hover:bg-[#3B82F6] hover:text-white transition-all duration-200"
-            >
-              <Eye class="w-4 h-4" />
-              View Details
-            </button>
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2">
+              <button 
+                @click.stop="editVendor(vendor)"
+                class="flex items-center gap-2 px-3 py-1.5 border border-[#E5E7EB] rounded-lg text-[13px] font-medium text-[#374151] hover:border-[#F59E0B] hover:bg-[#F59E0B] hover:text-white transition-all duration-200"
+                title="Edit Vendor"
+              >
+                <Edit class="w-4 h-4" />
+                Edit
+              </button>
+              <button 
+                @click.stop="promptDeleteVendor(vendor)"
+                class="flex items-center gap-2 px-3 py-1.5 border border-[#E5E7EB] rounded-lg text-[13px] font-medium text-[#374151] hover:border-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all duration-200"
+                title="Delete Vendor"
+              >
+                <Trash2 class="w-4 h-4" />
+                Delete
+              </button>
+              <button 
+                @click.stop="openVendorDetails(vendor)"
+                class="flex items-center gap-2 px-3 py-1.5 border border-[#E5E7EB] rounded-lg text-[13px] font-medium text-[#374151] hover:border-[#3B82F6] hover:bg-[#3B82F6] hover:text-white transition-all duration-200"
+              >
+                <Eye class="w-4 h-4" />
+                View Details
+              </button>
+            </div>
           </div>
         </div>
       </div>

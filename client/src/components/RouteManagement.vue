@@ -324,6 +324,16 @@
         </div>
       </div>
 
+      <!-- Map View -->
+      <div v-if="view === 'map'" class="map-view-container p-6">
+        <RouteMap 
+          :routes="routes" 
+          :filtered-routes="filteredRoutes"
+          @route-clicked="viewRouteDetails"
+          @marker-clicked="handleMarkerClick"
+        />
+      </div>
+
       <!-- Table Content -->
       <div v-if="view === 'table'" class="table-wrapper max-h-[calc(100vh-520px)] overflow-auto">
         <table class="routes-table w-full table-fixed">
@@ -841,6 +851,7 @@
 import { ref, computed, onMounted } from 'vue'
 import BaseModal from './shared/BaseModal.vue'
 import ConfirmDialog from './shared/ConfirmDialog.vue'
+import RouteMap from './shared/RouteMap.vue'
 
 // TypeScript Interfaces
 interface Route {
@@ -1246,6 +1257,14 @@ const viewRouteDetails = (route: Route) => {
 
 const viewRoute = (route: Route) => {
   console.log('View route:', route.id)
+}
+
+const handleMarkerClick = (markerData: any) => {
+  console.log('Marker clicked:', markerData)
+  // Handle marker click logic - could filter routes by location
+  if (markerData.location) {
+    searchQuery.value = markerData.location
+  }
 }
 
 const optimizeRoute = (route: Route) => {
