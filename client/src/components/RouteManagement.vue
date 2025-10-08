@@ -208,7 +208,9 @@
                     <button @click="clearFilters" class="text-xs text-blue-600 hover:text-blue-800">Clear All</button>
                   </div>
                   <div class="space-y-2">
-                    <label v-for="status in ['active', 'delayed', 'inactive']" :key="status" class="flex items-center gap-2 cursor-pointer">
+                    <!-- Updated status filters to match database schema: 'Active', 'Delayed', 'Closed' -->
+                    <!-- Note: 'inactive' replaced with 'Closed' to match database CHECK constraint -->
+                    <label v-for="status in ['Active', 'Delayed', 'Closed']" :key="status" class="flex items-center gap-2 cursor-pointer">
                       <input 
                         type="checkbox" 
                         :value="status" 
@@ -477,17 +479,17 @@
                   >
                     <div class="status-icon w-3.5 h-3.5 flex-shrink-0">
                       <!-- Active Status Icon -->
-                      <svg v-if="route.status === 'active'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <svg v-if="route.status === 'Active'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                         <polyline points="22,4 12,14.01 9,11.01"></polyline>
                       </svg>
                       <!-- Delayed Status Icon -->
-                      <svg v-else-if="route.status === 'delayed'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <svg v-else-if="route.status === 'Delayed'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
                         <line x1="12" y1="9" x2="12" y2="13"></line>
                         <line x1="12" y1="17" x2="12.01" y2="17"></line>
                       </svg>
-                      <!-- Inactive Status Icon -->
+                      <!-- Closed Status Icon (formerly Inactive) -->
                       <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10"></circle>
                         <line x1="10" y1="15" x2="10" y2="9"></line>
@@ -564,8 +566,8 @@
                   <button 
                     class="action-btn optimize flex items-center justify-center gap-1.5 px-3 py-2 border border-gray-300 rounded-lg text-xs font-semibold hover:border-green-500 hover:bg-green-50 hover:text-green-700 transition-all duration-150 flex-shrink-0"
                     @click.stop="optimizeRoute(route)"
-                    :disabled="route.status === 'inactive'"
-                    :class="{ 'opacity-50 cursor-not-allowed': route.status === 'inactive' }"
+                    :disabled="route.status === 'Closed'"
+                    :class="{ 'opacity-50 cursor-not-allowed': route.status === 'Closed' }"
                   >
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
@@ -856,7 +858,8 @@ interface Route {
   }
   duration: number // in hours
   distance: number // in km
-  status: 'active' | 'delayed' | 'inactive'
+  // Updated to match database schema route status values
+  status: 'Active' | 'Delayed' | 'Closed'
   activeShipments: number
   efficiencyScore: number // percentage
   routeType: 'express' | 'standard' | 'priority'
@@ -918,7 +921,8 @@ const routeForm = ref({
   duration: 0,
   distance: 0,
   routeType: 'standard' as 'express' | 'standard' | 'priority',
-  status: 'active' as 'active' | 'delayed' | 'inactive'
+  // Updated to match database schema route status values  
+  status: 'Active' as 'Active' | 'Delayed' | 'Closed'
 })
 
 // Available options
@@ -934,7 +938,7 @@ const statusOptions = [
   { value: 'inactive', label: 'Inactive' }
 ]
 
-// Mock Data
+// Mock Data - Updated status values to match database schema
 const routes = ref<Route[]>([
   {
     id: 'RT001',
@@ -943,7 +947,7 @@ const routes = ref<Route[]>([
     destination: { location: 'Chennai', port: 'Chennai Port' },
     duration: 48,
     distance: 1350,
-    status: 'active',
+    status: 'Active', // Updated from 'active' to match DB schema
     activeShipments: 3,
     efficiencyScore: 94,
     routeType: 'express',
@@ -956,7 +960,7 @@ const routes = ref<Route[]>([
     destination: { location: 'Kolkata', port: 'Kolkata Port' },
     duration: 36,
     distance: 1480,
-    status: 'active',
+    status: 'Active', // Updated from 'active' to match DB schema
     activeShipments: 2,
     efficiencyScore: 87,
     routeType: 'express',
@@ -969,7 +973,7 @@ const routes = ref<Route[]>([
     destination: { location: 'Hyderabad', port: 'Hyderabad Hub' },
     duration: 24,
     distance: 570,
-    status: 'delayed',
+    status: 'Delayed', // Updated from 'delayed' to match DB schema
     activeShipments: 1,
     efficiencyScore: 73,
     routeType: 'standard',
@@ -982,7 +986,7 @@ const routes = ref<Route[]>([
     destination: { location: 'Goa', port: 'Mormugao Port' },
     duration: 18,
     distance: 450,
-    status: 'inactive',
+    status: 'Closed', // Updated from 'inactive' to 'Closed' to match DB schema
     activeShipments: 0,
     efficiencyScore: 0,
     routeType: 'standard',
@@ -1222,12 +1226,18 @@ const getEfficiencyTextColor = (score: number): string => {
 }
 
 const getStatusBadgeClass = (status: string): string => {
+  // Updated to match database schema status values (proper case)
+  // Added mapping for backward compatibility with any legacy lowercase values
   const classes = {
-    active: 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-l-4 border-green-500 shadow-sm',
-    delayed: 'bg-gradient-to-r from-red-50 to-rose-50 text-red-800 border-l-4 border-red-500 shadow-sm animate-pulse',
-    inactive: 'bg-gradient-to-r from-gray-50 to-slate-50 text-gray-600 border-l-4 border-gray-400 shadow-sm'
+    'Active': 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-l-4 border-green-500 shadow-sm',
+    'Delayed': 'bg-gradient-to-r from-red-50 to-rose-50 text-red-800 border-l-4 border-red-500 shadow-sm animate-pulse',
+    'Closed': 'bg-gradient-to-r from-gray-50 to-slate-50 text-gray-600 border-l-4 border-gray-400 shadow-sm',
+    // Legacy mappings for backward compatibility (remove after full migration)
+    'active': 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-l-4 border-green-500 shadow-sm',
+    'delayed': 'bg-gradient-to-r from-red-50 to-rose-50 text-red-800 border-l-4 border-red-500 shadow-sm animate-pulse',
+    'inactive': 'bg-gradient-to-r from-gray-50 to-slate-50 text-gray-600 border-l-4 border-gray-400 shadow-sm'
   }
-  return classes[status as keyof typeof classes] || classes.inactive
+  return classes[status as keyof typeof classes] || classes['Closed']
 }
 
 const viewRouteDetails = (route: Route) => {
@@ -1247,7 +1257,7 @@ const bulkOptimize = () => {
   // Simulate optimization
   selectedRoutes.value.forEach(routeId => {
     const route = routes.value.find(r => r.id === routeId)
-    if (route && route.status !== 'inactive') {
+    if (route && route.status !== 'Closed') { // Updated from 'inactive' to 'Closed'
       route.efficiencyScore = Math.min(100, route.efficiencyScore + Math.floor(Math.random() * 10) + 5)
       route.lastOptimized = new Date()
     }
@@ -1290,7 +1300,7 @@ const openCreateRouteModal = () => {
     duration: 0,
     distance: 0,
     routeType: 'standard',
-    status: 'active'
+    status: 'Active' // Updated from 'active' to match DB schema
   }
   showCreateRouteModal.value = true
 }
@@ -1342,7 +1352,7 @@ const saveRoute = async () => {
       routes.value.unshift(newRoute)
       // Update metrics
       metrics.value.totalRoutes++
-      if (newRoute.status === 'active') {
+      if (newRoute.status === 'Active') { // Updated from 'active' to 'Active'
         metrics.value.activeRoutes++
       }
       metrics.value.totalDistance += newRoute.distance
@@ -1387,7 +1397,7 @@ const handleConfirmDelete = () => {
     
     // Update metrics
     metrics.value.totalRoutes--
-    if (routeToDelete.value.status === 'active') {
+    if (routeToDelete.value.status === 'Active') { // Updated from 'active' to 'Active'
       metrics.value.activeRoutes--
     }
     metrics.value.totalDistance -= routeToDelete.value.distance
