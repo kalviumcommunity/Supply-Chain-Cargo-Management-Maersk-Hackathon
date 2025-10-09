@@ -1,5 +1,5 @@
 <template>
-  <div class="route-management-page bg-[#F5F5F7] min-h-screen p-10">
+  <div class="route-management-page bg-[#F5F5F7] min-h-screen p-6">
     <!-- Page Header -->
     <header class="page-header flex justify-between items-center mb-6">
       <div class="header-left flex items-center gap-4">
