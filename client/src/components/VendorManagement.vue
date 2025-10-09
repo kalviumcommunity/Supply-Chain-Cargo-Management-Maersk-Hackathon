@@ -20,6 +20,40 @@
       </button>
     </div>
 
+    <!-- Error State -->
+    <div v-if="error" class="bg-red-50 border border-red-200 rounded-2xl p-6 mb-8">
+      <div class="flex items-center gap-3">
+        <div class="w-6 h-6 text-red-600">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-red-800 font-semibold">Error Loading Data</h3>
+          <p class="text-red-600 text-sm">{{ error }}</p>
+        </div>
+        <button 
+          @click="loadVendors"
+          class="ml-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div v-if="isLoadingData" class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-8">
+      <div class="flex items-center justify-center gap-3">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <p class="text-gray-600">Loading vendor data...</p>
+      </div>
+    </div>
+
+    <!-- Main Content - Only show when not loading and no error -->
+    <div v-if="!isLoadingData && !error">
+
     <!-- Metrics Cards Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
       <div 
@@ -720,6 +754,7 @@
       @confirm="handleConfirmDeleteVendor"
       @cancel="cancelDeleteVendor"
     />
+    </div> <!-- End of main content conditional -->
   </div>
 </template>
 
@@ -734,6 +769,7 @@ import {
 
 import BaseModal from './shared/BaseModal.vue'
 import ConfirmDialog from './shared/ConfirmDialog.vue'
+import { vendorApi } from '../services/api.js'
 
 // Reactive data
 const showAddVendorModal = ref(false)
@@ -752,6 +788,10 @@ const isEditMode = ref(false)
 // Delete Confirmation State
 const showDeleteConfirm = ref(false)
 const vendorToDelete = ref(null)
+
+// API State Management
+const isLoadingData = ref(true)
+const error = ref(null)
 
 // Form Data
 const vendorForm = ref({
@@ -827,7 +867,13 @@ const vendorMetrics = reactive([
 ])
 
 // Sample Vendor Data
-const vendors = reactive([
+// Vendors data - loaded from backend API
+const vendors = reactive([])
+
+// ===== MOCK DATA - COMMENTED OUT =====
+// Mock vendor data - replaced with API calls
+/*
+const vendorsMock = [
   {
     id: 'VEN001',
     name: 'Express Logistics Co.',
@@ -880,7 +926,8 @@ const vendors = reactive([
     activeShipments: 5,
     status: 'Pending'
   }
-])
+]
+*/
 
 // Quick Actions configuration
 const quickActions = [
@@ -1079,13 +1126,8 @@ const saveVendor = async () => {
     return
   }
 
-  isLoading.value = true
-
   try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    const newVendor = {
+    const vendorData = {
       id: vendorForm.value.id,
       name: vendorForm.value.name,
       logo: null,
@@ -1100,19 +1142,17 @@ const saveVendor = async () => {
     }
 
     if (isEditMode.value) {
-      const index = vendors.findIndex(v => v.id === vendorForm.value.id)
-      if (index !== -1) {
-        vendors[index] = { ...vendors[index], ...newVendor }
-      }
+      // Update existing vendor via API
+      await updateVendor(vendorForm.value.id, vendorData)
     } else {
-      vendors.unshift(newVendor)
+      // Create new vendor via API
+      await createVendor(vendorData)
     }
 
     closeCreateVendorModal()
-  } catch (error) {
-    console.error('Error saving vendor:', error)
-  } finally {
-    isLoading.value = false
+  } catch (err) {
+    // Error is already handled in the API functions
+    // Modal remains open so user can retry
   }
 }
 
@@ -1135,13 +1175,15 @@ const promptDeleteVendor = (vendor) => {
   showDeleteConfirm.value = true
 }
 
-const handleConfirmDeleteVendor = () => {
+const handleConfirmDeleteVendor = async () => {
   if (vendorToDelete.value) {
-    const index = vendors.findIndex(v => v.id === vendorToDelete.value.id)
-    if (index !== -1) {
-      vendors.splice(index, 1)
+    try {
+      // Delete vendor via API
+      await deleteVendor(vendorToDelete.value.id)
+      console.log(`Successfully deleted vendor: ${vendorToDelete.value.id}`)
+    } catch (err) {
+      // Error is already handled in the API function
     }
-    console.log(`Successfully deleted vendor: ${vendorToDelete.value.id}`)
   }
   cancelDeleteVendor()
 }
@@ -1166,10 +1208,97 @@ const handleClickOutside = () => {
   showQuickActions.value = null
 }
 
+// ===== API FUNCTIONS =====
+// Load vendor data from backend
+const loadVendors = async () => {
+  try {
+    isLoadingData.value = true
+    error.value = null
+    const response = await vendorApi.getAll()
+    
+    // Clear existing vendors and add new ones
+    vendors.splice(0, vendors.length)
+    if (response && Array.isArray(response)) {
+      // Transform backend data to frontend format
+      const transformedVendors = response.map(vendor => ({
+        id: `VD${String(vendor.vendorId).padStart(3, '0')}`,
+        name: vendor.name,
+        email: vendor.email,
+        phone: vendor.phone,
+        rating: vendor.rating || 4.5,
+        logo: vendor.logo || null,
+        address: vendor.address || '',
+        contactPerson: vendor.contactPerson || '',
+        specialties: vendor.specialties ? vendor.specialties.split(',') : [],
+        // Keep original backend data for API operations
+        _original: vendor
+      }))
+      vendors.push(...transformedVendors)
+    }
+  } catch (err) {
+    error.value = 'Failed to load vendor data. Please try again.'
+    console.error('Error loading vendors:', err)
+  } finally {
+    isLoadingData.value = false
+  }
+}
+
+// Create new vendor
+const createVendor = async (vendorData) => {
+  try {
+    isLoading.value = true
+    const newVendor = await vendorApi.create(vendorData)
+    vendors.push(newVendor)
+    return newVendor
+  } catch (err) {
+    error.value = 'Failed to create vendor. Please try again.'
+    console.error('Error creating vendor:', err)
+    throw err
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Update existing vendor
+const updateVendor = async (id, vendorData) => {
+  try {
+    isLoading.value = true
+    const updatedVendor = await vendorApi.update(id, vendorData)
+    const index = vendors.findIndex(v => v.id === id)
+    if (index !== -1) {
+      Object.assign(vendors[index], updatedVendor)
+    }
+    return updatedVendor
+  } catch (err) {
+    error.value = 'Failed to update vendor. Please try again.'
+    console.error('Error updating vendor:', err)
+    throw err
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Delete vendor
+const deleteVendor = async (id) => {
+  try {
+    await vendorApi.delete(id)
+    const index = vendors.findIndex(v => v.id === id)
+    if (index !== -1) {
+      vendors.splice(index, 1)
+    }
+  } catch (err) {
+    error.value = 'Failed to delete vendor. Please try again.'
+    console.error('Error deleting vendor:', err)
+    throw err
+  }
+}
+
 // Event listeners
 onMounted(() => {
   document.addEventListener('keydown', handleEscapeKey)
   document.addEventListener('click', handleClickOutside)
+  // Load vendors when component mounts
+  loadVendors()
 })
 
 onUnmounted(() => {
