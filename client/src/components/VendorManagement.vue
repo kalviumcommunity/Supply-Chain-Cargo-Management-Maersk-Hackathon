@@ -129,7 +129,6 @@
             selectedVendor === vendor.id ? 'border-[#3B82F6] ring-2 ring-[#3B82F6]/20' : '',
             vendor.rating >= 4.8 ? 'border-[#F59E0B] border-2' : ''
           ]"
-          @click="handleVendorClick(vendor)"
         >
           <!-- Premium Partner Ribbon -->
           <div 
@@ -159,7 +158,10 @@
               </div>
 
               <!-- Vendor Name -->
-              <h3 class="text-[18px] font-semibold text-[#1E293B] leading-tight mb-1 group-hover:text-[#3B82F6] transition-colors">
+              <h3 
+                class="text-[18px] font-semibold text-[#1E293B] leading-tight mb-1 group-hover:text-[#3B82F6] transition-colors cursor-pointer"
+                @click="handleVendorClick(vendor)"
+              >
                 {{ vendor.name }}
               </h3>
 
@@ -219,7 +221,8 @@
             <div class="relative">
               <button 
                 @click.stop="toggleQuickActions(vendor.id)"
-                class="p-2 rounded-lg hover:bg-[#F3F4F6] transition-colors"
+                class="p-2 rounded-lg hover:bg-[#F3F4F6] transition-colors z-10 relative"
+                type="button"
               >
                 <MoreHorizontal class="w-4 h-4 text-[#6B7280]" />
               </button>
@@ -228,7 +231,7 @@
               <transition name="dropdown">
                 <div 
                   v-if="showQuickActions === vendor.id" 
-                  class="absolute bottom-full left-0 mb-2 w-48 bg-white rounded-lg shadow-lg border border-[#E5E7EB] py-2 z-10"
+                  class="absolute bottom-full left-0 mb-2 w-48 bg-white rounded-lg shadow-lg border border-[#E5E7EB] py-2 z-50"
                   @click.stop
                 >
                   <button 
@@ -239,6 +242,7 @@
                       'w-full px-3 py-2 text-left text-sm hover:bg-[#F9FAFB] transition-colors flex items-center gap-2',
                       action.danger ? 'text-[#EF4444] hover:bg-[#FEF2F2]' : 'text-[#374151]'
                     ]"
+                    type="button"
                   >
                     <component :is="action.icon" class="w-4 h-4" />
                     {{ action.label }}
@@ -248,26 +252,40 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 mt-2" @click.stop>
+              <!-- Test Button -->
               <button 
-                @click.stop="editVendor(vendor)"
-                class="flex items-center gap-2 px-3 py-1.5 border border-[#E5E7EB] rounded-lg text-[13px] font-medium text-[#374151] hover:border-[#F59E0B] hover:bg-[#F59E0B] hover:text-white transition-all duration-200"
+                @click.prevent.stop="testButtonClick(vendor)"
+                class="flex items-center gap-2 px-3 py-2 border border-green-500 rounded-lg text-[13px] font-medium text-green-600 hover:bg-green-500 hover:text-white transition-all duration-200 z-20 relative shadow-sm hover:shadow-md cursor-pointer"
+                title="Test Button"
+                type="button"
+              >
+                ✓ Test
+              </button>
+              
+              <button 
+                @click.prevent.stop="editVendor(vendor)"
+                class="flex items-center gap-2 px-3 py-2 border border-[#E5E7EB] rounded-lg text-[13px] font-medium text-[#374151] hover:border-[#F59E0B] hover:bg-[#F59E0B] hover:text-white transition-all duration-200 z-20 relative shadow-sm hover:shadow-md cursor-pointer"
                 title="Edit Vendor"
+                type="button"
               >
                 <Edit class="w-4 h-4" />
                 Edit
               </button>
               <button 
-                @click.stop="promptDeleteVendor(vendor)"
-                class="flex items-center gap-2 px-3 py-1.5 border border-[#E5E7EB] rounded-lg text-[13px] font-medium text-[#374151] hover:border-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all duration-200"
+                @click.prevent.stop="promptDeleteVendor(vendor)"
+                class="flex items-center gap-2 px-3 py-2 border border-[#E5E7EB] rounded-lg text-[13px] font-medium text-[#374151] hover:border-[#EF4444] hover:bg-[#EF4444] hover:text-white transition-all duration-200 z-20 relative shadow-sm hover:shadow-md cursor-pointer"
                 title="Delete Vendor"
+                type="button"
               >
                 <Trash2 class="w-4 h-4" />
                 Delete
               </button>
               <button 
-                @click.stop="openVendorDetails(vendor)"
-                class="flex items-center gap-2 px-3 py-1.5 border border-[#E5E7EB] rounded-lg text-[13px] font-medium text-[#374151] hover:border-[#3B82F6] hover:bg-[#3B82F6] hover:text-white transition-all duration-200"
+                @click.prevent.stop="openVendorDetails(vendor)"
+                class="flex items-center gap-2 px-3 py-2 border border-[#E5E7EB] rounded-lg text-[13px] font-medium text-[#374151] hover:border-[#3B82F6] hover:bg-[#3B82F6] hover:text-white transition-all duration-200 z-20 relative shadow-sm hover:shadow-md cursor-pointer"
+                title="View Details"
+                type="button"
               >
                 <Eye class="w-4 h-4" />
                 View Details
@@ -1057,6 +1075,12 @@ const getEventDotColor = (type) => {
   }
 }
 
+// Test function to verify clicking works
+const testButtonClick = (vendor) => {
+  console.log('TEST BUTTON CLICKED FOR VENDOR:', vendor.name)
+  alert(`Test button clicked for ${vendor.name}!`)
+}
+
 // Event handlers
 const handleVendorClick = (vendor) => {
   selectedVendor.value = selectedVendor.value === vendor.id ? null : vendor.id
@@ -1095,9 +1119,21 @@ const handleQuickAction = (action, vendor) => {
 }
 
 const openVendorDetails = (vendor) => {
-  selectedVendorDetails.value = vendor
-  showVendorDetails.value = true
-  activeDetailTab.value = 'overview'
+  try {
+    console.log('View Details button clicked! Opening vendor details for:', vendor)
+    if (!vendor) {
+      console.error('No vendor provided to openVendorDetails function')
+      return
+    }
+    
+    selectedVendorDetails.value = vendor
+    showVendorDetails.value = true
+    activeDetailTab.value = 'overview'
+    console.log('Vendor details modal should now be visible, showVendorDetails:', showVendorDetails.value)
+  } catch (error) {
+    console.error('Error in openVendorDetails:', error)
+    alert('Error opening vendor details: ' + error.message)
+  }
 }
 
 const closeVendorDetails = () => {
@@ -1131,8 +1167,10 @@ const closeCreateVendorModal = () => {
 }
 
 const saveVendor = async () => {
+  console.log('Saving vendor:', vendorForm.value)
   if (!vendorForm.value.name || !vendorForm.value.serviceType || 
       !vendorForm.value.contactPhone || !vendorForm.value.contactEmail) {
+    alert('Please fill in all required fields')
     return
   }
 
@@ -1167,22 +1205,47 @@ const saveVendor = async () => {
 }
 
 const editVendor = (vendor) => {
-  isEditMode.value = true
-  vendorForm.value = {
-    id: vendor.id,
-    name: vendor.name,
-    serviceType: vendor.serviceType,
-    contactPhone: vendor.contact.phone,
-    contactEmail: vendor.contact.email,
-    rating: vendor.rating,
-    status: vendor.status
+  try {
+    console.log('Edit button clicked! Editing vendor:', vendor)
+    if (!vendor) {
+      console.error('No vendor provided to edit function')
+      return
+    }
+    
+    isEditMode.value = true
+    vendorForm.value = {
+      id: vendor.id,
+      name: vendor.name,
+      serviceType: vendor.serviceType,
+      contactPhone: vendor.contact?.phone || '',
+      contactEmail: vendor.contact?.email || '',
+      rating: vendor.rating || 5.0,
+      status: vendor.status || 'Active'
+    }
+    console.log('Vendor form data set to:', vendorForm.value)
+    showCreateVendorModal.value = true
+    console.log('Edit modal should now be visible, isEditMode:', isEditMode.value)
+  } catch (error) {
+    console.error('Error in editVendor:', error)
+    alert('Error opening edit form: ' + error.message)
   }
-  showCreateVendorModal.value = true
 }
 
 const promptDeleteVendor = (vendor) => {
-  vendorToDelete.value = vendor
-  showDeleteConfirm.value = true
+  try {
+    console.log('Delete button clicked! Prompting delete for vendor:', vendor)
+    if (!vendor) {
+      console.error('No vendor provided to delete function')
+      return
+    }
+    
+    vendorToDelete.value = vendor
+    showDeleteConfirm.value = true
+    console.log('Delete confirmation dialog should now be visible')
+  } catch (error) {
+    console.error('Error in promptDeleteVendor:', error)
+    alert('Error opening delete confirmation: ' + error.message)
+  }
 }
 
 const handleConfirmDeleteVendor = async () => {

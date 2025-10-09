@@ -173,62 +173,155 @@
         <p class="text-sm text-gray-600 mt-1">{{ filteredCargo.length }} items</p>
       </div>
 
-      <!-- Table -->
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cargo ID</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shipment</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Weight</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="cargo in filteredCargo" :key="cargo.id" class="hover:bg-gray-50 transition-colors duration-150">
-              <td class="px-6 py-4 text-sm font-mono font-medium text-gray-900">{{ cargo.id }}</td>
-              <td class="px-6 py-4">
-                <div class="text-sm font-medium text-gray-900">{{ cargo.shipmentId }}</div>
-                <div class="text-xs text-gray-500">{{ cargo.shipmentRoute.origin }} → {{ cargo.shipmentRoute.destination }}</div>
-              </td>
-              <td class="px-6 py-4">
-                <span :class="getTypeBadgeClass(cargo.type)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
-                  {{ cargo.type }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-sm font-medium text-gray-900">₹{{ formatNumber(cargo.value) }}</td>
-              <td class="px-6 py-4 text-sm text-gray-500">{{ cargo.weight }} kg</td>
-              <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{{ cargo.description }}</td>
-              <td class="px-6 py-4">
-                <div class="flex items-center space-x-2">
-                  <!-- Edit button - opens cargo in edit mode -->
-                  <button @click="editCargo(cargo)" 
-                          class="text-blue-600 hover:text-blue-800 transition-colors duration-150"
-                          :title="`Edit cargo ${cargo.id}`">
-                    <Pencil class="w-4 h-4" />
-                  </button>
-                  <!-- FIX: Delete button now uses custom confirmation dialog instead of window.confirm -->
-                  <!-- .stop prevents event bubbling to parent row -->
-                  <button @click.stop="promptDeleteCargo(cargo)" 
-                          class="text-red-600 hover:text-red-800 transition-colors duration-150"
-                          :title="`Delete cargo ${cargo.id}`">
-                    <Trash2 class="w-4 h-4" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Desktop Table View -->
+      <div class="hidden lg:block overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50 sticky top-0">
+              <tr>
+                <th class="p-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[120px]">Cargo ID</th>
+                <th class="p-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[180px]">Shipment</th>
+                <th class="p-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[100px]">Type</th>
+                <th class="p-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[100px]">Value</th>
+                <th class="p-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[80px]">Weight</th>
+                <th class="p-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[200px]">Description</th>
+                <th class="p-3 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider min-w-[120px]">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <tr v-for="cargo in filteredCargo" :key="cargo.id" class="hover:bg-gray-50 transition-colors duration-150">
+                
+                <!-- Cargo ID -->
+                <td class="p-3">
+                  <span class="font-mono text-sm font-medium text-gray-900">{{ cargo.id }}</span>
+                </td>
 
-        <!-- Empty State -->
-        <div v-if="filteredCargo.length === 0" class="text-center py-12">
-          <Package class="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <p class="text-gray-500 font-medium mb-2">No cargo found</p>
-          <p class="text-gray-400 text-sm">{{ searchQuery ? 'Try adjusting your search' : 'Add your first cargo item to get started' }}</p>
+                <!-- Shipment -->
+                <td class="p-3">
+                  <div class="text-sm">
+                    <div class="font-medium text-gray-900">{{ cargo.shipmentId }}</div>
+                    <div class="text-gray-500 text-xs">{{ cargo.shipmentRoute.origin }} → {{ cargo.shipmentRoute.destination }}</div>
+                  </div>
+                </td>
+
+                <!-- Type -->
+                <td class="p-3">
+                  <span :class="getTypeBadgeClass(cargo.type)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                    {{ cargo.type }}
+                  </span>
+                </td>
+
+                <!-- Value -->
+                <td class="p-3">
+                  <span class="text-sm font-medium text-gray-900">₹{{ formatNumber(cargo.value) }}</span>
+                </td>
+
+                <!-- Weight -->
+                <td class="p-3">
+                  <span class="text-sm text-gray-600">{{ cargo.weight }} kg</span>
+                </td>
+
+                <!-- Description -->
+                <td class="p-3">
+                  <span class="text-sm text-gray-600 max-w-xs truncate block" :title="cargo.description">{{ cargo.description }}</span>
+                </td>
+
+                <!-- Actions -->
+                <td class="p-3">
+                  <div class="flex items-center justify-center gap-1">
+                    <button 
+                      @click="editCargo(cargo)" 
+                      class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200"
+                      :title="`Edit cargo ${cargo.id}`"
+                    >
+                      <Pencil class="w-4 h-4" />
+                    </button>
+                    <button 
+                      @click.stop="promptDeleteCargo(cargo)" 
+                      class="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-200"
+                      :title="`Delete cargo ${cargo.id}`"
+                    >
+                      <Trash2 class="w-4 h-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>
+
+      <!-- Mobile/Tablet Card View -->
+      <div class="block lg:hidden space-y-4 p-4">
+        <div
+          v-for="cargo in filteredCargo"
+          :key="cargo.id"
+          class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+        >
+          <!-- Header with ID and Type -->
+          <div class="flex items-center justify-between mb-3">
+            <div class="font-mono font-bold text-gray-900">{{ cargo.id }}</div>
+            <span :class="getTypeBadgeClass(cargo.type)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+              {{ cargo.type }}
+            </span>
+          </div>
+
+          <!-- Shipment Info -->
+          <div class="mb-3 p-3 bg-gray-50 rounded-lg">
+            <div class="text-sm font-medium text-gray-900 mb-1">{{ cargo.shipmentId }}</div>
+            <div class="text-xs text-gray-500">{{ cargo.shipmentRoute.origin }} → {{ cargo.shipmentRoute.destination }}</div>
+          </div>
+
+          <!-- Value and Weight Grid -->
+          <div class="grid grid-cols-2 gap-4 mb-3">
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+              <div class="text-sm font-semibold text-gray-900">₹{{ formatNumber(cargo.value) }}</div>
+              <div class="text-xs text-gray-500">Value</div>
+            </div>
+            <div class="text-center p-3 bg-gray-50 rounded-lg">
+              <div class="text-sm font-semibold text-gray-900">{{ cargo.weight }} kg</div>
+              <div class="text-xs text-gray-500">Weight</div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-4">
+            <div class="text-xs text-gray-500 mb-1">Description</div>
+            <div class="text-sm text-gray-700">{{ cargo.description }}</div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center justify-end gap-2">
+            <button 
+              @click="editCargo(cargo)"
+              class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+              :title="`Edit cargo ${cargo.id}`"
+            >
+              <Pencil class="w-4 h-4" />
+            </button>
+            <button 
+              @click.stop="promptDeleteCargo(cargo)"
+              class="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+              :title="`Delete cargo ${cargo.id}`"
+            >
+              <Trash2 class="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-if="filteredCargo.length === 0" class="flex flex-col items-center justify-center py-16">
+        <Package class="w-16 h-16 text-gray-300 mb-4" />
+        <p class="text-lg font-medium text-gray-500 mb-2">No cargo found</p>
+        <p class="text-gray-400 mb-6">{{ searchQuery ? 'Try adjusting your search' : 'Add your first cargo item to get started' }}</p>
+        <button 
+          @click="addNewCargo"
+          class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200"
+        >
+          <Plus class="w-5 h-5" />
+          Add Cargo
+        </button>
       </div>
     </div>
 
