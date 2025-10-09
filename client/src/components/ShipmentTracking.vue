@@ -20,6 +20,35 @@
       </button>
     </header>
 
+    <!-- Error State -->
+    <div v-if="error" class="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl mb-6">
+      <div class="flex items-center gap-3">
+        <svg class="w-5 h-5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+        <span class="text-red-700 font-medium">{{ error }}</span>
+        <button 
+          @click="loadShipments" 
+          class="ml-auto px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors text-sm font-medium"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div v-if="isLoading" class="flex items-center justify-center py-20">
+      <div class="flex flex-col items-center gap-4">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <p class="text-gray-600 font-medium">Loading shipments...</p>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div v-else>
+
     <!-- Quick Stats Banner -->
     <div class="bg-gradient-to-r from-[#F0F9FF] to-[#E0F2FE] border-l-4 border-[#3B82F6] p-4 rounded-xl">
       <div class="flex items-center gap-6 text-sm font-medium text-[#1E293B]">
@@ -602,11 +631,11 @@
         <button
           type="button"
           @click="saveShipment"
-          :disabled="isLoading"
+          :disabled="isFormLoading"
           class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
         >
-          <div v-if="isLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-          {{ isLoading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Shipment' : 'Create Shipment') }}
+          <div v-if="isFormLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          {{ isFormLoading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Shipment' : 'Create Shipment') }}
         </button>
       </template>
     </BaseModal>
@@ -622,6 +651,8 @@
       @confirm="handleConfirmDelete"
       @cancel="cancelDelete"
     />
+    
+    </div> <!-- End of v-else content -->
   </div>
 </template>
 
@@ -634,6 +665,7 @@ import {
 } from 'lucide-vue-next'
 import BaseModal from './shared/BaseModal.vue'
 import ConfirmDialog from './shared/ConfirmDialog.vue'
+import { shipmentApi } from '../services/api.js'
 
 // ============================================================================
 // REACTIVE STATE
@@ -649,9 +681,14 @@ const showShipmentModal = ref(false)
 const selectedShipment = ref(null)
 const sortBy = ref('created-desc')
 
+// API State
+const shipments = ref([])
+const isLoading = ref(false)
+const error = ref(null)
+
 // New Shipment Form State
 const showNewShipmentModal = ref(false)
-const isLoading = ref(false)
+const isFormLoading = ref(false)
 const isEditMode = ref(false)
 
 // Delete Confirmation State
@@ -679,54 +716,54 @@ const availableRoutes = [
   'Jaipur → Lucknow'
 ]
 
-// Sample shipment data
-const shipments = ref([
-  {
-    id: 'SH001',
-    route: { origin: 'Mumbai', destination: 'Chennai' },
-    status: 'in-transit',
-    cargoValue: 750000,
-    cargoItems: 12,
-    estimatedDelivery: new Date('2025-10-15'),
-    created: new Date('2025-10-05')
-  },
-  {
-    id: 'SH002',
-    route: { origin: 'Delhi', destination: 'Bangalore' },
-    status: 'delivered',
-    cargoValue: 320000,
-    cargoItems: 8,
-    estimatedDelivery: new Date('2025-10-12'),
-    created: new Date('2025-10-02')
-  },
-  {
-    id: 'SH003',
-    route: { origin: 'Kolkata', destination: 'Hyderabad' },
-    status: 'picked-up',
-    cargoValue: 180000,
-    cargoItems: 5,
-    estimatedDelivery: new Date('2025-10-18'),
-    created: new Date('2025-10-08')
-  },
-  {
-    id: 'SH004',
-    route: { origin: 'Pune', destination: 'Kochi' },
-    status: 'created',
-    cargoValue: 95000,
-    cargoItems: 3,
-    estimatedDelivery: new Date('2025-10-20'),
-    created: new Date('2025-10-10')
-  },
-  {
-    id: 'SH005',
-    route: { origin: 'Ahmedabad', destination: 'Jaipur' },
-    status: 'delayed',
-    cargoValue: 420000,
-    cargoItems: 15,
-    estimatedDelivery: new Date('2025-10-08'), // Overdue
-    created: new Date('2025-09-28')
-  }
-])
+// Mock Data - Commented out, now using API calls
+// const shipments = ref([
+//   {
+//     id: 'SH001',
+//     route: { origin: 'Mumbai', destination: 'Chennai' },
+//     status: 'in-transit',
+//     cargoValue: 750000,
+//     cargoItems: 12,
+//     estimatedDelivery: new Date('2025-10-15'),
+//     created: new Date('2025-10-05')
+//   },
+//   {
+//     id: 'SH002',
+//     route: { origin: 'Delhi', destination: 'Bangalore' },
+//     status: 'delivered',
+//     cargoValue: 320000,
+//     cargoItems: 8,
+//     estimatedDelivery: new Date('2025-10-12'),
+//     created: new Date('2025-10-02')
+//   },
+//   {
+//     id: 'SH003',
+//     route: { origin: 'Kolkata', destination: 'Hyderabad' },
+//     status: 'picked-up',
+//     cargoValue: 180000,
+//     cargoItems: 5,
+//     estimatedDelivery: new Date('2025-10-18'),
+//     created: new Date('2025-10-08')
+//   },
+//   {
+//     id: 'SH004',
+//     route: { origin: 'Pune', destination: 'Kochi' },
+//     status: 'created',
+//     cargoValue: 95000,
+//     cargoItems: 3,
+//     estimatedDelivery: new Date('2025-10-20'),
+//     created: new Date('2025-10-10')
+//   },
+//   {
+//     id: 'SH005',
+//     route: { origin: 'Ahmedabad', destination: 'Jaipur' },
+//     status: 'delayed',
+//     cargoValue: 420000,
+//     cargoItems: 15,
+//     estimatedDelivery: new Date('2025-10-08'), // Overdue
+//     created: new Date('2025-09-28')
+//   }
+// ])
 
 // ============================================================================
 // COMPUTED PROPERTIES
@@ -932,7 +969,7 @@ const formatDate = (date) => {
     month: 'short',
     day: 'numeric',
     year: 'numeric'
-  }).format(date)
+  }).format(new Date(date))
 }
 
 const isOverdue = (date) => {
@@ -1117,30 +1154,20 @@ const saveShipment = async () => {
     return
   }
 
-  isLoading.value = true
+  const shipmentData = {
+    route: shipmentForm.value.route,
+    status: shipmentForm.value.status,
+    cargoValue: shipmentForm.value.cargoValue,
+    cargoWeight: shipmentForm.value.cargoWeight,
+    cargoItems: Math.floor(shipmentForm.value.cargoWeight / 10), // Mock calculation
+    estimatedDelivery: new Date(shipmentForm.value.estimatedDelivery),
+    notes: shipmentForm.value.notes
+  }
 
-  try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    const newShipment = {
-      id: shipmentForm.value.id,
-      route: shipmentForm.value.route,
-      status: shipmentForm.value.status,
-      cargoValue: shipmentForm.value.cargoValue,
-      cargoWeight: shipmentForm.value.cargoWeight,
-      cargoItems: Math.floor(shipmentForm.value.cargoWeight / 10), // Mock calculation
-      estimatedDelivery: new Date(shipmentForm.value.estimatedDelivery),
-      created: new Date(),
-      notes: shipmentForm.value.notes
-    }
-
-    shipments.value.unshift(newShipment)
-    closeNewShipmentModal()
-  } catch (error) {
-    console.error('Error saving shipment:', error)
-  } finally {
-    isLoading.value = false
+  if (isEditMode.value) {
+    await updateShipment(shipmentForm.value.id, shipmentData)
+  } else {
+    await createShipment(shipmentData)
   }
 }
 
@@ -1165,10 +1192,14 @@ const promptDeleteShipment = (shipment) => {
   showDeleteConfirm.value = true
 }
 
-const handleConfirmDelete = () => {
+const handleConfirmDelete = async () => {
   if (shipmentToDelete.value) {
-    shipments.value = shipments.value.filter(s => s.id !== shipmentToDelete.value.id)
-    console.log(`Successfully deleted shipment: ${shipmentToDelete.value.id}`)
+    try {
+      await deleteShipment(shipmentToDelete.value.id)
+      console.log(`Successfully deleted shipment: ${shipmentToDelete.value.id}`)
+    } catch (error) {
+      console.error('Error deleting shipment:', error)
+    }
   }
   cancelDelete()
 }
@@ -1192,6 +1223,96 @@ const viewShipment = (shipment) => {
   showShipmentModal.value = true
 }
 
+// ============================================================================
+// API FUNCTIONS
+// ============================================================================
+
+const loadShipments = async () => {
+  isLoading.value = true
+  error.value = null
+  
+  try {
+    console.log('Loading shipments from API...')
+    const data = await shipmentApi.getAll()
+    console.log('Received shipment data:', data)
+    
+    // Transform backend data to frontend format
+    shipments.value = (data || []).map(shipment => ({
+      id: shipment.shipmentCode || `SH${String(shipment.shipmentId).padStart(3, '0')}`,
+      route: {
+        origin: shipment.origin,
+        destination: shipment.destination
+      },
+      status: shipment.status?.toLowerCase() || 'pending',
+      cargoValue: 0, // Will need to calculate from related cargo
+      cargoItems: 1, // Default value
+      estimatedDelivery: shipment.estimatedDelivery || new Date().toISOString(),
+      created: shipment.createdAt || new Date().toISOString(), // Match template expectation
+      shipmentDate: shipment.createdAt || new Date().toISOString(),
+      vendor: shipment.assignedVendor,
+      assignedRoute: shipment.assignedRoute,
+      // Keep original backend data for API operations
+      _original: shipment
+    }))
+    console.log('Transformed shipments:', shipments.value)
+  } catch (err) {
+    error.value = 'Failed to load shipments. Please try again.'
+    console.error('Error loading shipments:', err)
+    shipments.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const createShipment = async (shipmentData) => {
+  isFormLoading.value = true
+  error.value = null
+
+  try {
+    const newShipment = await shipmentApi.create(shipmentData)
+    shipments.value.unshift(newShipment)
+    closeNewShipmentModal()
+  } catch (err) {
+    error.value = 'Failed to create shipment. Please try again.'
+    console.error('Error creating shipment:', err)
+  } finally {
+    isFormLoading.value = false
+  }
+}
+
+const updateShipment = async (id, shipmentData) => {
+  isFormLoading.value = true
+  error.value = null
+
+  try {
+    const updatedShipment = await shipmentApi.update(id, shipmentData)
+    const index = shipments.value.findIndex(s => s.id === id)
+    if (index !== -1) {
+      shipments.value[index] = updatedShipment
+    }
+    closeNewShipmentModal()
+  } catch (err) {
+    error.value = 'Failed to update shipment. Please try again.'
+    console.error('Error updating shipment:', err)
+  } finally {
+    isFormLoading.value = false
+  }
+}
+
+const deleteShipment = async (id) => {
+  try {
+    await shipmentApi.delete(id)
+    shipments.value = shipments.value.filter(s => s.id !== id)
+  } catch (err) {
+    error.value = 'Failed to delete shipment. Please try again.'
+    console.error('Error deleting shipment:', err)
+  }
+}
+
+// ============================================================================
+// COMPONENT FUNCTIONS
+// ============================================================================
+
 const trackShipment = (shipment) => {
   console.log('Track shipment:', shipment.id)
   // Simulate real-time tracking
@@ -1212,6 +1333,7 @@ const handleClickOutside = (event) => {
 // Initialize component
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  loadShipments()
 })
 
 onUnmounted(() => {
