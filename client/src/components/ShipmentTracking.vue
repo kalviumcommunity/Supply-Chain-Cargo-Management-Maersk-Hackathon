@@ -1,77 +1,79 @@
 <template>
-  <div class="shipment-tracking-page bg-[#F5F5F7] min-h-screen p-10 space-y-7">
-    <!-- Page Header -->
-    <header class="flex justify-between items-start">
-      <div class="flex items-center gap-4">
-        <div class="w-7 h-7 text-[#3B82F6]">
-          <Truck class="w-full h-full" />
+  <div class="shipment-tracking-page bg-[#F5F5F7] min-h-screen">
+    <!-- Main Container with proper spacing -->
+    <div class="w-full px-10 py-8 space-y-10">
+      <!-- Page Header -->
+      <header class="flex justify-between items-start mb-8">
+        <div class="flex items-center gap-4">
+          <div class="w-7 h-7 text-[#3B82F6]">
+            <Truck class="w-full h-full" />
+          </div>
+          <div>
+            <h1 class="text-4xl font-bold text-[#0F172A] tracking-tight leading-none">Shipment Tracking</h1>
+            <p class="text-[#64748B] text-base mt-1">Monitor and track all shipments in real-time.</p>
+          </div>
         </div>
-        <div>
-          <h1 class="text-4xl font-bold text-[#0F172A] tracking-tight leading-none">Shipment Tracking</h1>
-          <p class="text-[#64748B] text-base mt-1">Monitor and track all shipments in real-time.</p>
-        </div>
-      </div>
-      <button 
-        @click="createNewShipment"
-        class="bg-gradient-to-br from-[#3B82F6] to-[#2563EB] text-white px-7 py-3.5 rounded-xl hover:scale-102 active:scale-98 hover:shadow-lg shadow-[0_4px_12px_rgba(59,130,246,0.3)] transition-all duration-200 flex items-center gap-3 font-semibold text-sm"
-      >
-        <Plus class="w-5 h-5" />
-        New Shipment
-      </button>
-    </header>
-
-    <!-- Error State -->
-    <div v-if="error" class="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl mb-6">
-      <div class="flex items-center gap-3">
-        <svg class="w-5 h-5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="15" y1="9" x2="9" y2="15"></line>
-          <line x1="9" y1="9" x2="15" y2="15"></line>
-        </svg>
-        <span class="text-red-700 font-medium">{{ error }}</span>
         <button 
-          @click="loadShipments" 
-          class="ml-auto px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors text-sm font-medium"
+          @click="createNewShipment"
+          class="bg-gradient-to-br from-[#3B82F6] to-[#2563EB] text-white px-7 py-3.5 rounded-xl hover:scale-102 active:scale-98 hover:shadow-lg shadow-[0_4px_12px_rgba(59,130,246,0.3)] transition-all duration-200 flex items-center gap-3 font-semibold text-sm"
         >
-          Retry
+          <Plus class="w-5 h-5" />
+          New Shipment
         </button>
+      </header>
+
+      <!-- Error State -->
+      <div v-if="error" class="bg-red-50 border-l-4 border-red-500 p-6 rounded-xl mb-8">
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+          </svg>
+          <span class="text-red-700 font-medium">{{ error }}</span>
+          <button 
+            @click="loadShipments" 
+            class="ml-auto px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors text-sm font-medium"
+          >
+            Retry
+          </button>
+        </div>
       </div>
-    </div>
 
-    <!-- Loading State -->
-    <div v-if="isLoading" class="flex items-center justify-center py-20">
-      <div class="flex flex-col items-center gap-4">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-        <p class="text-gray-600 font-medium">Loading shipments...</p>
+      <!-- Loading State -->
+      <div v-if="isLoading" class="flex items-center justify-center py-24">
+        <div class="flex flex-col items-center gap-4">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          <p class="text-gray-600 font-medium">Loading shipments...</p>
+        </div>
       </div>
-    </div>
 
-    <!-- Main Content -->
-    <div v-else>
+      <!-- Main Content -->
+      <div v-else class="space-y-10">
 
-    <!-- Quick Stats Banner -->
-    <div class="bg-gradient-to-r from-[#F0F9FF] to-[#E0F2FE] border-l-4 border-[#3B82F6] p-4 rounded-xl">
-      <div class="flex items-center gap-6 text-sm font-medium text-[#1E293B]">
-        <span>Total Active: <strong class="text-[#3B82F6]">{{ metrics.totalActive }}</strong> shipments</span>
-        <span class="text-[#94A3B8]">•</span>
-        <span>On Time: <strong class="text-[#10B981]">{{ onTimeCount }} ({{ metrics.onTimePercentage }}%)</strong></span>
-        <span class="text-[#94A3B8]">•</span>
-        <span>Delayed: <strong class="text-[#EF4444]">{{ metrics.delayed }} ({{ delayedPercentage }}%)</strong></span>
-      </div>
-    </div>
+        <!-- Quick Stats Banner -->
+        <div class="bg-gradient-to-r from-[#F0F9FF] to-[#E0F2FE] border-l-4 border-[#3B82F6] p-6 rounded-xl shadow-sm">
+          <div class="flex items-center gap-6 text-sm font-medium text-[#1E293B]">
+            <span>Total Active: <strong class="text-[#3B82F6]">{{ metrics.totalActive }}</strong> shipments</span>
+            <span class="text-[#94A3B8]">•</span>
+            <span>On Time: <strong class="text-[#10B981]">{{ onTimeCount }} ({{ metrics.onTimePercentage }}%)</strong></span>
+            <span class="text-[#94A3B8]">•</span>
+            <span>Delayed: <strong class="text-[#EF4444]">{{ metrics.delayed }} ({{ delayedPercentage }}%)</strong></span>
+          </div>
+        </div>
 
-    <!-- Status Overview Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-5">
-      <div 
-        v-for="status in statusCards" 
-        :key="status.id"
-        @click="filterByStatus(status.id)"
-        :class="[
-          'status-card group bg-white rounded-3xl p-7 border border-gray-100 transition-all duration-300 cursor-pointer',
-          'hover:shadow-[0_20px_60px_-12px_rgba(0,0,0,0.15)] hover:-translate-y-2',
-          activeFilter === status.id ? 'ring-2 ring-blue-500 shadow-lg' : ''
-        ]"
-      >
+        <!-- Status Overview Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+          <div 
+            v-for="status in statusCards" 
+            :key="status.id"
+            @click="filterByStatus(status.id)"
+            :class="[
+              'status-card group bg-white rounded-3xl p-8 border border-gray-100 transition-all duration-300 cursor-pointer',
+              'hover:shadow-[0_20px_60px_-12px_rgba(0,0,0,0.15)] hover:-translate-y-2',
+              activeFilter === status.id ? 'ring-2 ring-blue-500 shadow-lg' : ''
+            ]"
+          >
         <div class="flex flex-col items-center text-center">
           <!-- Icon Circle -->
           <div :class="[
@@ -112,9 +114,9 @@
       </div>
     </div>
 
-    <!-- Search & Filter Toolbar -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <!-- Search & Filter Toolbar -->
+        <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <!-- Search -->
         <div class="relative flex-1 max-w-lg">
           <Search class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
@@ -227,19 +229,19 @@
       </div>
     </div>
 
-    <!-- Active Shipments Table -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <!-- Table Header -->
-      <div class="flex justify-between items-center p-6 border-b border-gray-100">
-        <h2 class="text-xl font-semibold text-gray-900">Active Shipments</h2>
-        <button 
-          @click="exportShipments"
-          class="flex items-center gap-2 px-4 py-2 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-        >
-          <Download class="w-4 h-4" />
-          Export
-        </button>
-      </div>
+        <!-- Active Shipments Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <!-- Table Header -->
+          <div class="flex justify-between items-center p-8 border-b border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-900">Active Shipments</h2>
+            <button 
+              @click="exportShipments"
+              class="flex items-center gap-2 px-4 py-2 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+            >
+              <Download class="w-4 h-4" />
+              Export
+            </button>
+          </div>
 
       <!-- Table -->
       <div class="overflow-x-auto">
@@ -652,8 +654,9 @@
       @cancel="cancelDelete"
     />
     
-    </div> <!-- End of v-else content -->
-  </div>
+      </div> <!-- End of v-else content -->
+    </div> <!-- End of main container -->
+  </div> <!-- End of shipment-tracking-page -->
 </template>
 
 <script setup>
