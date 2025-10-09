@@ -73,7 +73,15 @@ const statusColors = {
 
 // Initialize map
 const initMap = () => {
-  if (!mapContainer.value) return
+  if (!mapContainer.value) {
+    console.error('RouteMap: mapContainer ref is not available')
+    return
+  }
+
+  console.log('RouteMap: Initializing map with routes:', {
+    totalRoutes: props.routes?.length || 0,
+    filteredRoutes: props.filteredRoutes?.length || 0
+  })
 
   // Create map centered on India
   map = L.map(mapContainer.value, {
@@ -96,6 +104,8 @@ const initMap = () => {
   // Create layers for markers and routes
   markersLayer = L.layerGroup().addTo(map)
   routesLayer = L.layerGroup().addTo(map)
+
+  console.log('RouteMap: Map initialized successfully')
 
   // Initial render
   renderRoutes()
@@ -189,22 +199,44 @@ const createRoutePopup = (route) => {
 
 // Render routes on map
 const renderRoutes = () => {
-  if (!map || !markersLayer || !routesLayer) return
-
-  // Clear existing layers
-  markersLayer.clearLayers()
-  routesLayer.clearLayers()
+  if (!map || !markersLayer || !routesLayer) {
+    console.warn('RouteMap: Map or layers not ready for rendering')
+    return
+  }
 
   // Use filtered routes for rendering
   const routesToRender = props.filteredRoutes && props.filteredRoutes.length > 0 
     ? props.filteredRoutes 
     : props.routes
 
+  console.log('RouteMap: Rendering routes:', {
+    filteredRoutesCount: props.filteredRoutes?.length || 0,
+    totalRoutesCount: props.routes?.length || 0,
+    routesToRenderCount: routesToRender?.length || 0,
+    routesToRender: routesToRender?.map(r => ({ id: r.id, name: r.name })) || []
+  })
+
+  // Clear existing layers
+  markersLayer.clearLayers()
+  routesLayer.clearLayers()
+
+  if (!routesToRender || routesToRender.length === 0) {
+    console.log('RouteMap: No routes to render')
+    return
+  }
+
   const processedLocations = new Set()
 
-  routesToRender.forEach(route => {
+  routesToRender.forEach((route, index) => {
+    console.log(`RouteMap: Processing route ${index + 1}/${routesToRender.length}:`, route.id, route.name)
+    
     const originCoords = getCoordinates(route.origin.location)
     const destCoords = getCoordinates(route.destination.location)
+
+    console.log(`RouteMap: Coordinates for ${route.id}:`, {
+      origin: { location: route.origin.location, coords: originCoords },
+      destination: { location: route.destination.location, coords: destCoords }
+    })
 
     // Add markers for origin and destination (avoid duplicates)
     const originKey = `${route.origin.location}-origin`
@@ -257,17 +289,33 @@ const renderRoutes = () => {
 
   // Fit map to show all routes if there are any
   if (routesToRender.length > 0) {
-    const group = new L.featureGroup([markersLayer, routesLayer])
-    map.fitBounds(group.getBounds().pad(0.1))
+    try {
+      const group = new L.featureGroup([markersLayer, routesLayer])
+      map.fitBounds(group.getBounds().pad(0.1))
+      console.log('RouteMap: Map bounds fitted to show all routes')
+    } catch (error) {
+      console.error('RouteMap: Error fitting bounds:', error)
+    }
   }
+
+  console.log('RouteMap: Route rendering completed')
 }
 
 // Watch for route changes
-watch(() => props.filteredRoutes, () => {
+watch(() => props.filteredRoutes, (newRoutes, oldRoutes) => {
+  console.log('RouteMap: filteredRoutes changed:', {
+    newCount: newRoutes?.length || 0,
+    oldCount: oldRoutes?.length || 0,
+    newRoutes: newRoutes
+  })
   renderRoutes()
 }, { deep: true })
 
-watch(() => props.routes, () => {
+watch(() => props.routes, (newRoutes, oldRoutes) => {
+  console.log('RouteMap: routes changed:', {
+    newCount: newRoutes?.length || 0,
+    oldCount: oldRoutes?.length || 0
+  })
   renderRoutes()
 }, { deep: true })
 
