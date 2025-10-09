@@ -968,6 +968,7 @@ const routeForm = ref({
   destinationPort: '',
   duration: 0,
   distance: 0,
+  cost: 0,
   routeType: 'standard' as 'express' | 'standard' | 'priority',
   // Updated to match database schema route status values  
   status: 'Active' as 'Active' | 'Delayed' | 'Closed'
@@ -1355,6 +1356,7 @@ const openCreateRouteModal = () => {
     destinationPort: '',
     duration: 0,
     distance: 0,
+    cost: 0,
     routeType: 'standard',
     status: 'Active' // Updated from 'active' to match DB schema
   }
@@ -1378,20 +1380,13 @@ const saveRoute = async () => {
   try {
     const routeData = {
       name: routeForm.value.name,
-      origin: {
-        location: routeForm.value.originLocation,
-        port: routeForm.value.originPort || `${routeForm.value.originLocation} Port`
-      },
-      destination: {
-        location: routeForm.value.destinationLocation,
-        port: routeForm.value.destinationPort || `${routeForm.value.destinationLocation} Port`
-      },
+      originPort: routeForm.value.originLocation,
+      destinationPort: routeForm.value.destinationLocation,
       duration: routeForm.value.duration,
       distance: routeForm.value.distance,
       status: routeForm.value.status,
-      routeType: routeForm.value.routeType,
-      activeShipments: 0,
-      efficiencyScore: Math.floor(Math.random() * 20) + 80 // Random score between 80-100
+      transportationMode: routeForm.value.routeType,
+      cost: routeForm.value.cost || 0
     }
 
     if (isEditMode.value) {
@@ -1417,6 +1412,7 @@ const editRoute = (route: Route) => {
     destinationPort: route.destination.port,
     duration: route.duration,
     distance: route.distance,
+    cost: route._original?.cost || 0,
     routeType: route.routeType,
     status: route.status
   }
@@ -1517,11 +1513,11 @@ const loadRoutes = async () => {
       name: route.name || `Route ${route.routeId}`,
       routeType: route.routeType || 'EXPRESS',
       origin: {
-        location: route.originLocation || 'Unknown',
+        location: route.originPort || 'Unknown',
         port: route.originPort || 'N/A'
       },
       destination: {
-        location: route.destinationLocation || 'Unknown',
+        location: route.destinationPort || 'Unknown',
         port: route.destinationPort || 'N/A'
       },
       distance: route.distance || 0,
