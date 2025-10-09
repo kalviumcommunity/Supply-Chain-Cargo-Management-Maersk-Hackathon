@@ -25,6 +25,35 @@
       </button>
     </header>
 
+    <!-- Error State -->
+    <div v-if="error" class="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl mb-6">
+      <div class="flex items-center gap-3">
+        <svg class="w-5 h-5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+        <span class="text-red-700 font-medium">{{ error }}</span>
+        <button 
+          @click="loadRoutes" 
+          class="ml-auto px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors text-sm font-medium"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div v-if="isLoading" class="flex items-center justify-center py-20">
+      <div class="flex flex-col items-center gap-4">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <p class="text-gray-600 font-medium">Loading routes...</p>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div v-else>
+
     <!-- Network Health Banner -->
     <div class="network-banner bg-gradient-to-r from-blue-50 to-cyan-50 border-l-4 border-blue-500 p-4 rounded-xl mb-6">
       <div class="flex items-center gap-4 text-sm font-medium text-slate-700">
@@ -824,11 +853,11 @@
         <button
           type="button"
           @click="saveRoute"
-          :disabled="isLoading"
+          :disabled="isFormLoading"
           class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
         >
-          <div v-if="isLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-          {{ isLoading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Route' : 'Create Route') }}
+          <div v-if="isFormLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          {{ isFormLoading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Route' : 'Create Route') }}
         </button>
       </template>
     </BaseModal>
@@ -844,6 +873,8 @@
       @confirm="handleConfirmDelete"
       @cancel="cancelDelete"
     />
+    
+    </div> <!-- End of v-else content -->
   </div>
 </template>
 
@@ -852,6 +883,7 @@ import { ref, computed, onMounted } from 'vue'
 import BaseModal from './shared/BaseModal.vue'
 import ConfirmDialog from './shared/ConfirmDialog.vue'
 import RouteMap from './shared/RouteMap.vue'
+import { routeApi } from '../services/api.js'
 
 // TypeScript Interfaces
 interface Route {
@@ -912,9 +944,14 @@ const sortOrder = ref<'asc' | 'desc'>('asc')
 const showFilterMenu = ref(false)
 const showSortMenu = ref(false)
 
+// API State
+const routes = ref<Route[]>([])
+const isLoading = ref(false)
+const error = ref<string | null>(null)
+
 // Route Form State
 const showCreateRouteModal = ref(false)
-const isLoading = ref(false)
+const isFormLoading = ref(false)
 const isEditMode = ref(false)
 
 // Delete Confirmation State
@@ -949,69 +986,69 @@ const statusOptions = [
   { value: 'inactive', label: 'Inactive' }
 ]
 
-// Mock Data - Updated status values to match database schema
-const routes = ref<Route[]>([
-  {
-    id: 'RT001',
-    name: 'Mumbai-Chennai Corridor',
-    origin: { location: 'Mumbai', port: 'Jawaharlal Nehru Port' },
-    destination: { location: 'Chennai', port: 'Chennai Port' },
-    duration: 48,
-    distance: 1350,
-    status: 'Active', // Updated from 'active' to match DB schema
-    activeShipments: 3,
-    efficiencyScore: 94,
-    routeType: 'express',
-    createdAt: new Date('2024-01-15')
-  },
-  {
-    id: 'RT002',
-    name: 'Delhi-Kolkata Express',
-    origin: { location: 'Delhi', port: 'Inland Container Depot' },
-    destination: { location: 'Kolkata', port: 'Kolkata Port' },
-    duration: 36,
-    distance: 1480,
-    status: 'Active', // Updated from 'active' to match DB schema
-    activeShipments: 2,
-    efficiencyScore: 87,
-    routeType: 'express',
-    createdAt: new Date('2024-02-01')
-  },
-  {
-    id: 'RT003',
-    name: 'Bangalore-Hyderabad Link',
-    origin: { location: 'Bangalore', port: 'Bangalore ICD' },
-    destination: { location: 'Hyderabad', port: 'Hyderabad Hub' },
-    duration: 24,
-    distance: 570,
-    status: 'Delayed', // Updated from 'delayed' to match DB schema
-    activeShipments: 1,
-    efficiencyScore: 73,
-    routeType: 'standard',
-    createdAt: new Date('2024-03-10')
-  },
-  {
-    id: 'RT004',
-    name: 'Pune-Goa Coastal',
-    origin: { location: 'Pune', port: 'Pune Dry Port' },
-    destination: { location: 'Goa', port: 'Mormugao Port' },
-    duration: 18,
-    distance: 450,
-    status: 'Closed', // Updated from 'inactive' to 'Closed' to match DB schema
-    activeShipments: 0,
-    efficiencyScore: 0,
-    routeType: 'standard',
-    createdAt: new Date('2024-04-05')
-  }
-])
+// Mock Data - Commented out, now using API calls
+// const routes = ref<Route[]>([
+//   {
+//     id: 'RT001',
+//     name: 'Mumbai-Chennai Corridor',
+//     origin: { location: 'Mumbai', port: 'Jawaharlal Nehru Port' },
+//     destination: { location: 'Chennai', port: 'Chennai Port' },
+//     duration: 48,
+//     distance: 1350,
+//     status: 'Active', // Updated from 'active' to match DB schema
+//     activeShipments: 3,
+//     efficiencyScore: 94,
+//     routeType: 'express',
+//     createdAt: new Date('2024-01-15')
+//   },
+//   {
+//     id: 'RT002',
+//     name: 'Delhi-Kolkata Express',
+//     origin: { location: 'Delhi', port: 'Inland Container Depot' },
+//     destination: { location: 'Kolkata', port: 'Kolkata Port' },
+//     duration: 36,
+//     distance: 1480,
+//     status: 'Active', // Updated from 'active' to match DB schema
+//     activeShipments: 2,
+//     efficiencyScore: 87,
+//     routeType: 'express',
+//     createdAt: new Date('2024-02-01')
+//   },
+//   {
+//     id: 'RT003',
+//     name: 'Bangalore-Hyderabad Link',
+//     origin: { location: 'Bangalore', port: 'Bangalore ICD' },
+//     destination: { location: 'Hyderabad', port: 'Hyderabad Hub' },
+//     duration: 24,
+//     distance: 570,
+//     status: 'Delayed', // Updated from 'delayed' to match DB schema
+//     activeShipments: 1,
+//     efficiencyScore: 73,
+//     routeType: 'standard',
+//     createdAt: new Date('2024-03-10')
+//   },
+//   {
+//     id: 'RT004',
+//     name: 'Pune-Goa Coastal',
+//     origin: { location: 'Pune', port: 'Pune Dry Port' },
+//     destination: { location: 'Goa', port: 'Mormugao Port' },
+//     duration: 18,
+//     distance: 450,
+//     status: 'Closed', // Updated from 'inactive' to 'Closed' to match DB schema
+//     activeShipments: 0,
+//     efficiencyScore: 0,
+//     routeType: 'standard',
+//     createdAt: new Date('2024-04-05')
+//   }
+// ])
 
 const metrics = ref<RouteMetrics>({
-  totalRoutes: 4,
-  activeRoutes: 3,
-  totalDistance: 4590,
-  avgDuration: 35,
-  networkEfficiency: 92,
-  onTimeRate: 92
+  totalRoutes: 0,
+  activeRoutes: 0,
+  totalDistance: 0,
+  avgDuration: 0,
+  networkEfficiency: 0,
+  onTimeRate: 0
 })
 
 // Computed Properties
@@ -1336,14 +1373,10 @@ const saveRoute = async () => {
     return
   }
 
-  isLoading.value = true
+  isFormLoading.value = true
 
   try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    const newRoute: Route = {
-      id: routeForm.value.id,
+    const routeData = {
       name: routeForm.value.name,
       origin: {
         location: routeForm.value.originLocation,
@@ -1356,35 +1389,20 @@ const saveRoute = async () => {
       duration: routeForm.value.duration,
       distance: routeForm.value.distance,
       status: routeForm.value.status,
-      activeShipments: 0,
-      efficiencyScore: Math.floor(Math.random() * 20) + 80, // Random score between 80-100
       routeType: routeForm.value.routeType,
-      createdAt: new Date()
+      activeShipments: 0,
+      efficiencyScore: Math.floor(Math.random() * 20) + 80 // Random score between 80-100
     }
 
     if (isEditMode.value) {
-      const index = routes.value.findIndex(r => r.id === routeForm.value.id)
-      if (index !== -1) {
-        routes.value[index] = { ...routes.value[index], ...newRoute }
-      }
+      await updateRoute(routeForm.value.id, routeData)
     } else {
-      routes.value.unshift(newRoute)
-      // Update metrics
-      metrics.value.totalRoutes++
-      if (newRoute.status === 'Active') { // Updated from 'active' to 'Active'
-        metrics.value.activeRoutes++
-      }
-      metrics.value.totalDistance += newRoute.distance
-      metrics.value.avgDuration = Math.round(
-        routes.value.reduce((sum, route) => sum + route.duration, 0) / routes.value.length
-      )
+      await createRoute(routeData)
     }
-
-    closeCreateRouteModal()
   } catch (error) {
     console.error('Error saving route:', error)
   } finally {
-    isLoading.value = false
+    isFormLoading.value = false
   }
 }
 
@@ -1410,23 +1428,14 @@ const promptDeleteRoute = (route: Route) => {
   showDeleteConfirm.value = true
 }
 
-const handleConfirmDelete = () => {
+const handleConfirmDelete = async () => {
   if (routeToDelete.value) {
-    routes.value = routes.value.filter(r => r.id !== routeToDelete.value!.id)
-    
-    // Update metrics
-    metrics.value.totalRoutes--
-    if (routeToDelete.value.status === 'Active') { // Updated from 'active' to 'Active'
-      metrics.value.activeRoutes--
+    try {
+      await deleteRoute(routeToDelete.value.id)
+      console.log(`Successfully deleted route: ${routeToDelete.value.id}`)
+    } catch (error) {
+      console.error('Error deleting route:', error)
     }
-    metrics.value.totalDistance -= routeToDelete.value.distance
-    if (routes.value.length > 0) {
-      metrics.value.avgDuration = Math.round(
-        routes.value.reduce((sum, route) => sum + route.duration, 0) / routes.value.length
-      )
-    }
-    
-    console.log(`Successfully deleted route: ${routeToDelete.value.id}`)
   }
   cancelDelete()
 }
@@ -1491,6 +1500,127 @@ const getShipmentAvatarColor = (index: number): string => {
 // Lifecycle
 onMounted(() => {
   console.log('Route Management component mounted')
+  loadRoutes()
+})
+
+// API Functions
+const loadRoutes = async () => {
+  isLoading.value = true
+  error.value = null
+  
+  try {
+    const data = await routeApi.getAll()
+    
+    // Transform backend data to frontend format
+    routes.value = (data || []).map(route => ({
+      id: `RT${String(route.routeId).padStart(3, '0')}`,
+      name: route.name || `Route ${route.routeId}`,
+      routeType: route.routeType || 'EXPRESS',
+      origin: {
+        location: route.originLocation || 'Unknown',
+        port: route.originPort || 'N/A'
+      },
+      destination: {
+        location: route.destinationLocation || 'Unknown',
+        port: route.destinationPort || 'N/A'
+      },
+      distance: route.distance || 0,
+      duration: route.duration || 0,
+      status: route.status || 'ACTIVE',
+      // Keep original backend data for API operations
+      _original: route
+    }))
+    
+    calculateMetrics()
+  } catch (err) {
+    error.value = 'Failed to load routes. Please try again.'
+    console.error('Error loading routes:', err)
+    routes.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const calculateMetrics = () => {
+  if (routes.value.length === 0) {
+    metrics.value = {
+      totalRoutes: 0,
+      activeRoutes: 0,
+      totalDistance: 0,
+      avgDuration: 0,
+      networkEfficiency: 0,
+      onTimeRate: 0
+    }
+    return
+  }
+
+  const activeRoutes = routes.value.filter(route => route.status === 'Active')
+  const totalDistance = routes.value.reduce((sum, route) => sum + route.distance, 0)
+  const avgDuration = Math.round(routes.value.reduce((sum, route) => sum + route.duration, 0) / routes.value.length)
+  const avgEfficiency = routes.value.reduce((sum, route) => sum + route.efficiencyScore, 0) / routes.value.length
+
+  metrics.value = {
+    totalRoutes: routes.value.length,
+    activeRoutes: activeRoutes.length,
+    totalDistance,
+    avgDuration,
+    networkEfficiency: Math.round(avgEfficiency),
+    onTimeRate: Math.round(avgEfficiency) // Using efficiency as a proxy for on-time rate
+  }
+}
+
+const createRoute = async (routeData: any) => {
+  isFormLoading.value = true
+  error.value = null
+
+  try {
+    const newRoute = await routeApi.create(routeData)
+    routes.value.unshift(newRoute)
+    calculateMetrics()
+    closeCreateRouteModal()
+  } catch (err) {
+    error.value = 'Failed to create route. Please try again.'
+    console.error('Error creating route:', err)
+  } finally {
+    isFormLoading.value = false
+  }
+}
+
+const updateRoute = async (id: string, routeData: any) => {
+  isFormLoading.value = true
+  error.value = null
+
+  try {
+    const updatedRoute = await routeApi.update(id, routeData)
+    const index = routes.value.findIndex(r => r.id === id)
+    if (index !== -1) {
+      routes.value[index] = updatedRoute
+    }
+    calculateMetrics()
+    closeCreateRouteModal()
+  } catch (err) {
+    error.value = 'Failed to update route. Please try again.'
+    console.error('Error updating route:', err)
+  } finally {
+    isFormLoading.value = false
+  }
+}
+
+const deleteRoute = async (id: string) => {
+  try {
+    await routeApi.delete(id)
+    routes.value = routes.value.filter(r => r.id !== id)
+    calculateMetrics()
+  } catch (err) {
+    error.value = 'Failed to delete route. Please try again.'
+    console.error('Error deleting route:', err)
+  }
+}
+
+// Lifecycle
+onMounted(() => {
+  console.log('Route Management component mounted')
+  loadRoutes()
   
   // Close dropdowns when clicking outside
   const handleClickOutside = (event: Event) => {
