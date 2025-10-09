@@ -1,7 +1,7 @@
 <template>
-  <div class="space-y-10 animate-fade-in bg-[#F5F5F7] min-h-screen p-10">
+  <div class="space-y-12 animate-fade-in bg-[#F5F5F7] min-h-screen p-10">
     <!-- Page Header -->
-    <div class="flex justify-between items-start">
+    <div class="flex justify-between items-start mb-8">
       <div class="flex items-start gap-4">
         <div class="w-14 h-14 rounded-full bg-[#EFF6FF] flex items-center justify-center">
           <Users class="w-7 h-7 text-[#3B82F6]" />
@@ -21,7 +21,7 @@
     </div>
 
     <!-- Error State -->
-    <div v-if="error" class="bg-red-50 border border-red-200 rounded-2xl p-6 mb-8">
+    <div v-if="error" class="bg-red-50 border border-red-200 rounded-2xl p-6 mb-10">
       <div class="flex items-center gap-3">
         <div class="w-6 h-6 text-red-600">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -44,7 +44,7 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoadingData" class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-8">
+    <div v-if="isLoadingData" class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-10">
       <div class="flex items-center justify-center gap-3">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         <p class="text-gray-600">Loading vendor data...</p>
@@ -52,10 +52,10 @@
     </div>
 
     <!-- Main Content - Only show when not loading and no error -->
-    <div v-if="!isLoadingData && !error">
+    <div v-if="!isLoadingData && !error" class="space-y-10">
 
     <!-- Metrics Cards Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mb-10">
       <div 
         v-for="(metric, index) in vendorMetrics" 
         :key="metric.id"
@@ -85,7 +85,7 @@
     </div>
 
     <!-- Search and Filters -->
-    <div class="bg-white rounded-[24px] p-8 shadow-[0_1px_3px_rgba(0,0,0,0.03),0_8px_16px_rgba(0,0,0,0.04)]">
+    <div class="bg-white rounded-[24px] p-8 shadow-[0_1px_3px_rgba(0,0,0,0.03),0_8px_16px_rgba(0,0,0,0.04)] mb-10">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         <!-- Search Input -->
         <div class="relative flex-1 max-w-md">
@@ -113,18 +113,18 @@
     </div>
 
     <!-- Vendors Grid -->
-    <div v-if="filteredVendors.length > 0">
-      <div class="flex items-center justify-between mb-6">
+    <div v-if="filteredVendors.length > 0" class="mb-10">
+      <div class="flex items-center justify-between mb-8">
         <h2 class="text-2xl font-bold text-[#0F172A]">All Vendors</h2>
         <span class="text-[#64748B] text-sm">{{ filteredVendors.length }} vendor{{ filteredVendors.length !== 1 ? 's' : '' }} found</span>
       </div>
       
       <!-- Responsive Grid: 3 columns desktop, 2 tablet, 1 mobile -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <div 
           v-for="vendor in filteredVendors" 
           :key="vendor.id"
-          class="vendor-card bg-white rounded-[20px] p-7 min-h-[320px] shadow-[0_1px_3px_rgba(0,0,0,0.03),0_8px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 hover:border-[#E0E7FF] transition-all duration-300 cursor-pointer group relative border border-transparent"
+          class="vendor-card bg-white rounded-[20px] p-8 min-h-[340px] shadow-[0_1px_3px_rgba(0,0,0,0.03),0_8px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 hover:border-[#E0E7FF] transition-all duration-300 cursor-pointer group relative border border-transparent"
           :class="[
             selectedVendor === vendor.id ? 'border-[#3B82F6] ring-2 ring-[#3B82F6]/20' : '',
             vendor.rating >= 4.8 ? 'border-[#F59E0B] border-2' : ''
@@ -279,17 +279,17 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="text-center py-16">
-      <div class="flex justify-center mb-6">
-        <div class="w-16 h-16 rounded-full bg-[#F1F5F9] flex items-center justify-center">
-          <Users class="w-8 h-8 text-[#CBD5E1]" />
+    <div v-else class="text-center py-20 mb-10">
+      <div class="flex justify-center mb-8">
+        <div class="w-20 h-20 rounded-full bg-[#F1F5F9] flex items-center justify-center">
+          <Users class="w-10 h-10 text-[#CBD5E1]" />
         </div>
       </div>
-      <h3 class="text-xl font-semibold text-[#1E293B] mb-2">No vendors found</h3>
-      <p class="text-[#64748B] mb-6">Add your first logistics partner to get started</p>
+      <h3 class="text-2xl font-semibold text-[#1E293B] mb-3">No vendors found</h3>
+      <p class="text-[#64748B] mb-8 text-lg">Add your first logistics partner to get started</p>
       <button 
         @click="showAddVendorModal = true"
-        class="bg-gradient-to-br from-[#3B82F6] to-[#2563EB] text-white px-6 py-3 rounded-xl hover:scale-102 active:scale-98 hover:shadow-[0_8px_24px_rgba(59,130,246,0.4)] shadow-[0_4px_12px_rgba(59,130,246,0.3)] transition-all duration-200 flex items-center gap-3 font-semibold text-[15px] mx-auto"
+        class="bg-gradient-to-br from-[#3B82F6] to-[#2563EB] text-white px-8 py-4 rounded-xl hover:scale-102 active:scale-98 hover:shadow-[0_8px_24px_rgba(59,130,246,0.4)] shadow-[0_4px_12px_rgba(59,130,246,0.3)] transition-all duration-200 flex items-center gap-3 font-semibold text-[16px] mx-auto"
       >
         <Plus class="w-5 h-5" />
         Add Vendor
