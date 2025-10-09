@@ -1,46 +1,81 @@
 <template>
-  <div class="shipment-tracking-page bg-[#F5F5F7] min-h-screen p-10 space-y-7">
-    <header class="flex justify-between items-start">
-      <div class="flex items-center gap-4">
-        <div class="w-7 h-7 text-[#3B82F6]">
-          <Truck class="w-full h-full" />
+  <div class="shipment-tracking-page bg-[#F5F5F7] min-h-screen">
+    <!-- Main Container with proper spacing -->
+    <div class="w-full px-10 py-8 space-y-10">
+      <!-- Page Header -->
+      <header class="flex justify-between items-start mb-8">
+        <div class="flex items-center gap-4">
+          <div class="w-7 h-7 text-[#3B82F6]">
+            <Truck class="w-full h-full" />
+          </div>
+          <div>
+            <h1 class="text-4xl font-bold text-[#0F172A] tracking-tight leading-none">Shipment Tracking</h1>
+            <p class="text-[#64748B] text-base mt-1">Monitor and track all shipments in real-time.</p>
+          </div>
         </div>
-        <div>
-          <h1 class="text-4xl font-bold text-[#0F172A] tracking-tight leading-none">Shipment Tracking</h1>
-          <p class="text-[#64748B] text-base mt-1">Monitor and track all shipments in real-time.</p>
+        <button 
+          @click="createNewShipment"
+          class="bg-gradient-to-br from-[#3B82F6] to-[#2563EB] text-white px-7 py-3.5 rounded-xl hover:scale-102 active:scale-98 hover:shadow-lg shadow-[0_4px_12px_rgba(59,130,246,0.3)] transition-all duration-200 flex items-center gap-3 font-semibold text-sm"
+        >
+          <Plus class="w-5 h-5" />
+          New Shipment
+        </button>
+      </header>
+
+      <!-- Error State -->
+      <div v-if="error" class="bg-red-50 border-l-4 border-red-500 p-6 rounded-xl mb-8">
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+          </svg>
+          <span class="text-red-700 font-medium">{{ error }}</span>
+          <button 
+            @click="loadShipments" 
+            class="ml-auto px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors text-sm font-medium"
+          >
+            Retry
+          </button>
         </div>
       </div>
-      <button 
-        @click="createNewShipment"
-        class="bg-gradient-to-br from-[#3B82F6] to-[#2563EB] text-white px-7 py-3.5 rounded-xl hover:scale-102 active:scale-98 hover:shadow-lg shadow-[0_4px_12px_rgba(59,130,246,0.3)] transition-all duration-200 flex items-center gap-3 font-semibold text-sm"
-      >
-        <Plus class="w-5 h-5" />
-        New Shipment
-      </button>
-    </header>
 
-    <div class="bg-gradient-to-r from-[#F0F9FF] to-[#E0F2FE] border-l-4 border-[#3B82F6] p-4 rounded-xl">
-      <div class="flex items-center gap-6 text-sm font-medium text-[#1E293B]">
-        <span>Total Active: <strong class="text-[#3B82F6]">{{ metrics.totalActive }}</strong> shipments</span>
-        <span class="text-[#94A3B8]">•</span>
-        <span>On Time: <strong class="text-[#10B981]">{{ onTimeCount }} ({{ metrics.onTimePercentage }}%)</strong></span>
-        <span class="text-[#94A3B8]">•</span>
-        <span>Delayed: <strong class="text-[#EF4444]">{{ metrics.delayed }} ({{ delayedPercentage }}%)</strong></span>
+      <!-- Loading State -->
+      <div v-if="isLoading" class="flex items-center justify-center py-24">
+        <div class="flex flex-col items-center gap-4">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          <p class="text-gray-600 font-medium">Loading shipments...</p>
+        </div>
       </div>
-    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-5">
-      <div 
-        v-for="status in statusCards" 
-        :key="status.id"
-        @click="filterByStatus(status.id)"
-        :class="[
-          'status-card group bg-white rounded-3xl p-7 border border-gray-100 transition-all duration-300 cursor-pointer',
-          'hover:shadow-[0_20px_60px_-12px_rgba(0,0,0,0.15)] hover:-translate-y-2',
-          activeFilter === status.id ? 'ring-2 ring-blue-500 shadow-lg' : ''
-        ]"
-      >
+      <!-- Main Content -->
+      <div v-else class="space-y-10">
+
+        <!-- Quick Stats Banner -->
+        <div class="bg-gradient-to-r from-[#F0F9FF] to-[#E0F2FE] border-l-4 border-[#3B82F6] p-6 rounded-xl shadow-sm">
+          <div class="flex items-center gap-6 text-sm font-medium text-[#1E293B]">
+            <span>Total Active: <strong class="text-[#3B82F6]">{{ metrics.totalActive }}</strong> shipments</span>
+            <span class="text-[#94A3B8]">•</span>
+            <span>On Time: <strong class="text-[#10B981]">{{ onTimeCount }} ({{ metrics.onTimePercentage }}%)</strong></span>
+            <span class="text-[#94A3B8]">•</span>
+            <span>Delayed: <strong class="text-[#EF4444]">{{ metrics.delayed }} ({{ delayedPercentage }}%)</strong></span>
+          </div>
+        </div>
+
+        <!-- Status Overview Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+          <div 
+            v-for="status in statusCards" 
+            :key="status.id"
+            @click="filterByStatus(status.id)"
+            :class="[
+              'status-card group bg-white rounded-3xl p-8 border border-gray-100 transition-all duration-300 cursor-pointer',
+              'hover:shadow-[0_20px_60px_-12px_rgba(0,0,0,0.15)] hover:-translate-y-2',
+              activeFilter === status.id ? 'ring-2 ring-blue-500 shadow-lg' : ''
+            ]"
+          >
         <div class="flex flex-col items-center text-center">
+          <!-- Icon Circle -->
           <div :class="[
             'p-4 rounded-full transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 mb-4',
             status.iconBg
@@ -48,14 +83,17 @@
             <component :is="status.icon" :class="['w-7 h-7', status.iconColor]" />
           </div>
           
+          <!-- Number -->
           <p :class="['text-3xl font-bold mb-2 transition-colors duration-300', status.textColor]">
             {{ status.count }}
           </p>
           
+          <!-- Label -->
           <p :class="['text-sm font-medium mb-3 transition-colors duration-300', status.labelColor]">
             {{ status.label }}
           </p>
           
+          <!-- Status Badge -->
           <div :class="[
             'px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-2',
             status.badgeClass,
@@ -65,6 +103,7 @@
             {{ status.label }}
           </div>
           
+          <!-- Progress Bar -->
           <div class="w-full mt-4 h-1 bg-gray-100 rounded-full overflow-hidden">
             <div 
               :class="['h-full rounded-full transition-all duration-500', status.progressColor]"
@@ -75,8 +114,10 @@
       </div>
     </div>
 
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <!-- Search & Filter Toolbar -->
+        <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <!-- Search -->
         <div class="relative flex-1 max-w-lg">
           <Search class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
           <input
@@ -89,7 +130,9 @@
           />
         </div>
 
+        <!-- Filter Actions -->
         <div class="flex items-center gap-3">
+          <!-- Filter Dropdown -->
           <div class="relative">
             <button
               @click="toggleFilterMenu"
@@ -102,6 +145,7 @@
               </span>
             </button>
             
+            <!-- Filter Dropdown Menu -->
             <div v-if="showFilterDropdown" class="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-100 z-50">
               <div class="p-4">
                 <h3 class="font-semibold text-gray-900 mb-3">Filter by Status</h3>
@@ -137,6 +181,7 @@
             </div>
           </div>
           
+          <!-- Sort Dropdown -->
           <div class="relative">
             <button
               @click="toggleSortMenu"
@@ -146,6 +191,7 @@
               Sort by Date
             </button>
             
+            <!-- Sort Dropdown Menu -->
             <div v-if="showSortDropdown" class="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 z-50">
               <div class="p-2">
                 <button 
@@ -166,6 +212,7 @@
         </div>
       </div>
 
+      <!-- Search Suggestions -->
       <div v-if="showSearchSuggestions && searchSuggestions.length" class="relative">
         <div class="absolute top-2 left-0 w-full max-w-lg bg-white rounded-xl shadow-lg border border-gray-100 z-50">
           <div class="p-2">
@@ -182,217 +229,153 @@
       </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div class="flex justify-between items-center p-6 border-b border-gray-100">
-        <h2 class="text-xl font-semibold text-gray-900">Active Shipments</h2>
-        <button 
-          @click="exportShipments"
-          class="flex items-center gap-2 px-4 py-2 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-        >
-          <Download class="w-4 h-4" />
-          Export
-        </button>
-      </div>
-
-      <div class="hidden lg:block overflow-x-auto">
-        <div class="max-h-[calc(100vh-520px)] overflow-y-auto">
-          <table class="w-full min-w-[900px]">
-            <thead class="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
-              <tr>
-                <th class="text-left p-3 text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[120px]">Shipment ID</th>
-                <th class="text-left p-3 text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[200px]">Route</th>
-                <th class="text-left p-3 text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[120px]">Status</th>
-                <th class="text-left p-3 text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[120px]">Cargo Value</th>
-                <th class="text-left p-3 text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[120px]">Est. Delivery</th>
-                <th class="text-left p-3 text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[100px]">Created</th>
-                <th class="text-center p-3 text-xs font-semibold text-gray-600 uppercase tracking-wider min-w-[140px]">Actions</th>
-              </tr>
-            </thead>
-            <tbody v-if="filteredShipments.length > 0" class="divide-y divide-gray-100 bg-white">
-              <tr 
-                v-for="shipment in filteredShipments" 
-                :key="shipment.id"
-                class="shipment-row group hover:bg-gray-50 transition-all duration-200"
-              >
-                <td class="p-3">
-                  <span class="font-mono font-bold text-gray-900 text-sm">
-                    {{ shipment.id }}
-                  </span>
-                </td>
-
-                <td class="p-3">
-                  <div class="flex items-center gap-2 text-sm">
-                    <div class="flex items-center gap-1">
-                      <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <span class="font-medium text-gray-900">{{ shipment.route.origin }}</span>
-                    </div>
-                    <ArrowRight class="w-3 h-3 text-gray-400 flex-shrink-0" />
-                    <div class="flex items-center gap-1">
-                      <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span class="font-medium text-gray-900">{{ shipment.route.destination }}</span>
-                    </div>
-                  </div>
-                </td>
-
-                <td class="p-3">
-                  <div :class="getStatusBadgeClass(shipment.status)">
-                    <component :is="getStatusIcon(shipment.status)" class="w-3 h-3" />
-                    {{ getStatusLabel(shipment.status) }}
-                  </div>
-                </td>
-
-                <td class="p-3">
-                  <div class="text-sm">
-                    <div class="font-semibold text-gray-900">₹{{ formatCurrency(shipment.cargoValue) }}</div>
-                    <div class="text-gray-500">{{ shipment.cargoItems }} items</div>
-                  </div>
-                </td>
-
-                <td class="p-3">
-                  <div class="flex items-center gap-2 text-sm">
-                    <Calendar class="w-3 h-3 text-gray-400 flex-shrink-0" />
-                    <span :class="isOverdue(shipment.estimatedDelivery) ? 'text-red-600 font-medium' : 'text-gray-700'">
-                      {{ formatDate(shipment.estimatedDelivery) }}
-                    </span>
-                  </div>
-                </td>
-
-                <td class="p-3 text-gray-600 text-sm">
-                  {{ formatDate(shipment.created) }}
-                </td>
-
-                <td class="p-3">
-                  <div class="flex items-center justify-center gap-1">
-                    <button 
-                      @click.stop="viewShipment(shipment)"
-                      class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200"
-                      title="View Details"
-                    >
-                      <Eye class="w-4 h-4" />
-                    </button>
-                    <button 
-                      @click.stop="editShipment(shipment)"
-                      class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-                      title="Edit Shipment"
-                    >
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                        <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                      </svg>
-                    </button>
-                    <button 
-                      @click.stop="promptDeleteShipment(shipment)"
-                      class="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-200"
-                      title="Delete Shipment"
-                    >
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3,6 5,6 21,6"></polyline>
-                        <path d="M19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2"></path>
-                      </svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="block lg:hidden space-y-4 p-4">
-        <div
-          v-for="shipment in filteredShipments"
-          :key="shipment.id"
-          class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
-        >
-          <div class="flex items-center justify-between mb-3">
-            <div class="font-mono font-bold text-gray-900">{{ shipment.id }}</div>
-            <div :class="getStatusBadgeClass(shipment.status)">
-              <component :is="getStatusIcon(shipment.status)" class="w-3 h-3" />
-              {{ getStatusLabel(shipment.status) }}
-            </div>
+        <!-- Active Shipments Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <!-- Table Header -->
+          <div class="flex justify-between items-center p-8 border-b border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-900">Active Shipments</h2>
+            <button 
+              @click="exportShipments"
+              class="flex items-center gap-2 px-4 py-2 text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+            >
+              <Download class="w-4 h-4" />
+              Export
+            </button>
           </div>
 
-          <div class="mb-3">
-            <div class="flex items-center justify-between text-sm mb-2">
-              <div class="flex items-center gap-2">
-                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span class="font-medium text-gray-900">{{ shipment.route.origin }}</span>
-              </div>
-              <ArrowRight class="w-4 h-4 text-gray-400" />
-              <div class="flex items-center gap-2">
-                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span class="font-medium text-gray-900">{{ shipment.route.destination }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4 mb-4">
-            <div class="text-center p-3 bg-gray-50 rounded-lg">
-              <div class="text-sm font-semibold text-gray-900">₹{{ formatCurrency(shipment.cargoValue) }}</div>
-              <div class="text-xs text-gray-500">{{ shipment.cargoItems }} items</div>
-            </div>
-            <div class="text-center p-3 bg-gray-50 rounded-lg">
-              <div class="flex items-center justify-center gap-1 mb-1">
-                <Calendar class="w-3 h-3 text-gray-400" />
-                <span class="text-sm font-semibold" :class="isOverdue(shipment.estimatedDelivery) ? 'text-red-600' : 'text-gray-900'">
-                  {{ formatDate(shipment.estimatedDelivery) }}
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Shipment ID</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Route</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Cargo Value</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Est. Delivery</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Created</th>
+              <th class="px-6 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr 
+              v-for="shipment in filteredShipments" 
+              :key="shipment.id"
+              @click="viewShipmentDetails(shipment)"
+              class="shipment-row group hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent hover:border-l-4 hover:border-l-blue-500 transition-all duration-200 cursor-pointer"
+            >
+              <!-- Shipment ID -->
+              <td class="px-6 py-6">
+                <span class="font-mono font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                  {{ shipment.id }}
                 </span>
-              </div>
-              <div class="text-xs text-gray-500">Est. Delivery</div>
-            </div>
-          </div>
+              </td>
 
-          <div class="flex items-center justify-between">
-            <div class="text-xs text-gray-500">Created: {{ formatDate(shipment.created) }}</div>
-            <div class="flex items-center gap-2">
-              <button 
-                @click="viewShipment(shipment)"
-                class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                title="View Details"
-              >
-                <Eye class="w-4 h-4" />
-              </button>
-              <button 
-                @click="editShipment(shipment)"
-                class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Edit Shipment"
-              >
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                  <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                </svg>
-              </button>
-              <button 
-                @click="promptDeleteShipment(shipment)"
-                class="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
-                title="Delete Shipment"
-              >
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="3,6 5,6 21,6"></polyline>
-                  <path d="M19,6v14a2,2 0 0,1-2,2H7a2,2 0 0,1-2-2V6m3,0V4a2,2 0 0,1,2-2h4a2,2 0 0,1,2,2v2"></path>
-                </svg>
-              </button>
-            </div>
-          </div>
+              <!-- Route -->
+              <td class="px-6 py-6">
+                <div class="flex items-center gap-2">
+                  <MapPin class="w-4 h-4 text-gray-400" />
+                  <span class="font-medium text-gray-900">{{ shipment.route.origin }}</span>
+                  <ArrowRight class="w-4 h-4 text-gray-400" />
+                  <span class="font-medium text-gray-900">{{ shipment.route.destination }}</span>
+                </div>
+              </td>
+
+              <!-- Status -->
+              <td class="px-6 py-6">
+                <div :class="getStatusBadgeClass(shipment.status)">
+                  <component :is="getStatusIcon(shipment.status)" class="w-3 h-3" />
+                  {{ getStatusLabel(shipment.status) }}
+                </div>
+              </td>
+
+              <!-- Cargo Value -->
+              <td class="px-6 py-6">
+                <div>
+                  <div class="font-bold text-gray-900">₹{{ formatCurrency(shipment.cargoValue) }}</div>
+                  <div class="text-sm text-gray-500">{{ shipment.cargoItems }} items</div>
+                </div>
+              </td>
+
+              <!-- Est. Delivery -->
+              <td class="px-6 py-6">
+                <div class="flex items-center gap-2">
+                  <Calendar class="w-4 h-4 text-gray-400" />
+                  <span :class="isOverdue(shipment.estimatedDelivery) ? 'text-red-600 font-medium' : 'text-gray-700'">
+                    {{ formatDate(shipment.estimatedDelivery) }}
+                  </span>
+                </div>
+              </td>
+
+              <!-- Created -->
+              <td class="px-6 py-6 text-gray-600">
+                {{ formatDate(shipment.created) }}
+              </td>
+
+              <!-- Actions -->
+              <td class="px-6 py-6">
+                <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <button 
+                    @click.stop="viewShipment(shipment)"
+                    class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
+                    title="View Details"
+                  >
+                    <Eye class="w-4 h-4" />
+                  </button>
+                  <button 
+                    @click.stop="editShipment(shipment)"
+                    class="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors duration-200"
+                    title="Edit Shipment"
+                  >
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  </button>
+                  <button 
+                    @click.stop="promptDeleteShipment(shipment)"
+                    class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                    title="Delete Shipment"
+                  >
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line>
+                      <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                  </button>
+                  <button 
+                    @click.stop="trackShipment(shipment)"
+                    class="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200"
+                  >
+                    Track
+                    <Navigation class="w-3 h-3" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Empty State -->
+        <div v-if="filteredShipments.length === 0" class="flex flex-col items-center justify-center py-16">
+          <Package class="w-16 h-16 text-gray-300 mb-4" />
+          <p class="text-lg font-medium text-gray-500 mb-2">No shipments found</p>
+          <p class="text-gray-400 mb-6">Create your first shipment to start tracking</p>
+          <button 
+            @click="createNewShipment"
+            class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200"
+          >
+            <Plus class="w-5 h-5" />
+            New Shipment
+          </button>
         </div>
-      </div>
-
-      <div v-if="filteredShipments.length === 0" class="flex flex-col items-center justify-center py-16">
-        <Package class="w-16 h-16 text-gray-300 mb-4" />
-        <p class="text-lg font-medium text-gray-500 mb-2">No shipments found</p>
-        <p class="text-gray-400 mb-6">Create your first shipment to start tracking</p>
-        <button 
-          @click="createNewShipment"
-          class="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200"
-        >
-          <Plus class="w-5 h-5" />
-          New Shipment
-        </button>
       </div>
     </div>
-    
+
+    <!-- Shipment Detail Modal -->
     <div v-if="showShipmentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click="closeShipmentModal">
       <div @click.stop class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden">
+        <!-- Modal Header -->
         <div class="flex justify-between items-center p-6 border-b border-gray-100">
           <div>
             <h2 class="text-2xl font-bold text-gray-900">Shipment Details</h2>
@@ -405,9 +388,12 @@
           </button>
         </div>
 
+        <!-- Modal Content -->
         <div class="p-6 overflow-y-auto max-h-[calc(90vh-100px)]">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Column - Basic Info -->
             <div class="space-y-6">
+              <!-- Route Information -->
               <div class="bg-gray-50 rounded-xl p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Route Information</h3>
                 <div class="space-y-3">
@@ -428,6 +414,7 @@
                 </div>
               </div>
 
+              <!-- Cargo Information -->
               <div class="bg-gray-50 rounded-xl p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Cargo Information</h3>
                 <div class="grid grid-cols-2 gap-4">
@@ -442,6 +429,7 @@
                 </div>
               </div>
 
+              <!-- Dates -->
               <div class="bg-gray-50 rounded-xl p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Important Dates</h3>
                 <div class="space-y-3">
@@ -459,7 +447,9 @@
               </div>
             </div>
 
+            <!-- Right Column - Timeline -->
             <div class="space-y-6">
+              <!-- Current Status -->
               <div class="bg-gray-50 rounded-xl p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Current Status</h3>
                 <div v-if="selectedShipment" :class="getStatusBadgeClass(selectedShipment.status)">
@@ -468,15 +458,16 @@
                 </div>
               </div>
 
+              <!-- Tracking Timeline -->
               <div class="bg-gray-50 rounded-xl p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Tracking Timeline</h3>
                 <div class="space-y-4">
                   <div v-for="event in getTimelineEvents(selectedShipment)" :key="event.id" class="flex gap-4">
                     <div class="flex flex-col items-center">
                       <div :class="['w-3 h-3 rounded-full', event.completed ? 'bg-green-500' : 'bg-gray-300']"></div>
-                      <div v-if="!event.isLast" class="w-0.5 flex-grow bg-gray-200 mt-2"></div>
+                      <div v-if="!event.isLast" class="w-0.5 h-8 bg-gray-200 mt-2"></div>
                     </div>
-                    <div class="flex-1 pb-4">
+                    <div class="flex-1 pb-8">
                       <p class="font-medium text-gray-900">{{ event.title }}</p>
                       <p class="text-sm text-gray-600">{{ event.description }}</p>
                       <p class="text-xs text-gray-500 mt-1">{{ event.time }}</p>
@@ -487,6 +478,7 @@
             </div>
           </div>
 
+          <!-- Action Buttons -->
           <div class="flex justify-end gap-3 pt-6 border-t border-gray-100 mt-8">
             <button @click="closeShipmentModal" class="px-6 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
               Close
@@ -499,6 +491,7 @@
       </div>
     </div>
 
+    <!-- New Shipment Modal -->
     <BaseModal :show="showNewShipmentModal" @close="closeNewShipmentModal" max-width="lg">
       <template #header>
         <div class="flex items-center gap-3">
@@ -514,6 +507,7 @@
       
       <template #body>
         <form @submit.prevent="saveShipment" class="space-y-6">
+          <!-- Shipment ID -->
           <div>
             <label for="shipmentId" class="block text-sm font-medium text-gray-700 mb-2">
               Shipment ID
@@ -524,10 +518,10 @@
               type="text"
               readonly
               class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm"
-              placeholder="Will be generated on save"
             />
           </div>
 
+          <!-- Route Selection -->
           <div>
             <label for="route" class="block text-sm font-medium text-gray-700 mb-2">
               Route <span class="text-red-500">*</span>
@@ -538,11 +532,12 @@
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option disabled value="">Select a route</option>
+              <option value="">Select a route</option>
               <option v-for="route in availableRoutes" :key="route" :value="route">{{ route }}</option>
             </select>
           </div>
 
+          <!-- Status -->
           <div>
             <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
               Status <span class="text-red-500">*</span>
@@ -553,14 +548,16 @@
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option disabled value="">Select status</option>
+              <option value="">Select status</option>
               <option value="created">Created</option>
+              <option value="picked-up">Picked Up</option>
               <option value="in-transit">In Transit</option>
               <option value="delivered">Delivered</option>
               <option value="delayed">Delayed</option>
             </select>
           </div>
 
+          <!-- Cargo Value -->
           <div>
             <label for="cargoValue" class="block text-sm font-medium text-gray-700 mb-2">
               Cargo Value (₹) <span class="text-red-500">*</span>
@@ -577,6 +574,7 @@
             />
           </div>
 
+          <!-- Cargo Weight -->
           <div>
             <label for="cargoWeight" class="block text-sm font-medium text-gray-700 mb-2">
               Cargo Weight (kg) <span class="text-red-500">*</span>
@@ -593,6 +591,7 @@
             />
           </div>
 
+          <!-- Estimated Delivery Date -->
           <div>
             <label for="estimatedDelivery" class="block text-sm font-medium text-gray-700 mb-2">
               Estimated Delivery Date <span class="text-red-500">*</span>
@@ -607,6 +606,7 @@
             />
           </div>
 
+          <!-- Notes -->
           <div>
             <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
               Notes
@@ -633,15 +633,16 @@
         <button
           type="button"
           @click="saveShipment"
-          :disabled="isLoading"
+          :disabled="isFormLoading"
           class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
         >
-          <div v-if="isLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-          {{ isLoading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Shipment' : 'Create Shipment') }}
+          <div v-if="isFormLoading" class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          {{ isFormLoading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Shipment' : 'Create Shipment') }}
         </button>
       </template>
     </BaseModal>
 
+    <!-- Delete Confirmation Dialog -->
     <ConfirmDialog
       :show="showDeleteConfirm"
       title="Delete Shipment"
@@ -652,18 +653,22 @@
       @confirm="handleConfirmDelete"
       @cancel="cancelDelete"
     />
-  </div>
+    
+      </div> <!-- End of v-else content -->
+    </div> <!-- End of main container -->
+  </div> <!-- End of shipment-tracking-page -->
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import {
-  Truck, Plus, Search, Filter, ArrowUpDown, Download, Eye,
+  Truck, Plus, Search, Filter, ArrowUpDown, Download, Eye, Navigation,
   Package, MapPin, ArrowRight, Calendar, CheckCircle, AlertTriangle,
   FileText, Clock
 } from 'lucide-vue-next'
 import BaseModal from './shared/BaseModal.vue'
 import ConfirmDialog from './shared/ConfirmDialog.vue'
+import { shipmentApi } from '../services/api.js'
 
 // ============================================================================
 // REACTIVE STATE
@@ -678,12 +683,22 @@ const showSearchSuggestions = ref(false)
 const showShipmentModal = ref(false)
 const selectedShipment = ref(null)
 const sortBy = ref('created-desc')
-const showNewShipmentModal = ref(false)
+
+// API State
+const shipments = ref([])
 const isLoading = ref(false)
+const error = ref(null)
+
+// New Shipment Form State
+const showNewShipmentModal = ref(false)
+const isFormLoading = ref(false)
 const isEditMode = ref(false)
+
+// Delete Confirmation State
 const showDeleteConfirm = ref(false)
 const shipmentToDelete = ref(null)
 
+// Form Data
 const shipmentForm = ref({
   id: '',
   route: '',
@@ -694,6 +709,7 @@ const shipmentForm = ref({
   notes: ''
 })
 
+// Available options
 const availableRoutes = [
   'Mumbai → Chennai',
   'Delhi → Bangalore',
@@ -703,69 +719,67 @@ const availableRoutes = [
   'Jaipur → Lucknow'
 ]
 
-// Sample shipment data (standardized with lowercase status and cargoWeight)
-const shipments = ref([
-  {
-    id: 'SH001',
-    route: { origin: 'Mumbai', destination: 'Chennai' },
-    status: 'in-transit',
-    cargoValue: 750000,
-    cargoItems: 12,
-    cargoWeight: 120.5,
-    estimatedDelivery: new Date('2025-10-15'),
-    created: new Date('2025-10-05')
-  },
-  {
-    id: 'SH002',
-    route: { origin: 'Delhi', destination: 'Bangalore' },
-    status: 'delivered',
-    cargoValue: 320000,
-    cargoItems: 8,
-    cargoWeight: 85,
-    estimatedDelivery: new Date('2025-10-12'),
-    created: new Date('2025-10-02')
-  },
-  {
-    id: 'SH003',
-    route: { origin: 'Kolkata', destination: 'Hyderabad' },
-    status: 'created',
-    cargoValue: 180000,
-    cargoItems: 5,
-    cargoWeight: 52.1,
-    estimatedDelivery: new Date('2025-10-18'),
-    created: new Date('2025-10-08')
-  },
-  {
-    id: 'SH004',
-    route: { origin: 'Pune', destination: 'Kochi' },
-    status: 'created',
-    cargoValue: 95000,
-    cargoItems: 3,
-    cargoWeight: 30,
-    estimatedDelivery: new Date('2025-10-20'),
-    created: new Date('2025-10-10')
-  },
-  {
-    id: 'SH005',
-    route: { origin: 'Ahmedabad', destination: 'Jaipur' },
-    status: 'delayed',
-    cargoValue: 420000,
-    cargoItems: 15,
-    cargoWeight: 155.8,
-    estimatedDelivery: new Date('2025-10-08'), // Overdue
-    created: new Date('2025-09-28')
-  }
-])
+// Mock Data - Commented out, now using API calls
+// const shipments = ref([
+//   {
+//     id: 'SH001',
+//     route: { origin: 'Mumbai', destination: 'Chennai' },
+//     status: 'in-transit',
+//     cargoValue: 750000,
+//     cargoItems: 12,
+//     estimatedDelivery: new Date('2025-10-15'),
+//     created: new Date('2025-10-05')
+//   },
+//   {
+//     id: 'SH002',
+//     route: { origin: 'Delhi', destination: 'Bangalore' },
+//     status: 'delivered',
+//     cargoValue: 320000,
+//     cargoItems: 8,
+//     estimatedDelivery: new Date('2025-10-12'),
+//     created: new Date('2025-10-02')
+//   },
+//   {
+//     id: 'SH003',
+//     route: { origin: 'Kolkata', destination: 'Hyderabad' },
+//     status: 'picked-up',
+//     cargoValue: 180000,
+//     cargoItems: 5,
+//     estimatedDelivery: new Date('2025-10-18'),
+//     created: new Date('2025-10-08')
+//   },
+//   {
+//     id: 'SH004',
+//     route: { origin: 'Pune', destination: 'Kochi' },
+//     status: 'created',
+//     cargoValue: 95000,
+//     cargoItems: 3,
+//     estimatedDelivery: new Date('2025-10-20'),
+//     created: new Date('2025-10-10')
+//   },
+//   {
+//     id: 'SH005',
+//     route: { origin: 'Ahmedabad', destination: 'Jaipur' },
+//     status: 'delayed',
+//     cargoValue: 420000,
+//     cargoItems: 15,
+//     estimatedDelivery: new Date('2025-10-08'), // Overdue
+//     created: new Date('2025-09-28')
+//   }
+// ])
 
 // ============================================================================
 // COMPUTED PROPERTIES
 // ============================================================================
 
+// Status card configurations
+// Note: Updated to match database schema - status values use proper case
+// 'Picked Up' status commented out as it's not in database CHECK constraint
 const statusCards = computed(() => [
   {
-    id: 'in-transit',
+    id: 'In Transit',
     icon: Truck,
-    count: shipments.value.filter(s => s.status === 'in-transit').length,
+    count: shipments.value.filter(s => s.status === 'In Transit').length,
     label: 'In Transit',
     iconBg: 'bg-gradient-to-br from-teal-50 to-teal-100',
     iconColor: 'text-teal-600',
@@ -776,9 +790,9 @@ const statusCards = computed(() => [
     progress: 75
   },
   {
-    id: 'delivered',
+    id: 'Delivered',
     icon: CheckCircle,
-    count: shipments.value.filter(s => s.status === 'delivered').length,
+    count: shipments.value.filter(s => s.status === 'Delivered').length,
     label: 'Delivered',
     iconBg: 'bg-gradient-to-br from-green-50 to-green-100',
     iconColor: 'text-green-600',
@@ -788,10 +802,27 @@ const statusCards = computed(() => [
     progressColor: 'bg-green-500',
     progress: 100
   },
+  // Picked Up status commented out - not supported in current database schema
+  // Can be restored when schema is updated to support this status after Kafka integration
+  /*
   {
-    id: 'created',
+    id: 'Picked Up',
+    icon: Package,
+    count: shipments.value.filter(s => s.status === 'Picked Up').length,
+    label: 'Picked Up',
+    iconBg: 'bg-gradient-to-br from-blue-50 to-blue-100',
+    iconColor: 'text-blue-600',
+    textColor: 'text-gray-900 group-hover:text-blue-700',
+    labelColor: 'text-gray-600 group-hover:text-blue-600',
+    badgeClass: 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-l-2 border-blue-500',
+    progressColor: 'bg-blue-500',
+    progress: 50
+  },
+  */
+  {
+    id: 'Created',
     icon: FileText,
-    count: shipments.value.filter(s => s.status === 'created').length,
+    count: shipments.value.filter(s => s.status === 'Created').length,
     label: 'Created',
     iconBg: 'bg-gradient-to-br from-gray-50 to-gray-100',
     iconColor: 'text-gray-600',
@@ -802,9 +833,9 @@ const statusCards = computed(() => [
     progress: 25
   },
   {
-    id: 'delayed',
+    id: 'Delayed',
     icon: AlertTriangle,
-    count: shipments.value.filter(s => s.status === 'delayed').length,
+    count: shipments.value.filter(s => s.status === 'Delayed').length,
     label: 'Delayed',
     iconBg: 'bg-gradient-to-br from-red-50 to-red-100',
     iconColor: 'text-red-600',
@@ -816,13 +847,19 @@ const statusCards = computed(() => [
   }
 ])
 
+// Status options for filter dropdown
+// Note: Aligned with database CHECK constraint: shipment_status IN ('Created', 'In Transit', 'Delivered', 'Delayed')
+// Updated 2024: Removed 'picked-up' status as it's not supported in database schema
+// 'Picked Up' status commented out below - can be restored when schema supports it after Kafka integration
 const statusOptions = computed(() => [
-  { value: 'in-transit', label: 'In Transit', icon: Truck, color: 'text-teal-600' },
-  { value: 'delivered', label: 'Delivered', icon: CheckCircle, color: 'text-green-600' },
-  { value: 'created', label: 'Created', icon: FileText, color: 'text-gray-600' },
-  { value: 'delayed', label: 'Delayed', icon: AlertTriangle, color: 'text-red-600' }
+  { value: 'In Transit', label: 'In Transit', icon: Truck, color: 'text-teal-600' },
+  { value: 'Delivered', label: 'Delivered', icon: CheckCircle, color: 'text-green-600' },
+  // { value: 'Picked Up', label: 'Picked Up', icon: Package, color: 'text-blue-600' }, // Not in DB schema
+  { value: 'Created', label: 'Created', icon: FileText, color: 'text-gray-600' },
+  { value: 'Delayed', label: 'Delayed', icon: AlertTriangle, color: 'text-red-600' }
 ])
 
+// Sort options
 const sortOptions = computed(() => [
   { value: 'created-desc', label: 'Created Date (Newest)', icon: Calendar },
   { value: 'created-asc', label: 'Created Date (Oldest)', icon: Calendar },
@@ -832,6 +869,7 @@ const sortOptions = computed(() => [
   { value: 'value-asc', label: 'Cargo Value (Lowest)', icon: ArrowUpDown }
 ])
 
+// Search suggestions
 const searchSuggestions = computed(() => {
   if (!searchQuery.value || searchQuery.value.length < 2) return []
   
@@ -853,9 +891,11 @@ const searchSuggestions = computed(() => {
   return Array.from(suggestions).slice(0, 5)
 })
 
+// Metrics calculations
 const metrics = computed(() => {
   const total = shipments.value.length
   const delayed = shipments.value.filter(s => s.status === 'delayed').length
+  const delivered = shipments.value.filter(s => s.status === 'delivered').length
   const onTime = total - delayed
   
   return {
@@ -866,15 +906,16 @@ const metrics = computed(() => {
 })
 
 const onTimeCount = computed(() => shipments.value.length - metrics.value.delayed)
-
 const delayedPercentage = computed(() => {
   const total = shipments.value.length
   return total > 0 ? Math.round((metrics.value.delayed / total) * 100) : 0
 })
 
+// Filtered shipments based on search and filters
 const filteredShipments = computed(() => {
-  let filtered = [...shipments.value]
+  let filtered = shipments.value
 
+  // Apply search filter
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(shipment =>
@@ -885,14 +926,17 @@ const filteredShipments = computed(() => {
     )
   }
 
+  // Apply status filters (multi-select)
   if (activeFilters.value.length > 0) {
     filtered = filtered.filter(shipment => activeFilters.value.includes(shipment.status))
   }
 
+  // Apply single filter from status card click
   if (activeFilter.value) {
     filtered = filtered.filter(shipment => shipment.status === activeFilter.value)
   }
 
+  // Apply sorting
   filtered.sort((a, b) => {
     switch (sortBy.value) {
       case 'created-desc':
@@ -924,7 +968,6 @@ const formatCurrency = (amount) => {
 }
 
 const formatDate = (date) => {
-  if (!date) return 'N/A';
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',
@@ -933,7 +976,6 @@ const formatDate = (date) => {
 }
 
 const isOverdue = (date) => {
-  if (!date) return false;
   return new Date() > new Date(date)
 }
 
@@ -941,6 +983,7 @@ const getStatusIcon = (status) => {
   const icons = {
     'in-transit': Truck,
     'delivered': CheckCircle,
+    'picked-up': Package,
     'created': FileText,
     'delayed': AlertTriangle
   }
@@ -951,6 +994,7 @@ const getStatusLabel = (status) => {
   const labels = {
     'in-transit': 'In Transit',
     'delivered': 'Delivered',
+    'picked-up': 'Picked Up',
     'created': 'Created',
     'delayed': 'Delayed'
   }
@@ -958,13 +1002,21 @@ const getStatusLabel = (status) => {
 }
 
 const getStatusBadgeClass = (status) => {
+  // Updated to match database schema status values (proper case)
+  // Added mapping for backward compatibility with any legacy lowercase values
   const classes = {
+    'In Transit': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-teal-100 to-teal-200 text-teal-800 border-l-2 border-teal-500',
+    'Delivered': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-l-2 border-green-500',
+    // 'Picked Up': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-l-2 border-blue-500', // Not in DB schema
+    'Created': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border-l-2 border-gray-500',
+    'Delayed': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-l-2 border-red-500 animate-pulse',
+    // Legacy mappings for backward compatibility (remove after full migration)
     'in-transit': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-teal-100 to-teal-200 text-teal-800 border-l-2 border-teal-500',
     'delivered': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-l-2 border-green-500',
     'created': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border-l-2 border-gray-500',
     'delayed': 'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-l-2 border-red-500 animate-pulse'
   }
-  return classes[status] || classes['created']
+  return classes[status] || classes['Created']
 }
 
 // ============================================================================
@@ -973,6 +1025,7 @@ const getStatusBadgeClass = (status) => {
 
 const filterByStatus = (status) => {
   activeFilter.value = activeFilter.value === status ? '' : status
+  // Clear multi-select filters when using card filter
   if (activeFilter.value) {
     activeFilters.value = []
   }
@@ -994,6 +1047,7 @@ const clearFilters = () => {
 
 const applyFilters = () => {
   showFilterDropdown.value = false
+  // Clear single filter when using multi-select
   if (activeFilters.value.length > 0) {
     activeFilter.value = ''
   }
@@ -1024,45 +1078,48 @@ const getTimelineEvents = (shipment) => {
       title: 'Shipment Created',
       description: 'Shipment has been registered in the system',
       time: formatDate(shipment.created),
-      completed: ['created', 'in-transit', 'delivered', 'delayed'].includes(shipment.status),
+      completed: true,
       isLast: false
     },
     {
       id: 2,
-      title: 'In Transit',
-      description: 'Shipment is on its way to the destination',
-      time: ['in-transit', 'delivered'].includes(shipment.status) ? 'In Progress' : 'Pending...',
-      completed: ['in-transit', 'delivered'].includes(shipment.status),
+      title: 'Picked Up',
+      description: 'Cargo has been collected from origin',
+      time: 'Processing...',
+      completed: ['picked-up', 'in-transit', 'delivered'].includes(shipment.status),
       isLast: false
     },
     {
       id: 3,
+      title: 'In Transit',
+      description: 'Shipment is on its way to destination',
+      time: 'Processing...',
+      completed: ['in-transit', 'delivered'].includes(shipment.status),
+      isLast: false
+    },
+    {
+      id: 4,
       title: 'Delivered',
       description: 'Shipment has been delivered successfully',
       time: shipment.status === 'delivered' ? formatDate(shipment.estimatedDelivery) : 'Pending...',
       completed: shipment.status === 'delivered',
       isLast: true
     }
-  ];
-
+  ]
+  
   if (shipment.status === 'delayed') {
-    const delayedEvent = {
-      id: 4,
+    events.splice(2, 0, {
+      id: 5,
       title: 'Delayed',
       description: 'Shipment is experiencing delays',
       time: 'Current status',
       completed: true,
       isLast: false
-    };
-    // Insert after 'Created'
-    events.splice(1, 0, delayedEvent);
-    // Ensure the last event's line doesn't extend
-    events.forEach((event, index) => {
-      event.isLast = index === events.length - 1;
-    });
+    })
+    events[events.length - 1].isLast = true
   }
-
-  return events;
+  
+  return events
 }
 
 const closeShipmentModal = () => {
@@ -1070,22 +1127,22 @@ const closeShipmentModal = () => {
   selectedShipment.value = null
 }
 
+const createNewShipment = () => {
+  openNewShipmentModal()
+}
+
 const openNewShipmentModal = () => {
   isEditMode.value = false
   shipmentForm.value = {
-    id: '',
+    id: `SH${String(shipments.value.length + 1).padStart(3, '0')}`,
     route: '',
     status: 'created',
-    cargoValue: null,
-    cargoWeight: null,
+    cargoValue: 0,
+    cargoWeight: 0,
     estimatedDelivery: '',
     notes: ''
   }
   showNewShipmentModal.value = true
-}
-
-const createNewShipment = () => {
-  openNewShipmentModal()
 }
 
 const closeNewShipmentModal = () => {
@@ -1097,48 +1154,23 @@ const saveShipment = async () => {
   if (!shipmentForm.value.route || !shipmentForm.value.status || 
       !shipmentForm.value.cargoValue || !shipmentForm.value.cargoWeight || 
       !shipmentForm.value.estimatedDelivery) {
-    alert('Please fill in all required fields.')
     return
   }
 
-  isLoading.value = true
+  const shipmentData = {
+    route: shipmentForm.value.route,
+    status: shipmentForm.value.status,
+    cargoValue: shipmentForm.value.cargoValue,
+    cargoWeight: shipmentForm.value.cargoWeight,
+    cargoItems: Math.floor(shipmentForm.value.cargoWeight / 10), // Mock calculation
+    estimatedDelivery: new Date(shipmentForm.value.estimatedDelivery),
+    notes: shipmentForm.value.notes
+  }
 
-  try {
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    const routeParts = shipmentForm.value.route.split(' → ')
-    const updatedData = {
-      route: { 
-        origin: routeParts[0] || shipmentForm.value.route, 
-        destination: routeParts[1] || 'Unknown' 
-      },
-      status: shipmentForm.value.status,
-      cargoValue: Number(shipmentForm.value.cargoValue),
-      cargoWeight: Number(shipmentForm.value.cargoWeight),
-      cargoItems: Math.max(1, Math.floor(Number(shipmentForm.value.cargoWeight) / 10)),
-      estimatedDelivery: new Date(shipmentForm.value.estimatedDelivery),
-      notes: shipmentForm.value.notes
-    };
-
-    if (isEditMode.value) {
-      const index = shipments.value.findIndex(s => s.id === shipmentForm.value.id)
-      if (index !== -1) {
-        shipments.value[index] = { ...shipments.value[index], ...updatedData }
-      }
-    } else {
-      const newShipment = {
-        id: `SH${String(shipments.value.length + 10).padStart(3, '0')}`,
-        ...updatedData,
-        created: new Date()
-      }
-      shipments.value.unshift(newShipment)
-    }
-    
-    closeNewShipmentModal()
-  } catch (error) {
-    console.error('Error saving shipment:', error)
-  } finally {
-    isLoading.value = false
+  if (isEditMode.value) {
+    await updateShipment(shipmentForm.value.id, shipmentData)
+  } else {
+    await createShipment(shipmentData)
   }
 }
 
@@ -1146,13 +1178,13 @@ const editShipment = (shipment) => {
   isEditMode.value = true
   shipmentForm.value = {
     id: shipment.id,
-    route: `${shipment.route.origin} → ${shipment.route.destination}`,
+    route: shipment.route,
     status: shipment.status,
     cargoValue: shipment.cargoValue,
-    cargoWeight: shipment.cargoWeight || 0,
+    cargoWeight: shipment.cargoWeight,
     estimatedDelivery: shipment.estimatedDelivery instanceof Date 
       ? shipment.estimatedDelivery.toISOString().split('T')[0]
-      : '',
+      : shipment.estimatedDelivery,
     notes: shipment.notes || ''
   }
   showNewShipmentModal.value = true
@@ -1163,9 +1195,14 @@ const promptDeleteShipment = (shipment) => {
   showDeleteConfirm.value = true
 }
 
-const handleConfirmDelete = () => {
+const handleConfirmDelete = async () => {
   if (shipmentToDelete.value) {
-    shipments.value = shipments.value.filter(s => s.id !== shipmentToDelete.value.id)
+    try {
+      await deleteShipment(shipmentToDelete.value.id)
+      console.log(`Successfully deleted shipment: ${shipmentToDelete.value.id}`)
+    } catch (error) {
+      console.error('Error deleting shipment:', error)
+    }
   }
   cancelDelete()
 }
@@ -1176,7 +1213,12 @@ const cancelDelete = () => {
 }
 
 const exportShipments = () => {
-  alert('Export functionality coming soon!');
+  console.log('Export shipments')
+}
+
+const viewShipmentDetails = (shipment) => {
+  selectedShipment.value = shipment
+  showShipmentModal.value = true
 }
 
 const viewShipment = (shipment) => {
@@ -1184,55 +1226,208 @@ const viewShipment = (shipment) => {
   showShipmentModal.value = true
 }
 
-const trackShipment = (shipment) => {
-  alert(`Live tracking for ${shipment.id} is not yet implemented.`);
+// ============================================================================
+// API FUNCTIONS
+// ============================================================================
+
+const loadShipments = async () => {
+  isLoading.value = true
+  error.value = null
+  
+  try {
+    console.log('Loading shipments from API...')
+    const data = await shipmentApi.getAll()
+    console.log('Received shipment data:', data)
+    
+    // Transform backend data to frontend format
+    shipments.value = (data || []).map(shipment => ({
+      id: shipment.shipmentCode || `SH${String(shipment.shipmentId).padStart(3, '0')}`,
+      route: {
+        origin: shipment.origin,
+        destination: shipment.destination
+      },
+      status: shipment.status?.toLowerCase() || 'pending',
+      cargoValue: 0, // Will need to calculate from related cargo
+      cargoItems: 1, // Default value
+      estimatedDelivery: shipment.estimatedDelivery || new Date().toISOString(),
+      created: shipment.createdAt || new Date().toISOString(), // Match template expectation
+      shipmentDate: shipment.createdAt || new Date().toISOString(),
+      vendor: shipment.assignedVendor,
+      assignedRoute: shipment.assignedRoute,
+      // Keep original backend data for API operations
+      _original: shipment
+    }))
+    console.log('Transformed shipments:', shipments.value)
+  } catch (err) {
+    error.value = 'Failed to load shipments. Please try again.'
+    console.error('Error loading shipments:', err)
+    shipments.value = []
+  } finally {
+    isLoading.value = false
+  }
 }
 
+const createShipment = async (shipmentData) => {
+  isFormLoading.value = true
+  error.value = null
+
+  try {
+    const newShipment = await shipmentApi.create(shipmentData)
+    shipments.value.unshift(newShipment)
+    closeNewShipmentModal()
+  } catch (err) {
+    error.value = 'Failed to create shipment. Please try again.'
+    console.error('Error creating shipment:', err)
+  } finally {
+    isFormLoading.value = false
+  }
+}
+
+const updateShipment = async (id, shipmentData) => {
+  isFormLoading.value = true
+  error.value = null
+
+  try {
+    const updatedShipment = await shipmentApi.update(id, shipmentData)
+    const index = shipments.value.findIndex(s => s.id === id)
+    if (index !== -1) {
+      shipments.value[index] = updatedShipment
+    }
+    closeNewShipmentModal()
+  } catch (err) {
+    error.value = 'Failed to update shipment. Please try again.'
+    console.error('Error updating shipment:', err)
+  } finally {
+    isFormLoading.value = false
+  }
+}
+
+const deleteShipment = async (id) => {
+  try {
+    await shipmentApi.delete(id)
+    shipments.value = shipments.value.filter(s => s.id !== id)
+  } catch (err) {
+    error.value = 'Failed to delete shipment. Please try again.'
+    console.error('Error deleting shipment:', err)
+  }
+}
+
+// ============================================================================
+// COMPONENT FUNCTIONS
+// ============================================================================
+
+const trackShipment = (shipment) => {
+  console.log('Track shipment:', shipment.id)
+  // Simulate real-time tracking
+  setTimeout(() => {
+    console.log('Tracking data loaded for:', shipment.id)
+  }, 1500)
+}
+
+// Click outside handler
 const handleClickOutside = (event) => {
   if (!event.target.closest('.relative')) {
     showFilterDropdown.value = false
     showSortDropdown.value = false
+    showSearchSuggestions.value = false
   }
 }
 
+// Initialize component
 onMounted(() => {
-  document.addEventListener('mousedown', handleClickOutside)
+  document.addEventListener('click', handleClickOutside)
+  loadShipments()
 })
 
 onUnmounted(() => {
-  document.removeEventListener('mousedown', handleClickOutside)
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
 <style scoped>
+/* Custom scrollbar for table */
 .overflow-x-auto::-webkit-scrollbar {
   height: 8px;
 }
+
 .overflow-x-auto::-webkit-scrollbar-track {
   background: #f3f4f6;
   border-radius: 8px;
 }
+
 .overflow-x-auto::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 8px;
 }
+
 .overflow-x-auto::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
 
+/* Smooth transitions for all interactive elements */
+* {
+  transition-property: color, background-color, border-color, transform, box-shadow, opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* Enhanced hover effects for table rows */
+.group:hover {
+  transform: translateX(2px);
+}
+
+/* Font family consistency */
 .font-mono {
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Courier New', monospace;
 }
 
+/* Status card animations */
 .status-card {
-  animation: fadeInUp 0.6s ease-out both;
+  animation: fadeInUp 0.6s ease-out;
 }
+
 .status-card:nth-child(1) { animation-delay: 0.1s; }
 .status-card:nth-child(2) { animation-delay: 0.2s; }
 .status-card:nth-child(3) { animation-delay: 0.3s; }
 .status-card:nth-child(4) { animation-delay: 0.4s; }
 .status-card:nth-child(5) { animation-delay: 0.5s; }
 
+/* Table row animations */
+.shipment-row {
+  animation: slideInLeft 0.4s ease-out;
+}
+
+.shipment-row:nth-child(1) { animation-delay: 0.05s; }
+.shipment-row:nth-child(2) { animation-delay: 0.1s; }
+.shipment-row:nth-child(3) { animation-delay: 0.15s; }
+.shipment-row:nth-child(4) { animation-delay: 0.2s; }
+.shipment-row:nth-child(5) { animation-delay: 0.25s; }
+
+/* Dropdown animations */
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.95);
+}
+
+/* Modal animations */
+.modal-enter-active,
+.modal-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* Custom animations */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -1244,12 +1439,59 @@ onUnmounted(() => {
   }
 }
 
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Delayed status badge pulse */
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
-@keyframes pulse {
-  50% {
-    opacity: .5;
-  }
+
+/* Button hover effects */
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Card hover effects */
+.status-card:hover {
+  animation-play-state: paused;
+}
+
+/* Progress bar animation */
+.progress-bar {
+  transition: width 1s ease-out;
+}
+
+/* Search suggestions animation */
+.suggestions-enter-active,
+.suggestions-leave-active {
+  transition: all 0.2s ease-out;
+}
+
+.suggestions-enter-from,
+.suggestions-leave-to {
+  opacity: 0;
+  transform: translateY(-5px);
 }
 </style>

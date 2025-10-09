@@ -1,7 +1,7 @@
 <template>
-  <div class="space-y-10 animate-fade-in bg-[#F5F5F7] min-h-screen p-10">
+  <div class="space-y-12 animate-fade-in bg-[#F5F5F7] min-h-screen p-10">
     <!-- Page Header -->
-    <div class="flex justify-between items-start">
+    <div class="flex justify-between items-start mb-8">
       <div class="flex items-start gap-4">
         <div class="w-14 h-14 rounded-full bg-[#EFF6FF] flex items-center justify-center">
           <Users class="w-7 h-7 text-[#3B82F6]" />
@@ -20,8 +20,42 @@
       </button>
     </div>
 
+    <!-- Error State -->
+    <div v-if="error" class="bg-red-50 border border-red-200 rounded-2xl p-6 mb-10">
+      <div class="flex items-center gap-3">
+        <div class="w-6 h-6 text-red-600">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-red-800 font-semibold">Error Loading Data</h3>
+          <p class="text-red-600 text-sm">{{ error }}</p>
+        </div>
+        <button 
+          @click="loadVendors"
+          class="ml-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div v-if="isLoadingData" class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-10">
+      <div class="flex items-center justify-center gap-3">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <p class="text-gray-600">Loading vendor data...</p>
+      </div>
+    </div>
+
+    <!-- Main Content - Only show when not loading and no error -->
+    <div v-if="!isLoadingData && !error" class="space-y-10">
+
     <!-- Metrics Cards Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 mb-10">
       <div 
         v-for="(metric, index) in vendorMetrics" 
         :key="metric.id"
@@ -51,7 +85,7 @@
     </div>
 
     <!-- Search and Filters -->
-    <div class="bg-white rounded-[24px] p-8 shadow-[0_1px_3px_rgba(0,0,0,0.03),0_8px_16px_rgba(0,0,0,0.04)]">
+    <div class="bg-white rounded-[24px] p-8 shadow-[0_1px_3px_rgba(0,0,0,0.03),0_8px_16px_rgba(0,0,0,0.04)] mb-10">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         <!-- Search Input -->
         <div class="relative flex-1 max-w-md">
@@ -79,18 +113,18 @@
     </div>
 
     <!-- Vendors Grid -->
-    <div v-if="filteredVendors.length > 0">
-      <div class="flex items-center justify-between mb-6">
+    <div v-if="filteredVendors.length > 0" class="mb-10">
+      <div class="flex items-center justify-between mb-8">
         <h2 class="text-2xl font-bold text-[#0F172A]">All Vendors</h2>
         <span class="text-[#64748B] text-sm">{{ filteredVendors.length }} vendor{{ filteredVendors.length !== 1 ? 's' : '' }} found</span>
       </div>
       
       <!-- Responsive Grid: 3 columns desktop, 2 tablet, 1 mobile -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <div 
           v-for="vendor in filteredVendors" 
           :key="vendor.id"
-          class="vendor-card bg-white rounded-[20px] p-7 min-h-[320px] shadow-[0_1px_3px_rgba(0,0,0,0.03),0_8px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 hover:border-[#E0E7FF] transition-all duration-300 group relative border border-transparent"
+          class="vendor-card bg-white rounded-[20px] p-8 min-h-[340px] shadow-[0_1px_3px_rgba(0,0,0,0.03),0_8px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1 hover:border-[#E0E7FF] transition-all duration-300 cursor-pointer group relative border border-transparent"
           :class="[
             selectedVendor === vendor.id ? 'border-[#3B82F6] ring-2 ring-[#3B82F6]/20' : '',
             vendor.rating >= 4.8 ? 'border-[#F59E0B] border-2' : ''
@@ -263,17 +297,17 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else class="text-center py-16">
-      <div class="flex justify-center mb-6">
-        <div class="w-16 h-16 rounded-full bg-[#F1F5F9] flex items-center justify-center">
-          <Users class="w-8 h-8 text-[#CBD5E1]" />
+    <div v-else class="text-center py-20 mb-10">
+      <div class="flex justify-center mb-8">
+        <div class="w-20 h-20 rounded-full bg-[#F1F5F9] flex items-center justify-center">
+          <Users class="w-10 h-10 text-[#CBD5E1]" />
         </div>
       </div>
-      <h3 class="text-xl font-semibold text-[#1E293B] mb-2">No vendors found</h3>
-      <p class="text-[#64748B] mb-6">Add your first logistics partner to get started</p>
+      <h3 class="text-2xl font-semibold text-[#1E293B] mb-3">No vendors found</h3>
+      <p class="text-[#64748B] mb-8 text-lg">Add your first logistics partner to get started</p>
       <button 
         @click="showAddVendorModal = true"
-        class="bg-gradient-to-br from-[#3B82F6] to-[#2563EB] text-white px-6 py-3 rounded-xl hover:scale-102 active:scale-98 hover:shadow-[0_8px_24px_rgba(59,130,246,0.4)] shadow-[0_4px_12px_rgba(59,130,246,0.3)] transition-all duration-200 flex items-center gap-3 font-semibold text-[15px] mx-auto"
+        class="bg-gradient-to-br from-[#3B82F6] to-[#2563EB] text-white px-8 py-4 rounded-xl hover:scale-102 active:scale-98 hover:shadow-[0_8px_24px_rgba(59,130,246,0.4)] shadow-[0_4px_12px_rgba(59,130,246,0.3)] transition-all duration-200 flex items-center gap-3 font-semibold text-[16px] mx-auto"
       >
         <Plus class="w-5 h-5" />
         Add Vendor
@@ -738,6 +772,7 @@
       @confirm="handleConfirmDeleteVendor"
       @cancel="cancelDeleteVendor"
     />
+    </div> <!-- End of main content conditional -->
   </div>
 </template>
 
@@ -752,6 +787,7 @@ import {
 
 import BaseModal from './shared/BaseModal.vue'
 import ConfirmDialog from './shared/ConfirmDialog.vue'
+import { vendorApi } from '../services/api.js'
 
 // Reactive data
 const showAddVendorModal = ref(false)
@@ -770,6 +806,10 @@ const isEditMode = ref(false)
 // Delete Confirmation State
 const showDeleteConfirm = ref(false)
 const vendorToDelete = ref(null)
+
+// API State Management
+const isLoadingData = ref(true)
+const error = ref(null)
 
 // Form Data
 const vendorForm = ref({
@@ -845,7 +885,13 @@ const vendorMetrics = reactive([
 ])
 
 // Sample Vendor Data
-const vendors = reactive([
+// Vendors data - loaded from backend API
+const vendors = reactive([])
+
+// ===== MOCK DATA - COMMENTED OUT =====
+// Mock vendor data - replaced with API calls
+/*
+const vendorsMock = [
   {
     id: 'VEN001',
     name: 'Express Logistics Co.',
@@ -898,7 +944,8 @@ const vendors = reactive([
     activeShipments: 5,
     status: 'Pending'
   }
-])
+]
+*/
 
 // Quick Actions configuration
 const quickActions = [
@@ -966,13 +1013,18 @@ const getInitials = (name) => {
 }
 
 const getServiceIcon = (serviceType) => {
+  if (!serviceType) return Truck
   switch (serviceType.toLowerCase()) {
     case 'road transport':
       return Truck
     case 'sea transport':
+    case 'ocean freight':
       return Ship
     case 'air transport':
+    case 'air freight':
       return Plane
+    case 'express delivery':
+      return Package
     case 'combined':
       return Layers
     default:
@@ -981,13 +1033,18 @@ const getServiceIcon = (serviceType) => {
 }
 
 const getServiceBadgeClass = (serviceType) => {
+  if (!serviceType) return 'bg-[#DBEAFE] text-[#1E40AF]'
   switch (serviceType.toLowerCase()) {
     case 'road transport':
       return 'bg-[#DBEAFE] text-[#1E40AF]'
     case 'sea transport':
+    case 'ocean freight':
       return 'bg-[#CCFBF1] text-[#115E59]'
     case 'air transport':
+    case 'air freight':
       return 'bg-[#FED7AA] text-[#9A3412]'
+    case 'express delivery':
+      return 'bg-[#FECACA] text-[#991B1B]'
     case 'combined':
       return 'bg-[#D1FAE5] text-[#065F46]'
     default:
@@ -1117,54 +1174,33 @@ const saveVendor = async () => {
     return
   }
 
-  isLoading.value = true
-
   try {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    const vendorData = {
+      id: vendorForm.value.id,
+      name: vendorForm.value.name,
+      logo: null,
+      serviceType: vendorForm.value.serviceType,
+      rating: vendorForm.value.rating,
+      contact: {
+        phone: vendorForm.value.contactPhone,
+        email: vendorForm.value.contactEmail
+      },
+      activeShipments: 0,
+      status: vendorForm.value.status
+    }
 
     if (isEditMode.value) {
-      console.log('Updating existing vendor')
-      // Update existing vendor
-      const index = vendors.findIndex(v => v.id === vendorForm.value.id)
-      if (index !== -1) {
-        vendors[index] = {
-          ...vendors[index],
-          name: vendorForm.value.name,
-          serviceType: vendorForm.value.serviceType,
-          rating: vendorForm.value.rating,
-          contact: {
-            phone: vendorForm.value.contactPhone,
-            email: vendorForm.value.contactEmail
-          },
-          status: vendorForm.value.status
-        }
-        console.log('Vendor updated successfully:', vendors[index])
-      }
+      // Update existing vendor via API
+      await updateVendor(vendorForm.value.id, vendorData)
     } else {
-      console.log('Creating new vendor')
-      // Add new vendor
-      const newVendor = {
-        id: `VEN${String(vendors.length + 1).padStart(3, '0')}`,
-        name: vendorForm.value.name,
-        logo: null,
-        serviceType: vendorForm.value.serviceType,
-        rating: vendorForm.value.rating,
-        contact: {
-          phone: vendorForm.value.contactPhone,
-          email: vendorForm.value.contactEmail
-        },
-        activeShipments: 0,
-        status: vendorForm.value.status
-      }
-      vendors.unshift(newVendor)
+      // Create new vendor via API
+      await createVendor(vendorData)
     }
 
     closeCreateVendorModal()
-  } catch (error) {
-    console.error('Error saving vendor:', error)
-  } finally {
-    isLoading.value = false
+  } catch (err) {
+    // Error is already handled in the API functions
+    // Modal remains open so user can retry
   }
 }
 
@@ -1212,13 +1248,15 @@ const promptDeleteVendor = (vendor) => {
   }
 }
 
-const handleConfirmDeleteVendor = () => {
+const handleConfirmDeleteVendor = async () => {
   if (vendorToDelete.value) {
-    const index = vendors.findIndex(v => v.id === vendorToDelete.value.id)
-    if (index !== -1) {
-      vendors.splice(index, 1)
+    try {
+      // Delete vendor via API
+      await deleteVendor(vendorToDelete.value.id)
+      console.log(`Successfully deleted vendor: ${vendorToDelete.value.id}`)
+    } catch (err) {
+      // Error is already handled in the API function
     }
-    console.log(`Successfully deleted vendor: ${vendorToDelete.value.id}`)
   }
   cancelDeleteVendor()
 }
@@ -1243,10 +1281,113 @@ const handleClickOutside = () => {
   showQuickActions.value = null
 }
 
+// ===== API FUNCTIONS =====
+// Load vendor data from backend
+const loadVendors = async () => {
+  try {
+    isLoadingData.value = true
+    error.value = null
+    console.log('Loading vendors from API...')
+    const response = await vendorApi.getAll()
+    console.log('Received vendor data:', response)
+    
+    // Clear existing vendors and add new ones
+    vendors.splice(0, vendors.length)
+    if (response && Array.isArray(response)) {
+      // Transform backend data to frontend format
+      const transformedVendors = response.map(vendor => {
+        // Parse contactInfo which contains "email, phone"
+        const contactParts = vendor.contactInfo ? vendor.contactInfo.split(', ') : ['', '']
+        const email = contactParts[0] || ''
+        const phone = contactParts[1] || ''
+        
+        return {
+          id: `VD${String(vendor.vendorId).padStart(3, '0')}`,
+          name: vendor.name,
+          email: email,
+          phone: phone,
+          contact: {
+            email: email,
+            phone: phone
+          },
+          rating: 4.5, // Default rating since backend doesn't provide this
+          logo: null, // Backend doesn't provide logo
+          address: '', // Backend doesn't provide address
+          contactPerson: '', // Backend doesn't provide contactPerson
+          specialties: vendor.serviceType ? [vendor.serviceType] : [],
+          isActive: vendor.isActive,
+          serviceType: vendor.serviceType,
+          // Keep original backend data for API operations
+          _original: vendor
+        }
+      })
+      vendors.push(...transformedVendors)
+      console.log('Transformed vendors:', transformedVendors)
+    }
+  } catch (err) {
+    error.value = 'Failed to load vendor data. Please try again.'
+    console.error('Error loading vendors:', err)
+  } finally {
+    isLoadingData.value = false
+  }
+}
+
+// Create new vendor
+const createVendor = async (vendorData) => {
+  try {
+    isLoading.value = true
+    const newVendor = await vendorApi.create(vendorData)
+    vendors.push(newVendor)
+    return newVendor
+  } catch (err) {
+    error.value = 'Failed to create vendor. Please try again.'
+    console.error('Error creating vendor:', err)
+    throw err
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Update existing vendor
+const updateVendor = async (id, vendorData) => {
+  try {
+    isLoading.value = true
+    const updatedVendor = await vendorApi.update(id, vendorData)
+    const index = vendors.findIndex(v => v.id === id)
+    if (index !== -1) {
+      Object.assign(vendors[index], updatedVendor)
+    }
+    return updatedVendor
+  } catch (err) {
+    error.value = 'Failed to update vendor. Please try again.'
+    console.error('Error updating vendor:', err)
+    throw err
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Delete vendor
+const deleteVendor = async (id) => {
+  try {
+    await vendorApi.delete(id)
+    const index = vendors.findIndex(v => v.id === id)
+    if (index !== -1) {
+      vendors.splice(index, 1)
+    }
+  } catch (err) {
+    error.value = 'Failed to delete vendor. Please try again.'
+    console.error('Error deleting vendor:', err)
+    throw err
+  }
+}
+
 // Event listeners
 onMounted(() => {
   document.addEventListener('keydown', handleEscapeKey)
   document.addEventListener('click', handleClickOutside)
+  // Load vendors when component mounts
+  loadVendors()
 })
 
 onUnmounted(() => {

@@ -1,5 +1,5 @@
 <template>
-  <div class="cargo-management-page bg-[#F5F5F7] min-h-screen p-10 space-y-7">
+  <div class="cargo-management-page bg-[#F5F5F7] min-h-screen p-6 space-y-6">
     <!-- Page Header -->
     <header class="flex justify-between items-start">
       <div class="flex items-center gap-4">
@@ -13,8 +13,41 @@
       </div>
     </header>
 
-    <!-- ===== CARGO METRICS DASHBOARD ===== -->
-    <!-- Interactive metrics cards showing key cargo statistics -->
+    <!-- Error State -->
+    <div v-if="error" class="bg-red-50 border border-red-200 rounded-2xl p-6 mb-8">
+      <div class="flex items-center gap-3">
+        <div class="w-6 h-6 text-red-600">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-red-800 font-semibold">Error Loading Data</h3>
+          <p class="text-red-600 text-sm">{{ error }}</p>
+        </div>
+        <button 
+          @click="loadCargos"
+          class="ml-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div v-if="isLoadingData" class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 mb-8">
+      <div class="flex items-center justify-center gap-3">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <p class="text-gray-600">Loading cargo data...</p>
+      </div>
+    </div>
+
+    <!-- Main Content - Only show when not loading and no error -->
+    <div v-if="!isLoadingData && !error">
+      <!-- ===== CARGO METRICS DASHBOARD ===== -->
+      <!-- Interactive metrics cards showing key cargo statistics -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <!-- Total Cargo Count -->
       <div class="group bg-white rounded-3xl p-8 border border-gray-100 transition-all duration-300 hover:shadow-[0_20px_60px_-12px_rgba(59,130,246,0.15)] hover:border-blue-200 hover:-translate-y-1 cursor-pointer">
@@ -405,11 +438,12 @@
       @confirm="handleConfirmDelete"
       @cancel="cancelDelete"
     />
+    </div> <!-- End of main content conditional -->
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { 
   Package, Plus, Search, Pencil, Trash2, IndianRupee, Grid3X3, TrendingUp
 } from 'lucide-vue-next'
@@ -417,6 +451,7 @@ import BaseModal from './shared/BaseModal.vue'
 // FIX: Import reusable ConfirmDialog to replace browser's native confirm() dialog
 // This provides better UX, consistent styling, and accessibility features
 import ConfirmDialog from './shared/ConfirmDialog.vue'
+import { cargoApi } from '../services/api.js'
 
 // ===== REACTIVE STATE MANAGEMENT =====
 // Search and filtering state
@@ -428,6 +463,10 @@ const currentSort = ref('value-desc')
 const showCargoModal = ref(false)
 const isLoading = ref(false)
 const isEditMode = ref(false)
+
+// API state management
+const isLoadingData = ref(true)
+const error = ref(null)
 
 // FIX: State for custom confirmation dialog (replaces window.confirm)
 // This provides a more user-friendly and branded confirmation experience
@@ -445,9 +484,15 @@ const cargoForm = ref({
   description: ''
 })
 
-// ===== SAMPLE DATA =====
-// Mock cargo data for demonstration - in production this would come from an API
-const cargoData = ref([
+// ===== DATA MANAGEMENT =====
+// Cargo data - loaded from backend API
+const cargoData = ref([])
+
+// ===== SAMPLE DATA - COMMENTED OUT =====
+// Mock cargo data for demonstration - replaced with API calls
+// This data is now fetched from the backend database
+/*
+const cargoDataMock = [
   {
     id: 'CG001',
     shipmentId: 'SH001',
@@ -520,7 +565,8 @@ const cargoData = ref([
     weight: 450,
     description: 'CNC machine components and precision tools'
   }
-])
+]
+*/
 
 // Available cargo types for dropdown selection
 // DB Schema allows: 'Electronics', 'Perishables', 'Hazardous', 'General'
@@ -627,28 +673,22 @@ const closeCargoModal = () => {
 }
 
 // Save cargo (add new or update existing)
-const saveCargo = () => {
+const saveCargo = async () => {
   // Basic validation - ensure required fields are filled
   if (cargoForm.value.id && cargoForm.value.type) {
-    if (isEditMode.value) {
-      // Update existing cargo item
-      const index = cargoData.value.findIndex(c => c.id === cargoForm.value.id)
-      if (index !== -1) {
-        cargoData.value[index] = {
-          ...cargoForm.value,
-          // Preserve existing shipment route if available
-          shipmentRoute: cargoData.value[index].shipmentRoute || { origin: 'Mumbai', destination: 'Chennai' }
-        }
+    try {
+      if (isEditMode.value) {
+        // Update existing cargo item via API
+        await updateCargo(cargoForm.value.id, cargoForm.value)
+      } else {
+        // Create new cargo item via API
+        await createCargo(cargoForm.value)
       }
-    } else {
-      // Add new cargo item
-      cargoData.value.push({
-        ...cargoForm.value,
-        // Default route for new items
-        shipmentRoute: { origin: 'Mumbai', destination: 'Chennai' }
-      })
+      closeCargoModal()
+    } catch (err) {
+      // Error is already handled in the API functions
+      // Modal remains open so user can retry
     }
-    closeCargoModal()
   }
 }
 
@@ -669,15 +709,19 @@ const promptDeleteCargo = (cargo) => {
 }
 
 // Execute deletion after user confirms in the custom dialog
-const handleConfirmDelete = () => {
+const handleConfirmDelete = async () => {
   if (cargoToDelete.value) {
-    // Remove cargo from array
-    cargoData.value = cargoData.value.filter(c => c.id !== cargoToDelete.value.id)
-    
-    // FIX: Add success feedback (could be extended with toast notifications)
-    console.log(`Successfully deleted cargo item: ${cargoToDelete.value.id}`)
+    try {
+      // Delete cargo via API
+      await deleteCargo(cargoToDelete.value.id)
+      
+      // FIX: Add success feedback (could be extended with toast notifications)
+      console.log(`Successfully deleted cargo item: ${cargoToDelete.value.id}`)
+    } catch (err) {
+      // Error is already handled in the API function
+    }
   }
-  // Always clean up state after deletion
+  // Always clean up state after deletion attempt
   cancelDelete()
 }
 
@@ -686,6 +730,89 @@ const cancelDelete = () => {
   showConfirmDialog.value = false
   cargoToDelete.value = null
 }
+
+// ===== API FUNCTIONS =====
+// Load cargo data from backend
+const loadCargos = async () => {
+  try {
+    isLoadingData.value = true
+    error.value = null
+    const response = await cargoApi.getAll()
+    
+    // Transform backend data to frontend format
+    cargoData.value = (response || []).map(cargo => ({
+      id: `CG${String(cargo.cargoId).padStart(3, '0')}`,
+      shipmentId: cargo.shipment ? `SH${String(cargo.shipment.shipmentId).padStart(3, '0')}` : 'N/A',
+      shipmentRoute: {
+        origin: cargo.shipment?.origin || 'Unknown',
+        destination: cargo.shipment?.destination || 'Unknown'
+      },
+      type: cargo.type,
+      value: cargo.value,
+      weight: cargo.weight,
+      description: cargo.description
+    }))
+  } catch (err) {
+    error.value = 'Failed to load cargo data. Please try again.'
+    console.error('Error loading cargos:', err)
+    cargoData.value = []
+  } finally {
+    isLoadingData.value = false
+  }
+}
+
+// Create new cargo item
+const createCargo = async (cargoItem) => {
+  try {
+    isLoading.value = true
+    const newCargo = await cargoApi.create(cargoItem)
+    cargoData.value.push(newCargo)
+    return newCargo
+  } catch (err) {
+    error.value = 'Failed to create cargo. Please try again.'
+    console.error('Error creating cargo:', err)
+    throw err
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Update existing cargo item
+const updateCargo = async (id, cargoItem) => {
+  try {
+    isLoading.value = true
+    const updatedCargo = await cargoApi.update(id, cargoItem)
+    const index = cargoData.value.findIndex(c => c.id === id)
+    if (index !== -1) {
+      cargoData.value[index] = updatedCargo
+    }
+    return updatedCargo
+  } catch (err) {
+    error.value = 'Failed to update cargo. Please try again.'
+    console.error('Error updating cargo:', err)
+    throw err
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Delete cargo item
+const deleteCargo = async (id) => {
+  try {
+    await cargoApi.delete(id)
+    cargoData.value = cargoData.value.filter(c => c.id !== id)
+  } catch (err) {
+    error.value = 'Failed to delete cargo. Please try again.'
+    console.error('Error deleting cargo:', err)
+    throw err
+  }
+}
+
+// ===== LIFECYCLE HOOKS =====
+// Load data when component mounts
+onMounted(() => {
+  loadCargos()
+})
 </script>
 
 <style scoped>

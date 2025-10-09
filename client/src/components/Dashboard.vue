@@ -15,8 +15,34 @@
       </button>
     </div>
 
-    <!-- Metrics Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+    <!-- Error State -->
+    <div v-if="error" class="bg-red-50 border-l-4 border-red-500 p-6 rounded-xl mb-8">
+      <div class="flex items-center gap-3">
+        <svg class="w-5 h-5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+        <span class="text-red-700 font-medium">{{ error }}</span>
+        <button 
+          @click="loadDashboardData" 
+          class="ml-auto px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors text-sm font-medium"
+        >
+          Retry
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div v-if="isLoading" class="flex items-center justify-center py-24">
+      <div class="flex flex-col items-center gap-4">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <p class="text-gray-600 font-medium">Loading dashboard...</p>
+      </div>
+    </div>
+
+    <!-- Metrics Grid (only show when not loading) -->
+    <div v-if="!isLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
       <div 
         v-for="(metric, index) in metrics" 
         :key="metric.id"
@@ -39,8 +65,8 @@
       </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-7">
+    <!-- Main Content (only show when not loading) -->
+    <div v-if="!isLoading" class="grid grid-cols-1 lg:grid-cols-3 gap-7">
       <!-- Recent Activity -->
       <div class="lg:col-span-2 bg-white rounded-[20px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.03),0_8px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all duration-300">
         <div class="flex items-center justify-between mb-6">
@@ -140,20 +166,25 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { 
   Plus, Clock, Truck, Package, Route, Users, 
   TrendingUp, TrendingDown, ArrowUp, ArrowDown, Minus,
   CheckCircle, AlertCircle, MapPin, UserPlus
 } from 'lucide-vue-next'
+import { dashboardApi } from '../services/api.js'
+
+// Loading and error states
+const isLoading = ref(true)
+const error = ref(null)
 
 // Reactive data with premium styling
 const metrics = reactive([
   {
     id: 'shipments',
     label: 'Total Shipments',
-    value: 5,
-    change: '+2 from last week',
+    value: 0,
+    change: 'Loading...',
     changeType: 'positive',
     icon: Truck,
     iconBgColor: 'bg-[#EFF6FF]',
@@ -162,8 +193,8 @@ const metrics = reactive([
   {
     id: 'cargo',
     label: 'Active Cargo',
-    value: 8,
-    change: '+3 new items',
+    value: 0,
+    change: 'Loading...',
     changeType: 'positive',
     icon: Package,
     iconBgColor: 'bg-[#ECFDF5]',
@@ -172,8 +203,8 @@ const metrics = reactive([
   {
     id: 'routes',
     label: 'Available Routes',
-    value: 3,
-    change: '1 delayed',
+    value: 0,
+    change: 'Loading...',
     changeType: 'warning',
     icon: Route,
     iconBgColor: 'bg-[#FEF3C7]',
@@ -182,8 +213,8 @@ const metrics = reactive([
   {
     id: 'vendors',
     label: 'Partner Vendors',
-    value: 4,
-    change: 'All verified',
+    value: 0,
+    change: 'Loading...',
     changeType: 'positive',
     icon: Users,
     iconBgColor: 'bg-[#F3E8FF]',
@@ -191,45 +222,7 @@ const metrics = reactive([
   }
 ])
 
-const activities = reactive([
-  {
-    id: '1',
-    shipmentId: 'SH001',
-    action: 'has been picked up from Mumbai warehouse',
-    timestamp: 'in 2 days',
-    type: 'picked-up',
-    status: 'picked-up'
-  },
-  {
-    id: '2',
-    shipmentId: 'SH002',
-    action: 'new cargo added (Electronics)',
-    timestamp: 'in 3 days',
-    type: 'cargo'
-  },
-  {
-    id: '3',
-    shipmentId: 'SH003',
-    action: 'route updated - Delhi to Bangalore',
-    timestamp: 'in 5 days',
-    type: 'route'
-  },
-  {
-    id: '4',
-    shipmentId: 'SH004',
-    action: 'delivered successfully',
-    timestamp: 'in 1 week',
-    type: 'delivered'
-  },
-  {
-    id: '5',
-    shipmentId: 'SH005',
-    action: 'is experiencing delays',
-    timestamp: 'in 1 week',
-    type: 'delayed',
-    status: 'delayed'
-  }
-])
+const activities = reactive([])
 
 const quickActions = reactive([
   { id: 'add-cargo', label: 'Add New Cargo', icon: Plus },
@@ -237,43 +230,133 @@ const quickActions = reactive([
   { id: 'add-vendor', label: 'Add Vendor', icon: UserPlus }
 ])
 
-const shipmentStatuses = reactive([
-  { 
-    status: 'In Transit', 
-    count: 1, 
-    color: 'bg-[#14B8A6]', 
-    percentage: 20,
-    gradientClass: 'bg-gradient-to-r from-[#14B8A6] to-[#0D9488]'
-  },
-  { 
-    status: 'Delivered', 
-    count: 1, 
-    color: 'bg-[#10B981]', 
-    percentage: 20,
-    gradientClass: 'bg-gradient-to-r from-[#10B981] to-[#059669]'
-  },
-  { 
-    status: 'Picked Up', 
-    count: 1, 
-    color: 'bg-[#3B82F6]', 
-    percentage: 20,
-    gradientClass: 'bg-gradient-to-r from-[#3B82F6] to-[#2563EB]'
-  },
-  { 
-    status: 'Created', 
-    count: 1, 
-    color: 'bg-[#6B7280]', 
-    percentage: 20,
-    gradientClass: 'bg-gradient-to-r from-[#6B7280] to-[#4B5563]'
-  },
-  { 
-    status: 'Delayed', 
-    count: 1, 
-    color: 'bg-[#F59E0B]', 
-    percentage: 20,
-    gradientClass: 'bg-gradient-to-r from-[#F59E0B] to-[#D97706]'
+const shipmentStatuses = reactive([])
+
+// API Methods
+const loadDashboardData = async () => {
+  isLoading.value = true
+  error.value = null
+  
+  try {
+    // Load metrics and activities in parallel
+    const [metricsData, activitiesData] = await Promise.all([
+      dashboardApi.getMetrics(),
+      dashboardApi.getRecentActivities()
+    ])
+    
+    // Update metrics
+    updateMetrics(metricsData)
+    
+    // Update activities
+    activities.splice(0, activities.length, ...activitiesData)
+    
+    // Update shipment statuses
+    updateShipmentStatuses(metricsData.shipmentStatuses || {})
+    
+  } catch (err) {
+    console.error('Failed to load dashboard data:', err)
+    error.value = 'Failed to load dashboard data. Please try again.'
+  } finally {
+    isLoading.value = false
   }
-])
+}
+
+const updateMetrics = (data) => {
+  // Update metrics values
+  const metricsUpdate = {
+    shipments: {
+      value: data.totalShipments || 0,
+      change: `${data.totalShipments || 0} total`
+    },
+    cargo: {
+      value: data.activeCargo || 0,
+      change: `${data.activeCargo || 0} items`
+    },
+    routes: {
+      value: data.availableRoutes || 0,
+      change: `${data.availableRoutes || 0} available`
+    },
+    vendors: {
+      value: data.partnerVendors || 0,
+      change: `${data.partnerVendors || 0} partners`
+    }
+  }
+  
+  // Update the reactive metrics array
+  metrics.forEach(metric => {
+    if (metricsUpdate[metric.id]) {
+      metric.value = metricsUpdate[metric.id].value
+      metric.change = metricsUpdate[metric.id].change
+    }
+  })
+}
+
+const updateShipmentStatuses = (statusData) => {
+  const totalShipments = Object.values(statusData).reduce((sum, count) => sum + count, 0)
+  
+  // Clear existing statuses
+  shipmentStatuses.splice(0, shipmentStatuses.length)
+  
+  // Map status names to display information
+  const statusMapping = {
+    'in transit': {
+      status: 'In Transit',
+      color: 'bg-[#14B8A6]',
+      gradientClass: 'bg-gradient-to-r from-[#14B8A6] to-[#0D9488]'
+    },
+    'delivered': {
+      status: 'Delivered',
+      color: 'bg-[#10B981]',
+      gradientClass: 'bg-gradient-to-r from-[#10B981] to-[#059669]'
+    },
+    'picked up': {
+      status: 'Picked Up',
+      color: 'bg-[#3B82F6]',
+      gradientClass: 'bg-gradient-to-r from-[#3B82F6] to-[#2563EB]'
+    },
+    'created': {
+      status: 'Created',
+      color: 'bg-[#6B7280]',
+      gradientClass: 'bg-gradient-to-r from-[#6B7280] to-[#4B5563]'
+    },
+    'delayed': {
+      status: 'Delayed',
+      color: 'bg-[#F59E0B]',
+      gradientClass: 'bg-gradient-to-r from-[#F59E0B] to-[#D97706]'
+    }
+  }
+  
+  // Add statuses from API data
+  Object.entries(statusData).forEach(([status, count]) => {
+    const mapping = statusMapping[status.toLowerCase()] || {
+      status: status,
+      color: 'bg-[#6B7280]',
+      gradientClass: 'bg-gradient-to-r from-[#6B7280] to-[#4B5563]'
+    }
+    
+    shipmentStatuses.push({
+      ...mapping,
+      count: count,
+      percentage: totalShipments > 0 ? (count / totalShipments) * 100 : 0
+    })
+  })
+  
+  // If no data, add default empty statuses
+  if (shipmentStatuses.length === 0) {
+    Object.entries(statusMapping).forEach(([key, mapping]) => {
+      shipmentStatuses.push({
+        ...mapping,
+        count: 0,
+        percentage: 0
+      })
+    })
+  }
+}
+
+// Load data on component mount
+onMounted(() => {
+  loadDashboardData()
+})
 
 // Helper functions for premium styling
 const getChangeBadgeClass = (type) => {
