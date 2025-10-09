@@ -43,17 +43,17 @@ const apiRequest = async (endpoint, options = {}) => {
 
 // Cargo API endpoints
 export const cargoApi = {
-  getAll: () => apiRequest('/cargos'),
-  getById: (id) => apiRequest(`/cargos/${id}`),
-  create: (data) => apiRequest('/cargos', {
+  getAll: () => apiRequest('/cargo'),
+  getById: (id) => apiRequest(`/cargo/${id}`),
+  create: (data) => apiRequest('/cargo', {
     method: 'POST',
     body: JSON.stringify(data)
   }),
-  update: (id, data) => apiRequest(`/cargos/${id}`, {
+  update: (id, data) => apiRequest(`/cargo/${id}`, {
     method: 'PUT',
     body: JSON.stringify(data)
   }),
-  delete: (id) => apiRequest(`/cargos/${id}`, {
+  remove: (id) => apiRequest(`/cargo/${id}`, {
     method: 'DELETE'
   })
 }
