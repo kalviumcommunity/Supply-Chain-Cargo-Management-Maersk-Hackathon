@@ -1,5 +1,5 @@
 <template>
-  <div class="cargo-management-page bg-[#F5F5F7] min-h-screen p-10 space-y-7">
+  <div class="cargo-management-page bg-[#F5F5F7] min-h-screen p-6 space-y-6">
     <!-- Page Header -->
     <header class="flex justify-between items-start">
       <div class="flex items-center gap-4">
