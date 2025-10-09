@@ -995,13 +995,18 @@ const getInitials = (name) => {
 }
 
 const getServiceIcon = (serviceType) => {
+  if (!serviceType) return Truck
   switch (serviceType.toLowerCase()) {
     case 'road transport':
       return Truck
     case 'sea transport':
+    case 'ocean freight':
       return Ship
     case 'air transport':
+    case 'air freight':
       return Plane
+    case 'express delivery':
+      return Package
     case 'combined':
       return Layers
     default:
@@ -1010,13 +1015,18 @@ const getServiceIcon = (serviceType) => {
 }
 
 const getServiceBadgeClass = (serviceType) => {
+  if (!serviceType) return 'bg-[#DBEAFE] text-[#1E40AF]'
   switch (serviceType.toLowerCase()) {
     case 'road transport':
       return 'bg-[#DBEAFE] text-[#1E40AF]'
     case 'sea transport':
+    case 'ocean freight':
       return 'bg-[#CCFBF1] text-[#115E59]'
     case 'air transport':
+    case 'air freight':
       return 'bg-[#FED7AA] text-[#9A3412]'
+    case 'express delivery':
+      return 'bg-[#FECACA] text-[#991B1B]'
     case 'combined':
       return 'bg-[#D1FAE5] text-[#065F46]'
     default:
@@ -1214,26 +1224,42 @@ const loadVendors = async () => {
   try {
     isLoadingData.value = true
     error.value = null
+    console.log('Loading vendors from API...')
     const response = await vendorApi.getAll()
+    console.log('Received vendor data:', response)
     
     // Clear existing vendors and add new ones
     vendors.splice(0, vendors.length)
     if (response && Array.isArray(response)) {
       // Transform backend data to frontend format
-      const transformedVendors = response.map(vendor => ({
-        id: `VD${String(vendor.vendorId).padStart(3, '0')}`,
-        name: vendor.name,
-        email: vendor.email,
-        phone: vendor.phone,
-        rating: vendor.rating || 4.5,
-        logo: vendor.logo || null,
-        address: vendor.address || '',
-        contactPerson: vendor.contactPerson || '',
-        specialties: vendor.specialties ? vendor.specialties.split(',') : [],
-        // Keep original backend data for API operations
-        _original: vendor
-      }))
+      const transformedVendors = response.map(vendor => {
+        // Parse contactInfo which contains "email, phone"
+        const contactParts = vendor.contactInfo ? vendor.contactInfo.split(', ') : ['', '']
+        const email = contactParts[0] || ''
+        const phone = contactParts[1] || ''
+        
+        return {
+          id: `VD${String(vendor.vendorId).padStart(3, '0')}`,
+          name: vendor.name,
+          email: email,
+          phone: phone,
+          contact: {
+            email: email,
+            phone: phone
+          },
+          rating: 4.5, // Default rating since backend doesn't provide this
+          logo: null, // Backend doesn't provide logo
+          address: '', // Backend doesn't provide address
+          contactPerson: '', // Backend doesn't provide contactPerson
+          specialties: vendor.serviceType ? [vendor.serviceType] : [],
+          isActive: vendor.isActive,
+          serviceType: vendor.serviceType,
+          // Keep original backend data for API operations
+          _original: vendor
+        }
+      })
       vendors.push(...transformedVendors)
+      console.log('Transformed vendors:', transformedVendors)
     }
   } catch (err) {
     error.value = 'Failed to load vendor data. Please try again.'
