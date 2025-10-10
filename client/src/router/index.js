@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import LandingPage from '../components/LandingPage.vue'
 import Dashboard from '../components/Dashboard.vue'
 import CargoManagement from '../components/CargoManagement.vue'
 import ShipmentTracking from '../components/ShipmentTracking.vue'
@@ -12,6 +13,15 @@ const Settings = { template: '<div class="p-8"><h1 class="text-2xl font-bold mb-
 const routes = [
   {
     path: '/',
+    name: 'LandingPage',
+    component: LandingPage,
+    meta: {
+      title: 'CargoFlow - Supply Chain Management',
+      hideNavbar: true // Hide main navbar on landing page since it has its own navigation
+    }
+  },
+  {
+    path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,
     meta: {
