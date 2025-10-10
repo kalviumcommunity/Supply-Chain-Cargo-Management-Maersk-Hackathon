@@ -13,6 +13,7 @@ const apiRequest = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}${endpoint}`
   
   const defaultOptions = {
+    credentials: 'include', // Include cookies for session management
     headers: {
       'Content-Type': 'application/json',
       ...options.headers
@@ -126,6 +127,26 @@ export const deliveryApi = {
   })
 }
 
+// Auth API endpoints
+export const authApi = {
+  login: (credentials) => apiRequest('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify(credentials)
+  }),
+  signup: (userData) => apiRequest('/auth/signup', {
+    method: 'POST',
+    body: JSON.stringify(userData)
+  }),
+  logout: () => apiRequest('/auth/logout', {
+    method: 'POST'
+  }),
+  getCurrentUser: () => apiRequest('/auth/user'),
+  googleLogin: () => {
+    // Redirect to backend Google OAuth
+    window.location.href = 'http://localhost:8080/oauth2/authorization/google'
+  }
+}
+
 // Health check endpoint
 export const dashboardApi = {
   getMetrics: () => apiRequest('/dashboard/metrics'),
@@ -137,6 +158,7 @@ export const healthApi = {
 }
 
 export default {
+  authApi,
   cargoApi,
   vendorApi,
   routeApi,
