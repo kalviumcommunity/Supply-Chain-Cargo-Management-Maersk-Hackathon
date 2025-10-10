@@ -12,16 +12,22 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080
 const apiRequest = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}${endpoint}`
   
+  // Add timeout support
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
+  
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
       ...options.headers
     },
+    signal: controller.signal,
     ...options
   }
 
   try {
     const response = await fetch(url, defaultOptions)
+    clearTimeout(timeoutId)
     
     if (!response.ok) {
       const errorText = await response.text()
@@ -36,6 +42,19 @@ const apiRequest = async (endpoint, options = {}) => {
     
     return null
   } catch (error) {
+    clearTimeout(timeoutId)
+    
+    // Enhanced error messages for common connection issues
+    if (error.name === 'AbortError') {
+      console.error(`API Request timeout: ${endpoint}`)
+      throw new Error('Request timeout - backend server may be slow or unavailable')
+    }
+    
+    if (error.message.includes('Failed to fetch') || error.code === 'ECONNREFUSED') {
+      console.error(`API Connection failed: ${endpoint}`)
+      throw new Error('Backend server is not running on port 8080. Please start the server or use demo mode.')
+    }
+    
     console.error(`API Request failed: ${endpoint}`, error)
     throw error
   }
