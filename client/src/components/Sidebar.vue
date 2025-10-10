@@ -194,7 +194,7 @@ import {
 const isCollapsed = ref(false)
 
 const navigationLinks = [
-  { path: '/', label: 'Dashboard', icon: Home },
+  { path: '/dashboard', label: 'Dashboard', icon: Home },
   { path: '/cargo', label: 'Cargo Management', icon: Package },
   { path: '/shipments', label: 'Shipment Tracking', icon: Truck },
   { path: '/routes', label: 'Route Management', icon: Map },
