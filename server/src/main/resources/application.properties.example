@@ -1,0 +1,63 @@
+# ============================================
+# SERVER CONFIGURATION
+# ============================================
+server.port=8080
+
+# ============================================
+# POSTGRESQL DATABASE CONFIGURATION
+# ============================================
+# Replace with your AWS RDS PostgreSQL connection details
+spring.datasource.url=jdbc:postgresql://database-1.cnwmacmaiqni.ap-south-1.rds.amazonaws.com:5432/myappdb?sslmode=require&ApplicationName=supply-chain-app
+spring.datasource.username=postgres
+spring.datasource.password=YOUR_DATABASE_PASSWORD_HERE
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# ============================================
+# JPA / HIBERNATE CONFIGURATION
+# ============================================
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# ============================================
+# KAFKA PRODUCER CONFIGURATION
+# ============================================
+spring.kafka.bootstrap-servers=localhost:9092
+spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer
+spring.kafka.producer.value-serializer=org.apache.kafka.common.serialization.StringSerializer
+
+# ============================================
+# KAFKA CONSUMER CONFIGURATION
+# ============================================
+spring.kafka.consumer.bootstrap-servers=localhost:9092
+spring.kafka.consumer.group-id=supply-chain-group
+spring.kafka.consumer.auto-offset-reset=earliest
+spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
+spring.kafka.consumer.value-deserializer=org.apache.kafka.common.serialization.StringDeserializer
+
+# ============================================
+# WEBSOCKET CONFIGURATION
+# ============================================
+spring.websocket.enabled=true
+
+# ============================================
+# GOOGLE OAUTH2 CONFIGURATION
+# ============================================
+# Get your credentials from: https://console.cloud.google.com/apis/credentials
+# 1. Create a new OAuth 2.0 Client ID
+# 2. Add authorized redirect URI: http://localhost:8080/login/oauth2/code/google
+# 3. Replace the placeholders below with your actual credentials
+spring.security.oauth2.client.registration.google.client-id=YOUR_GOOGLE_CLIENT_ID_HERE
+spring.security.oauth2.client.registration.google.client-secret=YOUR_GOOGLE_CLIENT_SECRET_HERE
+spring.security.oauth2.client.registration.google.scope=profile,email
+spring.security.oauth2.client.registration.google.redirect-uri=http://localhost:8080/login/oauth2/code/google
+spring.security.oauth2.client.registration.google.client-name=Google
+
+# ============================================
+# INSTRUCTIONS TO USE THIS FILE:
+# ============================================
+# 1. Copy this file and rename it to: application.properties
+# 2. Replace all placeholder values (YOUR_*_HERE) with your actual credentials
+# 3. Never commit application.properties to git (it's already in .gitignore)
+# 4. Keep this example file as a reference for other team members

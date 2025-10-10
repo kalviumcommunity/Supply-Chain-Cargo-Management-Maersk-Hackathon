@@ -145,39 +145,69 @@
     </button>
 
     <!-- Premium User Profile Section -->
-    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-[#F1F5F9] bg-gradient-to-t from-[#FAFAFA] to-white backdrop-blur-sm">
-      <div :class="[
-        'flex items-center gap-3 p-3 rounded-xl bg-white shadow-[0_2px_12px_rgba(0,0,0,0.04)]',
-        'border border-[#F1F5F9] hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]',
-        'hover:border-[#E2E8F0] transition-all duration-300 ease-out cursor-pointer group',
-        { 'justify-center': isCollapsed }
-      ]">
-        <!-- Sophisticated Avatar -->
-        <div class="relative">
-          <div class="w-9 h-9 bg-gradient-to-br from-[#3B82F6] via-[#2563EB] to-[#1E40AF] rounded-xl shadow-[0_3px_12px_rgba(59,130,246,0.3)] flex items-center justify-center">
-            <span class="text-white font-bold text-sm tracking-wide drop-shadow-sm">JS</span>
+    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-[#E5E7EB]">
+      <div class="relative">
+        <!-- User Profile Card -->
+        <div 
+          @click="toggleUserMenu"
+          :class="[
+            'flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-white to-gray-50',
+            'border border-gray-200 hover:border-blue-200 hover:shadow-lg',
+            'transition-all duration-300 ease-out cursor-pointer group',
+            { 'justify-center px-2': isCollapsed }
+          ]"
+        >
+          <!-- User Information -->
+          <div v-show="!isCollapsed" class="flex-1 min-w-0">
+            <p class="text-gray-900 font-semibold text-sm truncate leading-tight">{{ displayName }}</p>
+            <p class="text-gray-500 text-xs font-medium truncate mt-0.5 leading-tight">{{ displayRole }}</p>
           </div>
-          <!-- Premium Status Indicator -->
-          <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-[#10B981] border-2 border-white rounded-full shadow-sm"></div>
+          
+          <!-- Dropdown Arrow -->
+          <button 
+            v-show="!isCollapsed" 
+            class="flex-shrink-0 text-gray-400 group-hover:text-gray-600 transition-colors"
+          >
+            <svg 
+              class="w-4 h-4 transition-transform duration-200" 
+              :class="{ 'rotate-180': showUserMenu }"
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
         </div>
-        
-        <!-- User Information with Premium Typography -->
-        <div v-show="!isCollapsed" class="flex-1 min-w-0 transition-all duration-500">
-          <p class="text-[#0F172A] font-semibold text-sm tracking-[-0.01em] truncate">James Sullivan</p>
-          <p class="text-[#64748B] text-xs font-medium truncate mt-0.5">Admin User</p>
+
+        <!-- User Menu Dropdown -->
+        <div 
+          v-if="showUserMenu && !isCollapsed"
+          class="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200"
+        >
+          <!-- User Info Header -->
+          <div class="px-4 py-3 border-b border-gray-100 bg-gray-50">
+            <p class="text-sm font-semibold text-gray-900 truncate">{{ displayName }}</p>
+            <p class="text-xs text-gray-500 truncate mt-0.5">{{ auth.userEmail.value }}</p>
+          </div>
+          
+          <!-- Logout Button -->
+          <button
+            @click="handleLogout"
+            class="w-full flex items-center gap-3 px-4 py-3 text-left text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+          >
+            <LogOut class="w-4 h-4" />
+            <span>Logout</span>
+          </button>
         </div>
-        
-        <!-- Sophisticated Menu Indicator -->
-        <button v-show="!isCollapsed" class="ml-2 text-[#94A3B8] hover:text-[#64748B] hover:scale-110 transition-all duration-200">
-          <MoreHorizontal class="w-4 h-4" />
-        </button>
       </div>
     </div>
   </aside>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { 
   Home, 
   Package, 
@@ -188,10 +218,15 @@ import {
   Settings,
   MoreHorizontal,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  LogOut
 } from 'lucide-vue-next'
+import { useAuth } from '../services/auth'
 
+const router = useRouter()
+const auth = useAuth()
 const isCollapsed = ref(false)
+const showUserMenu = ref(false)
 
 const navigationLinks = [
   { path: '/', label: 'Dashboard', icon: Home },
@@ -209,6 +244,32 @@ const toolLinks = [
 const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value
 }
+
+const toggleUserMenu = () => {
+  showUserMenu.value = !showUserMenu.value
+}
+
+const handleLogout = async () => {
+  await auth.logout()
+  router.push('/login')
+}
+
+// Get user avatar (picture or initials)
+const userAvatar = computed(() => {
+  return auth.userPicture.value || null
+})
+
+const displayName = computed(() => {
+  return auth.userName.value || 'User'
+})
+
+const displayRole = computed(() => {
+  return auth.userRole.value || 'User'
+})
+
+const displayInitials = computed(() => {
+  return auth.userInitials.value || 'U'
+})
 
 defineExpose({ isCollapsed })
 </script>
