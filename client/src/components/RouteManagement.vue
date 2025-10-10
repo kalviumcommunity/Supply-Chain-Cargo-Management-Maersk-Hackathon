@@ -9,8 +9,8 @@
           </svg>
         </div>
         <div class="header-text">
-          <h1 class="page-title text-4xl font-bold text-[#0F172A] tracking-tight">Route Management</h1>
-          <p class="page-subtitle text-base text-[#64748B] mt-1">Manage shipping routes and optimize delivery paths.</p>
+          <h1 class="page-title text-4xl font-bold text-[#0F172A] tracking-tight">Global Route Management</h1>
+          <p class="page-subtitle text-base text-[#64748B] mt-1">Manage international shipping routes across all transport modes worldwide.</p>
         </div>
       </div>
       <button 
@@ -57,7 +57,9 @@
     <!-- Network Health Banner -->
     <div class="network-banner bg-gradient-to-r from-blue-50 to-cyan-50 border-l-4 border-blue-500 p-4 rounded-xl mb-6">
       <div class="flex items-center gap-4 text-sm font-medium text-slate-700">
-        <span>Network Coverage: <strong class="text-slate-900">{{ formatNumber(metrics.totalDistance) }} km</strong> across {{ metrics.activeRoutes }} active corridors</span>
+        <span>Global Network Coverage: <strong class="text-slate-900">{{ formatNumber(metrics.totalDistance) }} km</strong> across {{ metrics.activeRoutes }} active corridors worldwide</span>
+        <span class="text-slate-400">•</span>
+        <span>Multi-Modal Coverage: <strong class="text-slate-900">Air, Ocean, Rail & Road</strong></span>
         <span class="text-slate-400">•</span>
         <span>Average On-Time Rate: <strong class="text-slate-900">{{ metrics.onTimeRate }}%</strong></span>
         <span class="text-slate-400">•</span>
@@ -364,8 +366,8 @@
       <div v-if="view === 'map'" class="map-view-container p-6" key="map-view">
         <div class="map-header mb-4 flex items-center justify-between">
           <div>
-            <h3 class="text-lg font-semibold text-gray-900">Route Network Map</h3>
-            <p class="text-sm text-gray-600">{{ filteredRoutes.length }} route{{ filteredRoutes.length !== 1 ? 's' : '' }} displayed</p>
+            <h3 class="text-lg font-semibold text-gray-900">Global Route Network Map</h3>
+            <p class="text-sm text-gray-600">{{ filteredRoutes.length }} route{{ filteredRoutes.length !== 1 ? 's' : '' }} displayed globally</p>
           </div>
           <div class="map-controls flex items-center gap-2">
             <div class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
@@ -373,6 +375,30 @@
             </div>
           </div>
         </div>
+        
+        <!-- Transport Mode Legend -->
+        <div class="legend mb-4 p-3 bg-gray-50 rounded-xl border border-gray-200">
+          <h4 class="text-sm font-medium text-gray-700 mb-2">Transport Modes</h4>
+          <div class="flex flex-wrap gap-3 text-xs">
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-0.5 bg-red-500" style="border-top: 2px dashed;"></div>
+              <span class="text-red-600">✈️ Air</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-0.5 bg-sky-500"></div>
+              <span class="text-sky-600">🚢 Ocean</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-0.5 bg-emerald-600" style="border-top: 2px solid; border-bottom: 1px solid;"></div>
+              <span class="text-emerald-600">🚂 Rail</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-0.5 bg-violet-600" style="border-top: 2px dotted;"></div>
+              <span class="text-violet-600">🚛 Road</span>
+            </div>
+          </div>
+        </div>
+        
         <RouteMap 
           :routes="routes" 
           :filtered-routes="filteredRoutes"
@@ -444,13 +470,16 @@
 
                   <!-- Route Details (Name + Type) -->
                   <td class="p-3">
-                    <div class="space-y-1">
+                    <div class="space-y-2">
                       <div class="font-semibold text-gray-900">{{ route.name }}</div>
-                      <div 
-                        :class="getRouteTypeBadgeClass(route.routeType)"
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-                      >
-                        {{ route.routeType.charAt(0).toUpperCase() + route.routeType.slice(1) }}
+                      <div class="flex items-center gap-2">
+                        <div 
+                          :class="getRouteTypeBadgeClass(route.routeType)"
+                          class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium gap-1"
+                        >
+                          <span>{{ getTransportModeIcon(route.routeType) }}</span>
+                          {{ route.routeType.charAt(0).toUpperCase() + route.routeType.slice(1) }}
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -461,14 +490,14 @@
                       <div class="flex items-center text-sm">
                         <div class="flex items-center gap-2">
                           <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                          <span class="font-medium text-gray-900">{{ route.origin.location }}</span>
+                          <span class="font-medium text-gray-900">{{ route.origin?.location || 'Unknown Origin' }}</span>
                         </div>
                         <svg class="w-4 h-4 text-gray-400 mx-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <path d="m9 18 6-6-6-6"/>
                         </svg>
                         <div class="flex items-center gap-2">
                           <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                          <span class="font-medium text-gray-900">{{ route.destination.location }}</span>
+                          <span class="font-medium text-gray-900">{{ route.destination?.location || 'Unknown Destination' }}</span>
                         </div>
                       </div>
                       <div class="text-xs text-gray-500">
@@ -661,8 +690,9 @@
               </div>
               <div 
                 :class="getRouteTypeBadgeClass(route.routeType)"
-                class="px-2 py-1 rounded-full text-xs font-medium"
+                class="px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1"
               >
+                <span>{{ getTransportModeIcon(route.routeType) }}</span>
                 {{ route.routeType.charAt(0).toUpperCase() + route.routeType.slice(1) }}
               </div>
             </div>
@@ -672,14 +702,14 @@
               <div class="flex items-center justify-between text-sm mb-2">
                 <div class="flex items-center gap-2">
                   <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span class="font-medium text-gray-900">{{ route.origin.location }}</span>
+                  <span class="font-medium text-gray-900">{{ route.origin?.location || 'Unknown Origin' }}</span>
                 </div>
                 <svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="m9 18 6-6-6-6"/>
                 </svg>
                 <div class="flex items-center gap-2">
                   <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span class="font-medium text-gray-900">{{ route.destination.location }}</span>
+                  <span class="font-medium text-gray-900">{{ route.destination?.location || 'Unknown Destination' }}</span>
                 </div>
               </div>
               <div class="text-xs text-gray-500 text-center">
@@ -1034,7 +1064,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label for="routeType" class="block text-sm font-medium text-gray-700 mb-2">
-                Route Type <span class="text-red-500">*</span>
+                Transport Mode <span class="text-red-500">*</span>
               </label>
               <select
                 id="routeType"
@@ -1137,9 +1167,10 @@
               </div>
               
               <div>
-                <label class="text-sm font-medium text-gray-700">Route Type</label>
+                <label class="text-sm font-medium text-gray-700">Transport Mode</label>
                 <div class="mt-1">
-                  <span :class="getRouteTypeBadgeClass(selectedRouteDetails.routeType)" class="px-2 py-1 rounded-full text-xs font-medium">
+                  <span :class="getRouteTypeBadgeClass(selectedRouteDetails.routeType)" class="px-2 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1">
+                    <span>{{ getTransportModeIcon(selectedRouteDetails.routeType) }}</span>
                     {{ selectedRouteDetails.routeType.charAt(0).toUpperCase() + selectedRouteDetails.routeType.slice(1) }}
                   </span>
                 </div>
@@ -1231,7 +1262,7 @@ import ConfirmDialog from './shared/ConfirmDialog.vue'
 import RouteMap from './shared/RouteMap.vue'
 import { routeApi } from '../services/api.js'
 
-// TypeScript Interfaces
+// TypeScript Interfaces for Global Route Management
 interface Route {
   id: string
   name: string
@@ -1250,10 +1281,12 @@ interface Route {
   status: 'Active' | 'Delayed' | 'Closed'
   activeShipments: number
   efficiencyScore: number // percentage
-  routeType: 'express' | 'standard' | 'priority'
+  routeType: 'AIR' | 'OCEAN' | 'RAIL' | 'ROAD' | 'express' | 'standard' | 'priority' // Support both new and legacy types
+  transportMode?: 'AIR' | 'OCEAN' | 'RAIL' | 'ROAD' // Explicit transport mode field
   createdAt: Date
   lastOptimized?: Date
   waypoints?: Array<{ lat: number; lng: number; name: string }>
+  _original?: any // Backend data reference
 }
 
 interface RouteMetrics {
@@ -1307,7 +1340,7 @@ const showDeleteConfirm = ref(false)
 const selectedRouteDetails = ref<Route | null>(null)
 const routeToDelete = ref<Route | null>(null)
 
-// Form Data
+// Form Data for global route management
 const routeForm = ref({
   id: '',
   name: '',
@@ -1318,15 +1351,21 @@ const routeForm = ref({
   duration: 0,
   distance: 0,
   cost: 0,
-  routeType: 'standard' as 'express' | 'standard' | 'priority',
+  routeType: 'OCEAN' as 'AIR' | 'OCEAN' | 'RAIL' | 'ROAD' | 'express' | 'standard' | 'priority',
+  transportMode: 'OCEAN' as 'AIR' | 'OCEAN' | 'RAIL' | 'ROAD',
   status: 'Active' as 'Active' | 'Delayed' | 'Closed'
 })
 
-// Available options
+// Available options for global route management
 const routeTypes = [
-  { value: 'express', label: 'Express' },
-  { value: 'standard', label: 'Standard' },
-  { value: 'priority', label: 'Priority' }
+  { value: 'AIR', label: 'Air Transport ✈️', icon: '✈️' },
+  { value: 'OCEAN', label: 'Ocean Transport 🚢', icon: '🚢' },
+  { value: 'RAIL', label: 'Rail Transport 🚂', icon: '🚂' },
+  { value: 'ROAD', label: 'Road Transport 🚛', icon: '🚛' },
+  // Legacy support
+  { value: 'express', label: 'Express ⚡', icon: '⚡' },
+  { value: 'standard', label: 'Standard 📦', icon: '📦' },
+  { value: 'priority', label: 'Priority ⭐', icon: '⭐' }
 ]
 
 // FIX: Corrected statusOptions to match the database schema ('Active', 'Delayed', 'Closed').
@@ -1419,30 +1458,46 @@ const metricsCards = computed<MetricCard[]>(() => [
 ])
 
 const filteredRoutes = computed(() => {
-  let filtered = [...routes.value];
+  try {
+    // Ensure routes.value is a valid array
+    if (!Array.isArray(routes.value)) {
+      console.warn('routes.value is not an array, returning empty array')
+      return []
+    }
+    
+    let filtered = [...routes.value];
 
-  // Apply search filter
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(route =>
-      route.id.toLowerCase().includes(query) ||
-      route.name.toLowerCase().includes(query) ||
-      route.origin.location.toLowerCase().includes(query) ||
-      route.destination.location.toLowerCase().includes(query) ||
-      route.origin.port.toLowerCase().includes(query) ||
-      route.destination.port.toLowerCase().includes(query) ||
-      route.status.toLowerCase().includes(query) ||
-      route.routeType.toLowerCase().includes(query)
-    )
-  }
+    // Apply search filter
+    if (searchQuery.value) {
+      const query = searchQuery.value.toLowerCase()
+      filtered = filtered.filter(route => {
+        // Additional safety check for each route
+        if (!route || typeof route !== 'object') return false
+        
+        return (
+          route.id?.toLowerCase().includes(query) ||
+          route.name?.toLowerCase().includes(query) ||
+          route.origin?.location?.toLowerCase().includes(query) ||
+          route.destination?.location?.toLowerCase().includes(query) ||
+          route.origin?.port?.toLowerCase().includes(query) ||
+          route.destination?.port?.toLowerCase().includes(query) ||
+          route.status?.toLowerCase().includes(query) ||
+          route.routeType?.toLowerCase().includes(query)
+        )
+      })
+    }
 
-  // Apply status filters
-  if (activeFilters.value.length > 0) {
-    filtered = filtered.filter(route => activeFilters.value.includes(route.status))
-  }
+    // Apply status filters
+    if (activeFilters.value.length > 0) {
+      filtered = filtered.filter(route => {
+        // Safety check for route and status
+        if (!route || !route.status) return false
+        return activeFilters.value.includes(route.status)
+      })
+    }
 
-  // Apply sorting
-  return filtered.sort((a, b) => {
+    // Apply sorting
+    return filtered.sort((a, b) => {
     let aValue: string | number;
     let bValue: string | number;
 
@@ -1466,6 +1521,10 @@ const filteredRoutes = computed(() => {
     if (aValue > bValue) return sortOrder.value === 'asc' ? 1 : -1;
     return 0;
   });
+  } catch (err) {
+    console.error('Error filtering routes:', err)
+    return []
+  }
 })
 
 // --- Watchers ---
@@ -1570,7 +1629,8 @@ const openCreateRouteModal = () => {
     duration: 0,
     distance: 0,
     cost: 0,
-    routeType: 'standard',
+    routeType: 'OCEAN',
+    transportMode: 'OCEAN',
     status: 'Active'
   }
   showCreateRouteModal.value = true
@@ -1598,7 +1658,7 @@ const saveRoute = async () => {
       duration: routeForm.value.duration,
       distance: routeForm.value.distance,
       status: routeForm.value.status,
-      transportationMode: routeForm.value.routeType,
+      transportationMode: routeForm.value.transportMode || routeForm.value.routeType,
       cost: routeForm.value.cost || 0
     }
 
@@ -1621,16 +1681,17 @@ const editRoute = (route: Route) => {
   isEditMode.value = true
   routeForm.value = {
     id: route.id,
-    name: route.name,
-    originLocation: route.origin.location,
-    originPort: route.origin.port,
-    destinationLocation: route.destination.location,
-    destinationPort: route.destination.port,
-    duration: route.duration,
-    distance: route.distance,
+    name: route.name || '',
+    originLocation: route.origin?.location || '',
+    originPort: route.origin?.port || '',
+    destinationLocation: route.destination?.location || '',
+    destinationPort: route.destination?.port || '',
+    duration: route.duration || 0,
+    distance: route.distance || 0,
     cost: route._original?.cost || 0,
-    routeType: route.routeType,
-    status: route.status
+    routeType: route.routeType || 'OCEAN',
+    transportMode: route.transportMode || route.routeType || 'OCEAN',
+    status: route.status || 'Active'
   }
   showCreateRouteModal.value = true
 }
@@ -1701,14 +1762,33 @@ const optimizeRoute = (route: Route) => {
 }
 
 
-// UI Helper Functions
+// UI Helper Functions with global transport mode support
 const getRouteTypeBadgeClass = (type: string): string => {
   const classes = {
-    express: 'bg-blue-100 text-blue-800',
-    standard: 'bg-gray-100 text-gray-800',
-    priority: 'bg-purple-100 text-purple-800'
+    // Modern transport modes
+    'AIR': 'bg-red-100 text-red-800 border border-red-200',
+    'OCEAN': 'bg-sky-100 text-sky-800 border border-sky-200',
+    'RAIL': 'bg-emerald-100 text-emerald-800 border border-emerald-200',
+    'ROAD': 'bg-violet-100 text-violet-800 border border-violet-200',
+    // Legacy support
+    'express': 'bg-red-100 text-red-800 border border-red-200',
+    'standard': 'bg-gray-100 text-gray-800 border border-gray-200',
+    'priority': 'bg-purple-100 text-purple-800 border border-purple-200'
   }
-  return classes[type as keyof typeof classes] || classes.standard
+  return classes[type as keyof typeof classes] || classes.OCEAN
+}
+
+const getTransportModeIcon = (type: string): string => {
+  const icons = {
+    'AIR': '✈️',
+    'OCEAN': '🚢',
+    'RAIL': '🚂',
+    'ROAD': '🚛',
+    'express': '⚡',
+    'standard': '📦',
+    'priority': '⭐'
+  }
+  return icons[type as keyof typeof icons] || '📦'
 }
 
 const getDurationComparison = (duration: number): string => {
@@ -1814,40 +1894,131 @@ onMounted(() => {
   document.addEventListener('click', handleClickOutside);
 })
 
-// API Functions
+// API Functions with enhanced error handling and fallback data
 const loadRoutes = async () => {
   isLoading.value = true
   error.value = null
   
   try {
+    console.log('Loading routes from API...')
     const data = await routeApi.getAll()
     
-    // Transform backend data to frontend format
-    routes.value = (data || []).map(route => ({
-      id: `RT${String(route.routeId).padStart(3, '0')}`,
-      name: route.name || `Route ${route.routeId}`,
-      routeType: route.transportationMode || 'EXPRESS',
-      origin: {
-        location: route.originPort || 'Unknown',
-        port: route.originPort || 'N/A'
-      },
-      destination: {
-        location: route.destinationPort || 'Unknown',
-        port: route.destinationPort || 'N/A'
-      },
-      distance: route.distance || 0,
-      duration: route.duration || 0,
-      status: route.status || 'ACTIVE',
-      efficiencyScore: Math.floor(Math.random() * 20) + 80, // Generate efficiency score for display
-      activeShipments: 0, // Could be calculated from shipments data
-      // Keep original backend data for API operations
-      _original: route
-    }))
+    // Ensure data is an array and validate structure
+    const routesData = Array.isArray(data) ? data : []
+    
+    // Transform backend data to frontend format with enhanced global support
+    routes.value = routesData.map(route => {
+      // Validate required fields and provide defaults
+      const routeId = route.routeId || Math.floor(Math.random() * 1000)
+      return {
+        id: `RT${String(routeId).padStart(3, '0')}`,
+        name: route.name || `Route ${routeId}`,
+        routeType: route.transportationMode || 'OCEAN',
+        transportMode: route.transportationMode || 'OCEAN', // Add explicit transport mode
+        origin: {
+          location: route.originPort || 'Unknown Origin',
+          port: route.originPort || 'N/A'
+        },
+        destination: {
+          location: route.destinationPort || 'Unknown Destination',
+          port: route.destinationPort || 'N/A'
+        },
+        distance: Number(route.distance) || 0,
+        duration: Number(route.duration) || 0,
+        status: route.status || 'Active',
+        efficiencyScore: Math.floor(Math.random() * 20) + 80, // Generate efficiency score for display
+        activeShipments: 0, // Could be calculated from shipments data
+        // Keep original backend data for API operations
+        _original: route
+      }
+    })
+    
+    console.log(`Successfully loaded ${routes.value.length} routes from API`)
     
   } catch (err) {
-    error.value = 'Failed to load routes. Please try again.'
-    console.error('Error loading routes:', err)
-    routes.value = []
+    console.warn('Failed to load routes from API, using fallback demo data:', err)
+    error.value = 'Using demo data - backend server not available'
+    
+    // Fallback to demo data for development/demo purposes
+    routes.value = [
+      {
+        id: 'RT001',
+        name: 'Trans-Pacific Express',
+        routeType: 'AIR',
+        transportMode: 'AIR',
+        origin: { location: 'Los Angeles', port: 'LAX Airport' },
+        destination: { location: 'Tokyo', port: 'Narita Airport' },
+        distance: 8815,
+        duration: 11,
+        status: 'Active',
+        efficiencyScore: 94,
+        activeShipments: 12,
+        createdAt: new Date(),
+        _original: null
+      },
+      {
+        id: 'RT002',
+        name: 'Atlantic Ocean Route',
+        routeType: 'OCEAN',
+        transportMode: 'OCEAN',
+        origin: { location: 'Hamburg', port: 'Port of Hamburg' },
+        destination: { location: 'New York', port: 'Port of New York' },
+        distance: 6420,
+        duration: 168,
+        status: 'Active',
+        efficiencyScore: 88,
+        activeShipments: 8,
+        createdAt: new Date(),
+        _original: null
+      },
+      {
+        id: 'RT003',
+        name: 'European Rail Corridor',
+        routeType: 'RAIL',
+        transportMode: 'RAIL',
+        origin: { location: 'Berlin', port: 'Berlin Hauptbahnhof' },
+        destination: { location: 'Paris', port: 'Gare du Nord' },
+        distance: 1054,
+        duration: 8,
+        status: 'Active',
+        efficiencyScore: 91,
+        activeShipments: 15,
+        createdAt: new Date(),
+        _original: null
+      },
+      {
+        id: 'RT004',
+        name: 'Asia-Europe Highway',
+        routeType: 'ROAD',
+        transportMode: 'ROAD',
+        origin: { location: 'Mumbai', port: 'Jawaharlal Nehru Port' },
+        destination: { location: 'Istanbul', port: 'Port of Istanbul' },
+        distance: 6200,
+        duration: 240,
+        status: 'Delayed',
+        efficiencyScore: 72,
+        activeShipments: 5,
+        createdAt: new Date(),
+        _original: null
+      },
+      {
+        id: 'RT005',
+        name: 'Pacific Air Bridge',
+        routeType: 'AIR',
+        transportMode: 'AIR',
+        origin: { location: 'Sydney', port: 'Kingsford Smith Airport' },
+        destination: { location: 'Singapore', port: 'Changi Airport' },
+        distance: 6317,
+        duration: 8,
+        status: 'Active',
+        efficiencyScore: 96,
+        activeShipments: 20,
+        createdAt: new Date(),
+        _original: null
+      }
+    ]
+    
+    console.log(`Using ${routes.value.length} demo routes as fallback`)
   } finally {
     isLoading.value = false
   }
@@ -1863,7 +2034,8 @@ const createRoute = async (routeData: any) => {
     const formattedRoute = {
       id: `RT${String(newRoute.routeId).padStart(3, '0')}`,
       name: newRoute.name || `Route ${newRoute.routeId}`,
-      routeType: newRoute.transportationMode || 'EXPRESS',
+      routeType: newRoute.transportationMode || 'OCEAN',
+      transportMode: newRoute.transportationMode || 'OCEAN',
       origin: {
         location: newRoute.originPort || 'Unknown',
         port: newRoute.originPort || 'N/A'
@@ -1874,16 +2046,48 @@ const createRoute = async (routeData: any) => {
       },
       distance: newRoute.distance || 0,
       duration: newRoute.duration || 0,
-      status: newRoute.status || 'ACTIVE',
+      status: newRoute.status || 'Active',
       efficiencyScore: Math.floor(Math.random() * 20) + 80,
       activeShipments: 0,
       _original: newRoute
     }
     routes.value.unshift(formattedRoute)
     closeCreateRouteModal()
+    console.log('Route created successfully:', formattedRoute.id)
   } catch (err) {
-    error.value = 'Failed to create route. Please try again.'
     console.error('Error creating route:', err)
+    
+    // Handle different types of errors with specific messages
+    if (err.message.includes('timeout') || err.message.includes('server may be slow')) {
+      error.value = 'Request timeout - using local data. Route created locally but may not sync to server.'
+      // Create route locally anyway for better UX
+      const localRoute = {
+        id: `RT${String(Date.now()).slice(-3).padStart(3, '0')}`, // Use timestamp for ID
+        name: routeData.name,
+        routeType: routeData.transportationMode || 'OCEAN',
+        transportMode: routeData.transportationMode || 'OCEAN',
+        origin: {
+          location: routeData.originPort,
+          port: routeData.originPort
+        },
+        destination: {
+          location: routeData.destinationPort,
+          port: routeData.destinationPort
+        },
+        distance: routeData.distance,
+        duration: routeData.duration,
+        status: routeData.status || 'Active',
+        efficiencyScore: Math.floor(Math.random() * 20) + 80,
+        activeShipments: 0,
+        _original: null
+      }
+      routes.value.unshift(localRoute)
+      closeCreateRouteModal()
+    } else if (err.message.includes('server is not running')) {
+      error.value = 'Backend server unavailable - using demo mode. Please start the server for full functionality.'
+    } else {
+      error.value = 'Failed to create route. Please try again.'
+    }
   } finally {
     isFormLoading.value = false
   }
@@ -1905,6 +2109,7 @@ const updateRoute = async (id: string, routeData: any) => {
         ...routes.value[index],
         name: updatedRoute.name,
         routeType: updatedRoute.transportationMode || routes.value[index].routeType,
+        transportMode: updatedRoute.transportationMode || routes.value[index].transportMode,
         origin: {
           location: updatedRoute.originPort || routes.value[index].origin.location,
           port: updatedRoute.originPort || routes.value[index].origin.port
@@ -1920,9 +2125,36 @@ const updateRoute = async (id: string, routeData: any) => {
       }
     }
     closeCreateRouteModal()
+    console.log(`Route ${id} updated successfully`)
   } catch (err) {
-    error.value = 'Failed to update route. Please try again.'
     console.error('Error updating route:', err)
+    
+    // Handle different types of errors with specific messages
+    if (err.message.includes('timeout') || err.message.includes('server may be slow')) {
+      error.value = 'Request timeout - using local data. Changes saved locally but may not sync to server.'
+      // Update local data anyway for better UX
+      if (routeForm.value.id) {
+        const index = routes.value.findIndex(r => r.id === routeForm.value.id)
+        if (index !== -1) {
+          routes.value[index] = {
+            ...routes.value[index],
+            name: routeForm.value.name,
+            routeType: routeForm.value.routeType,
+            transportMode: routeForm.value.routeType,
+            origin: routeForm.value.origin,
+            destination: routeForm.value.destination,
+            distance: routeForm.value.distance,
+            duration: routeForm.value.duration,
+            status: routeForm.value.status || routes.value[index].status
+          }
+        }
+      }
+      closeCreateRouteModal()
+    } else if (err.message.includes('server is not running')) {
+      error.value = 'Backend server unavailable - using demo mode. Please start the server for full functionality.'
+    } else {
+      error.value = 'Failed to update route. Please try again.'
+    }
   } finally {
     isFormLoading.value = false
   }
