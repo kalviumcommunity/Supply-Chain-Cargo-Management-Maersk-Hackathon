@@ -21,13 +21,13 @@ public class CorsConfig {
             "http://localhost:5174"
         ));
         
-        // Allow credentials (cookies)
+       
         configuration.setAllowCredentials(true);
         
-        // Allow all HTTP methods
+       
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         
-        // Allow all headers
+        
         configuration.setAllowedHeaders(Arrays.asList("*"));
         
         // Expose headers
