@@ -213,7 +213,7 @@ const signupForm = ref({
 // Check if user is already authenticated
 onMounted(() => {
   if (auth.isAuthenticated.value) {
-    router.push('/')
+    router.push('/dashboard')
   }
   
   // Check for OAuth callback success
@@ -221,7 +221,7 @@ onMounted(() => {
     // Fetch current user after OAuth
     auth.getCurrentUser().then(user => {
       if (user) {
-        router.push('/')
+        router.push('/dashboard')
       }
     })
   }
@@ -243,7 +243,7 @@ const handleLogin = async () => {
       
       // Redirect to dashboard after short delay
       setTimeout(() => {
-        router.push('/')
+        router.push('/dashboard')
       }, 500)
     } else {
       error.value = response.message || 'Login failed'

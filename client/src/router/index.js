@@ -157,7 +157,7 @@ router.beforeEach(async (to, from, next) => {
   // Check if authenticated user trying to access login page
   else if (hideForAuth && auth.isAuthenticated.value) {
     // Redirect to dashboard
-    next('/')
+    next('/dashboard')
   } 
   else {
     next()

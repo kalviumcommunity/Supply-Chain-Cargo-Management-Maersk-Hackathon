@@ -8,4 +8,3 @@ target/
 application.properties
 application-*.properties
 !application.properties.example
-
