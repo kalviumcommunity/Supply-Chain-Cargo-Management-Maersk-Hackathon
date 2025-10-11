@@ -1,470 +1,188 @@
-# CargoFlow Frontend Deployment to AWS S3 + CloudFront
+# Frontend Deployment Guide (AWS S3 & CloudFront)
 
-## Professional Deployment Guide for Vue 3 Supply Chain Management Platform
+This guide provides a concise workflow for deploying the Vue.js frontend located in the `client/` directory to AWS using S3 for hosting and CloudFront as a CDN.
 
-This comprehensive guide provides detailed, project-specific instructions for deploying the **CargoFlow** Vue 3 frontend to AWS. The guide is tailored to the exact codebase structure and configuration found in the client dir.
-
----
-
-## 📋 Prerequisites & Environment Setup
-
-### System Requirements
-- **AWS Account** with S3, CloudFront, and IAM permissions
-- **AWS CLI v2** installed and configured (`aws configure`)
-- **Bun runtime** (v1.0+) - Primary package manager for this project
-- **Node.js** (v18+) - Fallback runtime environment
-
-### Verify Local Environment
-```bash
-# Verify Bun installation (required for this project)
-bun --version
-
-# Verify AWS CLI access
-aws sts get-caller-identity
-
-# Navigate to project frontend
-cd /home/rahulrr/Projects/maersk/client
-```
+### **Project Overview**
+- **Framework**: Vue 3 + Vite
+- **Package Manager**: Bun
+- **Source Directory**: `client/`
+- **Build Output**: `client/dist/`
+- **API Service**: `client/src/services/api.js`, which uses `import.meta.env.VITE_API_BASE_URL`.
 
 ---
 
-## 🏗️ CargoFlow Project Architecture Analysis
+### **Step 1: Build Production Assets**
 
-### Codebase Structure
-```
-client/                           # Frontend root directory
-├── .env                         # Environment variables (VITE_API_BASE_URL)
-├── bun.lock                     # Bun lockfile (2,947 entries)
-├── index.html                   # Entry point: "Cargo Management System"
-├── package.json                 # Bun-optimized scripts and dependencies
-├── vite.config.js              # Vite + Tailwind CSS v4.1.13 config
-├── public/
-│   └── vite.svg                # Static favicon asset
-└── src/
-    ├── main.js                 # Vue 3 app initialization
-    ├── App.vue                 # Root component with conditional sidebar
-    ├── style.css               # Tailwind CSS v4 import
-    ├── components/
-    │   ├── LandingPage.vue     # Root route ("/") - 560 lines
-    │   ├── Dashboard.vue       # Main dashboard ("/dashboard")
-    │   ├── CargoManagement.vue # Cargo CRUD operations
-    │   ├── ShipmentTracking.vue# Shipment monitoring
-    │   ├── RouteManagement.vue # Route optimization
-    │   ├── VendorManagement.vue# Vendor relations
-    │   ├── Login.vue           # Authentication component
-    │   ├── OAuthCallback.vue   # OAuth2 callback handler
-    │   ├── Sidebar.vue         # Navigation component
-    │   └── shared/             # Reusable components
-    │       ├── BaseModal.vue
-    │       ├── ConfirmDialog.vue
-    │       └── RouteMap.vue    # Leaflet integration
-    ├── router/
-    │   └── index.js            # Vue Router with auth guards
-    └── services/
-        ├── api.js              # Centralized API client
-        └── auth.js             # Authentication service
-```
+First, create a production environment file to ensure the application connects to the correct backend API.
 
-### Key Technology Stack
-- **Vue 3.5.21** with Composition API
-- **Vite 7.1.7** build tool with HMR
-- **Tailwind CSS 4.1.13** with Vite plugin
-- **Vue Router 4** with meta-based navigation
-- **Leaflet 1.9.4** for geospatial features
-- **Lucide Vue Next 0.544.0** for icons
+1.  **Create Environment File**:
+    In the `client/` directory, create a file named `.env.production`.
+
+    ```bash
+    # Navigate to the client directory
+    cd client/
+
+    # Create and populate the production environment file
+    echo "VITE_API_BASE_URL=https://your-production-api-url.com/api" > .env.production
+    ```
+    *Replace `https://your-production-api-url.com/api` with your actual production API endpoint.*
+
+2.  **Install Dependencies and Build**:
+    Use Bun to install dependencies and run the Vite build script.
+
+    ```bash
+    # From the client/ directory
+    bun install
+    bun run build
+    ```
+    This command compiles the application and places the static assets in the `client/dist/` directory.
 
 ---
 
-## 🔧 Environment Configuration
+### **Step 2: Configure and Deploy to S3**
 
-### Current Environment Analysis
-The project uses environment variables defined in `client/.env`:
+Next, create and configure an S3 bucket to host the static files.
 
-```properties
-# Current configuration
-VITE_API_BASE_URL=http://localhost:8080/api
-VITE_ENV=development
-```
+1.  **Create S3 Bucket**:
+    Bucket names must be globally unique. Use a descriptive name.
 
-### Production Environment Setup
-Create a production environment file:
+    ```bash
+    # Replace with your unique bucket name
+    export BUCKET_NAME=maersk-hackathon-frontend-app
 
-```bash
-# Create production environment
-cp client/.env client/.env.production
+    aws s3 mb s3://$BUCKET_NAME --region us-east-1
+    ```
 
-# Edit production values
-cat > client/.env.production << EOF
-# Production API Configuration
-VITE_API_BASE_URL=https://api.cargoflow.maersk.com/api
-VITE_ENV=production
+2.  **Enable Static Website Hosting**:
+    Configure the bucket to serve a static website. Set both the index and error documents to `index.html` to enable client-side routing for this Single Page Application (SPA).
 
-# Optional: Analytics and monitoring
-VITE_APP_VERSION=1.0.0
-VITE_BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-EOF
-```
+    ```bash
+    aws s3 website s3://$BUCKET_NAME/ --index-document index.html --error-document index.html
+    ```
 
-### API Service Configuration
-The API service (`src/services/api.js`) automatically reads environment variables:
+3.  **Set Bucket Policy for Public Access (Optional)**:
+    To make the site accessible via the S3 website endpoint, apply a public-read policy. **Note**: For production, it's recommended to keep the bucket private and use CloudFront with an Origin Access Identity (OAI).
 
-```javascript
-// Line 4-5 in src/services/api.js
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'
-```
-
-**Critical:** Ensure your Spring Boot backend CORS configuration allows your production domain.
-
----
-
-## 🚀 Build Process
-
-### Bun-Optimized Build (Recommended)
-```bash
-cd client
-
-# Install dependencies using Bun (faster than npm)
-bun install
-
-# Production build using Bun runtime
-bun run build
-# Equivalent to: bunx --bun vite build
-```
-
-### Build Output Analysis
-The build process creates:
-```
-client/dist/
-├── index.html              # Minified entry point
-├── assets/
-│   ├── index-[hash].js     # Vue app bundle (~200-400KB)
-│   ├── index-[hash].css    # Tailwind CSS bundle (~50-100KB)
-│   └── vendor-[hash].js    # Third-party libraries
-└── vite.svg               # Static assets from public/
-```
-
-### Build Verification
-```bash
-# Verify build success
-ls -la dist/
-du -sh dist/           # Check total size
-bun run preview        # Local preview server
-```
-
----
-
-## ☁️ AWS S3 Configuration
-
-### S3 Bucket Creation
-```bash
-# Create bucket with unique name
-export BUCKET_NAME="cargoflow-frontend-$(date +%s)"
-aws s3 mb s3://$BUCKET_NAME --region us-east-1
-
-# Enable static website hosting
-aws s3 website s3://$BUCKET_NAME \
-  --index-document index.html \
-  --error-document index.html
-```
-
-### SPA Routing Configuration
-**Critical for Vue Router:** The error document must be set to `index.html` to handle client-side routing for routes like:
-- `/` (LandingPage.vue)
-- `/dashboard` (Dashboard.vue)
-- `/cargo` (CargoManagement.vue)
-- `/shipments` (ShipmentTracking.vue)
-- `/routes` (RouteManagement.vue)
-- `/vendors` (VendorManagement.vue)
-
-### Bucket Policy for Public Access
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
+    ```bash
+    # Create a policy file
+    cat > policy.json <<EOF
     {
-      "Sid": "PublicReadGetObject",
-      "Effect": "Allow",
-      "Principal": "*",
-      "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::cargoflow-frontend-*/*"
+      "Version": "2012-10-17",
+      "Statement": [{
+        "Sid": "PublicReadGetObject",
+        "Effect": "Allow",
+        "Principal": "*",
+        "Action": "s3:GetObject",
+        "Resource": "arn:aws:s3:::$BUCKET_NAME/*"
+      }]
     }
-  ]
-}
-```
+    EOF
 
-Apply the policy:
-```bash
-# Create policy file
-cat > bucket-policy.json << 'EOF'
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "PublicReadGetObject",
-      "Effect": "Allow",
-      "Principal": "*",
-      "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::BUCKET_NAME/*"
-    }
-  ]
-}
-EOF
+    # Apply the policy
+    aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy file://policy.json
+    rm policy.json
+    ```
 
-# Replace bucket name and apply
-sed "s/BUCKET_NAME/$BUCKET_NAME/g" bucket-policy.json > policy.json
-aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy file://policy.json
-```
+4.  **Upload Files to S3**:
+    Sync the build output to your S3 bucket. Use different cache settings for hashed assets versus the `index.html` file to ensure users get new versions immediately upon deployment.
+
+    ```bash
+    # Sync hashed assets (JS, CSS) with a long cache time (1 year)
+    aws s3 sync client/dist/assets s3://$BUCKET_NAME/assets --cache-control "public, max-age=31536000" --delete
+
+    # Upload other files from dist (like index.html, favicon) with no cache
+    aws s3 cp client/dist/index.html s3://$BUCKET_NAME/ --cache-control "no-cache, no-store, must-revalidate"
+    # Add similar cp commands for other root files like favicon.ico if they exist
+    ```
 
 ---
 
-## 📦 Deployment Process
+### **Step 3: Set Up CloudFront (Recommended for Production)**
 
-### Initial Deployment
-```bash
-# Deploy all files with proper content types
-aws s3 sync dist/ s3://$BUCKET_NAME \
-  --delete \
-  --metadata-directive REPLACE \
-  --cache-control "public, max-age=31536000" \
-  --exclude "index.html" \
-  --exclude "*.json"
+Using CloudFront provides benefits like a global CDN, SSL/TLS, and the ability to keep your S3 bucket private.
 
-# Deploy index.html with no-cache for SPA updates
-aws s3 cp dist/index.html s3://$BUCKET_NAME/index.html \
-  --metadata-directive REPLACE \
-  --cache-control "no-cache, no-store, must-revalidate"
+1.  **Create a Distribution**:
+    - **Origin Domain**: Select your S3 bucket. If you plan to keep the bucket private, set up an **Origin Access Identity (OAI)** and grant it read permissions.
+    - **Viewer Protocol Policy**: Redirect HTTP to HTTPS.
+    - **Default Root Object**: Set to `index.html`.
 
-# Get website URL
-aws s3api get-bucket-website --bucket $BUCKET_NAME
-```
+2.  **Configure Error Pages for SPA Routing**:
+    To ensure browser refreshes and direct navigation work correctly, create custom error responses for `403: Forbidden` and `404: Not Found`.
+    - **Response Page Path**: `/index.html`
+    - **HTTP Response Code**: `200: OK`
 
-### Automated Deployment Script
-Create a deployment script for easy updates:
+3.  **Invalidate Cache After Deployment**:
+    After deploying new code, invalidate the CloudFront cache to force it to fetch the latest `index.html`.
 
-```bash
-cat > deploy.sh << 'EOF'
-#!/bin/bash
-set -e
+    ```bash
+    # Replace with your distribution ID
+    export DISTRIBUTION_ID=E12345ABCDEF
 
-BUCKET_NAME="cargoflow-frontend-1697872800"  # Replace with your bucket
-
-echo "🔨 Building CargoFlow frontend..."
-cd client
-bun run build
-
-echo "📦 Deploying to S3..."
-# Upload assets with long cache
-aws s3 sync dist/ s3://$BUCKET_NAME \
-  --delete \
-  --exclude "index.html" \
-  --cache-control "public, max-age=31536000"
-
-# Upload index.html with no cache
-aws s3 cp dist/index.html s3://$BUCKET_NAME/index.html \
-  --cache-control "no-cache, no-store, must-revalidate"
-
-echo "✅ Deployment complete!"
-echo "🌐 Website URL: http://$BUCKET_NAME.s3-website-us-east-1.amazonaws.com"
-EOF
-
-chmod +x deploy.sh
-```
+    aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
+    ```
 
 ---
 
-## 🌍 CloudFront CDN Setup (Production)
+### **Step 4: Verification**
 
-### Distribution Configuration
-```bash
-# Create CloudFront distribution
-cat > cloudfront-config.json << EOF
-{
-  "CallerReference": "cargoflow-$(date +%s)",
-  "Comment": "CargoFlow Vue 3 SPA Distribution",
-  "DefaultRootObject": "index.html",
-  "Origins": {
-    "Quantity": 1,
-    "Items": [
-      {
-        "Id": "S3-$BUCKET_NAME",
-        "DomainName": "$BUCKET_NAME.s3.amazonaws.com",
-        "S3OriginConfig": {
-          "OriginAccessIdentity": ""
-        }
-      }
-    ]
-  },
-  "DefaultCacheBehavior": {
-    "TargetOriginId": "S3-$BUCKET_NAME",
-    "ViewerProtocolPolicy": "redirect-to-https",
-    "TrustedSigners": {
-      "Enabled": false,
-      "Quantity": 0
-    },
-    "ForwardedValues": {
-      "QueryString": false,
-      "Cookies": {
-        "Forward": "none"
-      }
-    },
-    "MinTTL": 0,
-    "DefaultTTL": 86400,
-    "MaxTTL": 31536000
-  },
-  "CustomErrorResponses": {
-    "Quantity": 2,
-    "Items": [
-      {
-        "ErrorCode": 403,
-        "ResponsePagePath": "/index.html",
-        "ResponseCode": "200",
-        "ErrorCachingMinTTL": 300
-      },
-      {
-        "ErrorCode": 404,
-        "ResponsePagePath": "/index.html",
-        "ResponseCode": "200",
-        "ErrorCachingMinTTL": 300
-      }
-    ]
-  },
-  "Enabled": true,
-  "PriceClass": "PriceClass_100"
-}
-EOF
-
-# Create distribution
-aws cloudfront create-distribution --distribution-config file://cloudfront-config.json
-```
-
-### Cache Invalidation
-```bash
-# Get distribution ID
-DISTRIBUTION_ID=$(aws cloudfront list-distributions --query 'DistributionList.Items[0].Id' --output text)
-
-# Invalidate cache after deployment
-aws cloudfront create-invalidation \
-  --distribution-id $DISTRIBUTION_ID \
-  --paths "/*"
-```
+- Access your site via the S3 website endpoint or the CloudFront domain.
+- **Check SPA Routing**: Navigate directly to a route like `https://your-domain.com/dashboard`. The page should load correctly.
+- **Check Network Tab**: In your browser's developer tools, confirm that `index.html` has `no-cache` headers and that assets in the `/assets` directory have a long `max-age`.
+- **API Connectivity**: Ensure the frontend can successfully communicate with your backend API. Check for any CORS errors in the browser console.
 
 ---
 
-## 🔍 Deployment Verification
+### **Minimal CI/CD with GitHub Actions**
 
-### Functional Testing Checklist
-```bash
-# Test all Vue Router routes
-curl -I "https://yourcloudfront.domain.com/"           # LandingPage
-curl -I "https://yourcloudfront.domain.com/dashboard"  # Dashboard
-curl -I "https://yourcloudfront.domain.com/cargo"      # CargoManagement
-curl -I "https://yourcloudfront.domain.com/routes"     # RouteManagement
+Automate deployment by adding a workflow file to `.github/workflows/deploy-frontend.yml`.
 
-# Test static assets
-curl -I "https://yourcloudfront.domain.com/vite.svg"   # Public assets
-```
-
-### Performance Testing
-```bash
-# Check bundle sizes
-echo "CSS Bundle:" && ls -lh dist/assets/*.css
-echo "JS Bundle:" && ls -lh dist/assets/*.js
-echo "Total Size:" && du -sh dist/
-
-# Test loading times
-curl -w "@curl-format.txt" -o /dev/null -s "https://yourcloudfront.domain.com"
-```
-
-### Browser Testing
-1. **Landing Page** (`/`) - Professional layout with navigation
-2. **Dashboard** (`/dashboard`) - Metrics and analytics
-3. **Component Navigation** - Sidebar routing between management modules
-4. **Authentication Flow** - Login/OAuth callback functionality
-5. **API Integration** - Verify production API connectivity
-
----
-
-## 🛠️ Troubleshooting
-
-### Common Issues
-
-**Build Errors:**
-```bash
-# Clear Bun cache
-bun install --force
-
-# Verify Tailwind compilation
-grep -r "tailwindcss" src/
-```
-
-**Routing Issues:**
-```bash
-# Verify error document configuration
-aws s3api get-bucket-website --bucket $BUCKET_NAME
-```
-
-**CORS Errors:**
-- Ensure Spring Boot backend allows your production domain
-- Check `application.properties` CORS configuration
-
-**Environment Variables:**
-```bash
-# Verify build-time variables
-grep -r "VITE_" dist/assets/*.js
-```
-
----
-
-## 📊 Production Monitoring
-
-### CloudWatch Metrics
-- S3 bucket requests and data transfer
-- CloudFront cache hit ratio and response times
-- Error rates for 4xx/5xx responses
-
-### Cost Optimization
-- Enable S3 Intelligent Tiering for assets
-- Use CloudFront compression
-- Monitor data transfer costs
-
----
-
-## 🔄 CI/CD Integration
-
-### GitHub Actions Workflow
 ```yaml
-name: Deploy CargoFlow Frontend
+name: Deploy Frontend to S3
+
 on:
   push:
-    branches: [main]
-    paths: ['client/**']
+    branches: [ main ] # Or your production branch
+    paths: [ 'client/**' ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: oven-sh/setup-bun@v1
-      - run: cd client && bun install
-      - run: cd client && bun run build
-      - uses: aws-actions/configure-aws-credentials@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      - run: ./deploy.sh
+
+      - name: Install, Build, and Deploy
+        env:
+          BUCKET_NAME: your-s3-bucket-name # Replace with your bucket name
+          PROD_API_URL: ${{ secrets.VITE_API_BASE_URL }}
+        run: |
+          cd client
+          echo "VITE_API_BASE_URL=$PROD_API_URL" > .env.production
+          bun install
+          bun run build
+          aws s3 sync dist/assets s3://$BUCKET_NAME/assets --cache-control "public, max-age=31536000" --delete
+          aws s3 cp dist/index.html s3://$BUCKET_NAME/index.html --cache-control "no-cache, no-store, must-revalidate"
+
+      - name: Invalidate CloudFront Cache
+        env:
+          DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+        run: |
+          aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
 ```
+**Secrets to configure in GitHub Repository Settings:**
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `VITE_API_BASE_URL` (Your production API URL)
+- `CLOUDFRONT_DISTRIBUTION_ID` (Optional, if using CloudFront)
 
----
 
-## 📚 References & Documentation
-
-- **Project Repository:** Supply-Chain-Cargo-Management-Maersk-Hackathon
-- **Vite Build Guide:** [vitejs.dev/guide/build](https://vitejs.dev/guide/build.html)
-- **Vue Router Deployment:** [router.vuejs.org/guide/essentials/history-mode](https://router.vuejs.org/guide/essentials/history-mode.html)
-- **AWS S3 Static Hosting:** [docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting](https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html)
-- **Tailwind CSS Production:** [tailwindcss.com/docs/optimizing-for-production](https://tailwindcss.com/docs/optimizing-for-production)
-
----
-
-**🚢 Your CargoFlow supply chain management platform is now deployed and ready for global access!**
