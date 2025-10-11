@@ -393,8 +393,8 @@
               <span class="text-emerald-600">🚂 Rail</span>
             </div>
             <div class="flex items-center gap-2">
-              <div class="w-4 h-0.5 bg-violet-600" style="border-top: 2px dotted;"></div>
-              <span class="text-violet-600">🚛 Road</span>
+              <div class="w-4 h-0.5 bg-black-600" style="border-top: 2px solid;"></div>
+              <span class="text-black-600">🚛 Road</span>
             </div>
           </div>
         </div>
@@ -1769,7 +1769,7 @@ const getRouteTypeBadgeClass = (type: string): string => {
     'AIR': 'bg-red-100 text-red-800 border border-red-200',
     'OCEAN': 'bg-sky-100 text-sky-800 border border-sky-200',
     'RAIL': 'bg-emerald-100 text-emerald-800 border border-emerald-200',
-    'ROAD': 'bg-violet-100 text-violet-800 border border-violet-200',
+    'ROAD': 'bg-black-100 text-black-800 border border-black-100',
     // Legacy support
     'express': 'bg-red-100 text-red-800 border border-red-200',
     'standard': 'bg-gray-100 text-gray-800 border border-gray-200',
