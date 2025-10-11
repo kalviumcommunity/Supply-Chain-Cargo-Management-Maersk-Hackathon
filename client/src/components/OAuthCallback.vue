@@ -63,7 +63,7 @@ onMounted(async () => {
       
       // Redirect to dashboard after a brief moment
       setTimeout(() => {
-        router.push('/')
+        router.push('/dashboard')
       }, 1000)
     } else {
       throw new Error('Failed to retrieve user information')

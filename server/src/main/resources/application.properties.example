@@ -6,8 +6,8 @@ server.port=8080
 # ============================================
 # POSTGRESQL DATABASE CONFIGURATION
 # ============================================
-# Replace with your AWS RDS PostgreSQL connection details
-spring.datasource.url=jdbc:postgresql://database-1.cnwmacmaiqni.ap-south-1.rds.amazonaws.com:5432/myappdb?sslmode=require&ApplicationName=supply-chain-app
+# Replace with your AWS RDS PostgreSQL 
+ApplicationName=supply-chain-app
 spring.datasource.username=postgres
 spring.datasource.password=YOUR_DATABASE_PASSWORD_HERE
 spring.datasource.driver-class-name=org.postgresql.Driver
