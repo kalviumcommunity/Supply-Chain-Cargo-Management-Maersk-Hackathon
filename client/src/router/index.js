@@ -1,10 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LandingPage from '../components/LandingPage.vue'
 import Dashboard from '../components/Dashboard.vue'
-import CargoManagement from '../components/CargoManagement.vue'
-import ShipmentTracking from '../components/ShipmentTracking.vue'
-import RouteManagement from '../components/RouteManagement.vue'
-import VendorManagement from '../components/VendorManagement.vue'
+import RouteList from '../components/routes/RouteList.vue'
+import RouteForm from '../components/routes/RouteForm.vue'
+import RouteDetails from '../components/routes/RouteDetails.vue'
+import VendorList from '../components/vendors/VendorList.vue'
+import VendorForm from '../components/vendors/VendorForm.vue'
+import VendorDetails from '../components/vendors/VendorDetails.vue'
+import ShipmentList from '../components/shipments/ShipmentList.vue'
+import ShipmentForm from '../components/shipments/ShipmentForm.vue'
+import ShipmentDetails from '../components/shipments/ShipmentDetails.vue'
+import CargoList from '../components/cargo/CargoList.vue'
+import CargoForm from '../components/cargo/CargoForm.vue'
+import CargoDetails from '../components/cargo/CargoDetails.vue'
 import Login from '../components/Login.vue'
 import OAuthCallback from '../components/OAuthCallback.vue'
 import { useAuth } from '../services/auth'
@@ -54,8 +62,8 @@ const routes = [
   },
   {
     path: '/cargo',
-    name: 'CargoManagement',
-    component: CargoManagement,
+    name: 'Cargo',
+    component: CargoList,
     meta: {
       title: 'Cargo Management',
       subtitle: 'Manage and track your cargo inventory',
@@ -63,9 +71,39 @@ const routes = [
     }
   },
   {
+    path: '/cargo/create',
+    name: 'CargoCreate',
+    component: CargoForm,
+    meta: {
+      title: 'Create Cargo',
+      subtitle: 'Add new cargo to your inventory',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/cargo/:id',
+    name: 'CargoDetails',
+    component: CargoDetails,
+    meta: {
+      title: 'Cargo Details',
+      subtitle: 'View cargo information',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/cargo/:id/edit',
+    name: 'CargoEdit',
+    component: CargoForm,
+    meta: {
+      title: 'Edit Cargo',
+      subtitle: 'Update cargo information',
+      requiresAuth: true
+    }
+  },
+  {
     path: '/shipments',
-    name: 'ShipmentTracking',
-    component: ShipmentTracking,
+    name: 'Shipments',
+    component: ShipmentList,
     meta: {
       title: 'Shipment Tracking',
       subtitle: 'Monitor shipment status and delivery progress',
@@ -73,9 +111,39 @@ const routes = [
     }
   },
   {
+    path: '/shipments/create',
+    name: 'ShipmentCreate',
+    component: ShipmentForm,
+    meta: {
+      title: 'Create Shipment',
+      subtitle: 'Add a new shipment to your supply chain',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/shipments/:id',
+    name: 'ShipmentDetails',
+    component: ShipmentDetails,
+    meta: {
+      title: 'Shipment Details',
+      subtitle: 'View shipment information',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/shipments/:id/edit',
+    name: 'ShipmentEdit',
+    component: ShipmentForm,
+    meta: {
+      title: 'Edit Shipment',
+      subtitle: 'Update shipment information',
+      requiresAuth: true
+    }
+  },
+  {
     path: '/routes',
-    name: 'RouteManagement',
-    component: RouteManagement,
+    name: 'Routes',
+    component: RouteList,
     meta: {
       title: 'Route Management',
       subtitle: 'Plan and optimize shipping routes',
@@ -83,12 +151,72 @@ const routes = [
     }
   },
   {
+    path: '/routes/create',
+    name: 'RouteCreate',
+    component: RouteForm,
+    meta: {
+      title: 'Create Route',
+      subtitle: 'Set up a new shipping route',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/routes/:id',
+    name: 'RouteDetails',
+    component: RouteDetails,
+    meta: {
+      title: 'Route Details',
+      subtitle: 'View route information',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/routes/:id/edit',
+    name: 'RouteEdit',
+    component: RouteForm,
+    meta: {
+      title: 'Edit Route',
+      subtitle: 'Update route information',
+      requiresAuth: true
+    }
+  },
+  {
     path: '/vendors',
-    name: 'VendorManagement',
-    component: VendorManagement,
+    name: 'Vendors',
+    component: VendorList,
     meta: {
       title: 'Vendor Management',
       subtitle: 'Manage vendor relationships and partnerships',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/vendors/create',
+    name: 'VendorCreate',
+    component: VendorForm,
+    meta: {
+      title: 'Create Vendor',
+      subtitle: 'Add a new vendor to your supply chain',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/vendors/:id',
+    name: 'VendorDetails',
+    component: VendorDetails,
+    meta: {
+      title: 'Vendor Details',
+      subtitle: 'View vendor information',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/vendors/:id/edit',
+    name: 'VendorEdit',
+    component: VendorForm,
+    meta: {
+      title: 'Edit Vendor',
+      subtitle: 'Update vendor information',
       requiresAuth: true
     }
   },

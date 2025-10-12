@@ -1,0 +1,322 @@
+<template>
+  <div class="container mx-auto px-4 py-8">
+    <div class="space-y-6">
+      <!-- Header Section -->
+      <PageHeader 
+        title="Route Management"
+        description="Manage and optimize your shipping routes"
+      >
+        <template #actions>
+          <Button @click="$router.push('/routes/create')">
+            <Plus class="mr-2 h-4 w-4" />
+            Add Route
+          </Button>
+        </template>
+      </PageHeader>
+
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <!-- Total Routes Card -->
+        <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+          <div class="px-4 pt-2.5 pb-1.5 bg-white">
+            <span class="text-[13px] font-medium text-gray-600">Total Routes</span>
+          </div>
+          <CardContent class="px-4 py-1.5 pb-3">
+            <div class="flex items-center gap-2">
+              <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ formatNumber(stats.total) }}</div>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 12%</span>
+            </div>
+            <div class="mt-1">
+              <span class="text-xs text-gray-500">Compared to the previous period</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Avg Duration Card -->
+        <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+          <div class="px-4 pt-2.5 pb-1.5 bg-white">
+            <span class="text-[13px] font-medium text-gray-600">Avg Duration</span>
+          </div>
+          <CardContent class="px-4 py-1.5 pb-3">
+            <div class="flex items-center gap-2">
+              <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ stats.avgDuration }}</div>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 12%</span>
+            </div>
+            <div class="mt-1">
+              <span class="text-xs text-gray-500">Days per route</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Avg Cost Card -->
+        <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+          <div class="px-4 pt-2.5 pb-1.5 bg-white">
+            <span class="text-[13px] font-medium text-gray-600">Avg Cost</span>
+          </div>
+          <CardContent class="px-4 py-1.5 pb-3">
+            <div class="flex items-center gap-2">
+              <div class="text-3xl font-semibold tracking-tight text-gray-900">${{ formatNumber(stats.avgCost) }}</div>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 12%</span>
+            </div>
+            <div class="mt-1">
+              <span class="text-xs text-gray-500">Per route</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Total Distance Card -->
+        <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+          <div class="px-4 pt-2.5 pb-1.5 bg-white">
+            <span class="text-[13px] font-medium text-gray-600">Total Distance</span>
+          </div>
+          <CardContent class="px-4 py-1.5 pb-3">
+            <div class="flex items-center gap-2">
+              <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ formatNumber(stats.totalDistance) }}</div>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 12%</span>
+            </div>
+            <div class="mt-1">
+              <span class="text-xs text-gray-500">Kilometers covered</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <!-- Routes Table/Map Section -->
+      <Card>
+        <CardHeader>
+          <div class="flex items-center justify-between">
+            <div>
+              <CardTitle>All Routes</CardTitle>
+              <CardDescription>
+                A comprehensive list of all shipping routes
+              </CardDescription>
+            </div>
+            <div class="flex items-center space-x-2">
+              <Button 
+                @click="viewMode = 'table'" 
+                :variant="viewMode === 'table' ? 'default' : 'outline'"
+                size="sm"
+              >
+                <List class="mr-2 h-4 w-4" />
+                Table
+              </Button>
+              <Button 
+                @click="viewMode = 'map'" 
+                :variant="viewMode === 'map' ? 'default' : 'outline'"
+                size="sm"
+              >
+                <MapIcon class="mr-2 h-4 w-4" />
+                Map
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div v-if="isLoading" class="flex items-center justify-center h-32">
+            <Loader2 class="h-6 w-6 animate-spin" />
+            <span class="ml-2">Loading routes...</span>
+          </div>
+          
+          <div v-else-if="error" class="text-center py-8">
+            <AlertCircle class="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <p class="text-gray-600">{{ error }}</p>
+            <Button @click="loadRoutes" class="mt-4" variant="outline">
+              Try Again
+            </Button>
+          </div>
+          
+          <!-- Map View -->
+          <div v-else-if="viewMode === 'map'" class="h-[600px]">
+            <RouteMap :routes="routes" class="h-full rounded-lg" />
+          </div>
+          
+          <!-- Table View -->
+          <div v-else>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Origin Port</TableHead>
+                  <TableHead>Destination Port</TableHead>
+                  <TableHead>Distance (km)</TableHead>
+                  <TableHead>Duration (days)</TableHead>
+                  <TableHead>Mode</TableHead>
+                  <TableHead>Cost ($)</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead class="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow v-if="routes.length === 0">
+                  <TableCell :colspan="9" class="h-24 text-center">
+                    No routes found. Create your first route to get started.
+                  </TableCell>
+                </TableRow>
+                <TableRow v-for="route in routes" :key="route.routeId">
+                  <TableCell class="font-medium">{{ route.routeId }}</TableCell>
+                  <TableCell>{{ route.originPort }}</TableCell>
+                  <TableCell>{{ route.destinationPort }}</TableCell>
+                  <TableCell>{{ formatNumber(route.distance) }}</TableCell>
+                  <TableCell>{{ route.duration }}</TableCell>
+                  <TableCell>
+                    <Badge :variant="getModeBadgeVariant(route.transportationMode)">
+                      {{ route.transportationMode }}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>${{ formatNumber(route.cost) }}</TableCell>
+                  <TableCell>
+                    <Badge :variant="getStatusBadgeVariant(route.status)">
+                      {{ route.status }}
+                    </Badge>
+                  </TableCell>
+                  <TableCell class="text-right">
+                    <div class="flex items-center justify-end space-x-2">
+                      <Button @click="viewRoute(route)" size="sm" variant="outline">
+                        <Eye class="h-4 w-4" />
+                      </Button>
+                      <Button @click="editRoute(route)" size="sm" variant="outline">
+                        <Edit class="h-4 w-4" />
+                      </Button>
+                      <Button @click="confirmDelete(route)" size="sm" variant="outline" class="text-red-600 hover:text-red-700">
+                        <Trash2 class="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import PageHeader from '@/components/shared/PageHeader.vue'
+import RouteMap from '@/components/shared/RouteMap.vue'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import { 
+  Plus, 
+  Route, 
+  Clock, 
+  DollarSign, 
+  MapPin,
+  Loader2, 
+  AlertCircle, 
+  Eye,
+  Edit, 
+  Trash2,
+  List,
+  Map as MapIcon
+} from 'lucide-vue-next'
+import { routeApi } from '@/services/api'
+
+const router = useRouter()
+
+const routes = ref([])
+const isLoading = ref(false)
+const error = ref(null)
+const viewMode = ref('table') // 'table' or 'map'
+
+const stats = computed(() => {
+  const total = routes.value.length
+  const avgDuration = total > 0 
+    ? Math.round(routes.value.reduce((sum, route) => sum + (route.duration || 0), 0) / total)
+    : 0
+  const avgCost = total > 0 
+    ? Math.round(routes.value.reduce((sum, route) => sum + (route.cost || 0), 0) / total)
+    : 0
+  const totalDistance = routes.value.reduce((sum, route) => sum + (route.distance || 0), 0)
+  
+  return { total, avgDuration, avgCost, totalDistance }
+})
+
+const loadRoutes = async () => {
+  isLoading.value = true
+  error.value = null
+  try {
+    const data = await routeApi.getAll()
+    routes.value = data || []
+  } catch (err) {
+    error.value = err.message || 'Failed to load routes'
+    console.error('❌ Error loading routes:', err)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const getModeBadgeVariant = (mode) => {
+  const modeUpper = (mode || '').toUpperCase()
+  switch (modeUpper) {
+    case 'SEA':
+    case 'OCEAN':
+      return 'default'
+    case 'AIR':
+      return 'secondary'
+    case 'LAND':
+    case 'ROAD':
+      return 'outline'
+    case 'RAIL':
+      return 'destructive'
+    default:
+      return 'outline'
+  }
+}
+
+const getStatusBadgeVariant = (status) => {
+  switch (status) {
+    case 'Active':
+      return 'default'
+    case 'Delayed':
+      return 'destructive'
+    case 'Closed':
+      return 'secondary'
+    default:
+      return 'outline'
+  }
+}
+
+const formatNumber = (num) => {
+  if (!num) return '0'
+  return new Intl.NumberFormat().format(num)
+}
+
+const viewRoute = (route) => {
+  router.push(`/routes/${route.routeId}`)
+}
+
+const editRoute = (route) => {
+  router.push(`/routes/${route.routeId}/edit`)
+}
+
+const confirmDelete = async (route) => {
+  if (!confirm(`Are you sure you want to delete route "${route.originPort} → ${route.destinationPort}"?`)) {
+    return
+  }
+  
+  try {
+    await routeApi.delete(route.routeId)
+    await loadRoutes() // Reload routes after deletion
+  } catch (error) {
+    console.error('❌ Error deleting route:', error)
+    alert('Failed to delete route. Please try again.')
+  }
+}
+
+onMounted(() => {
+  loadRoutes()
+  
+  // Listen for real-time updates
+  window.addEventListener('routes-updated', loadRoutes)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('routes-updated', loadRoutes)
+})
+</script>
