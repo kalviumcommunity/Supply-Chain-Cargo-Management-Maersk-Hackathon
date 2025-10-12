@@ -12,9 +12,9 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080
 const apiRequest = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}${endpoint}`
   
-  // Add timeout support
+  // Add timeout support - increased to 60 seconds for route creation (backend can be slow)
   const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
+  const timeoutId = setTimeout(() => controller.abort(), 60000) // 60 second timeout
   
   const defaultOptions = {
     credentials: 'include', // Include cookies for session management

@@ -1,19 +1,24 @@
 <template>
-  <div class="space-y-7 animate-fade-in">
-    <!-- Header Section -->
-    <div class="flex justify-between items-start">
-      <div>
-        <h1 class="text-4xl font-bold text-[#0F172A] mb-2 tracking-tight">Dashboard</h1>
-        <p class="text-[#64748B] text-base leading-relaxed">Welcome back! Here's your supply chain overview.</p>
-      </div>
-      <button 
-        @click="$emit('new-shipment')"
-        class="bg-gradient-to-br from-[#3B82F6] to-[#2563EB] text-white px-6 py-3 rounded-xl hover:scale-102 active:scale-98 hover:shadow-lg shadow-[0_4px_12px_rgba(59,130,246,0.3)] transition-all duration-200 flex items-center gap-3 font-semibold"
-      >
-        <Plus class="w-5 h-5" />
-        New Shipment
-      </button>
-    </div>
+  <div class="space-y-5 animate-fade-in">
+    <!-- Page Header -->
+    <PageHeader
+      title="Dashboard"
+      description="Welcome back! Here's your supply chain overview."
+      :breadcrumbs="[
+        { label: 'Home', href: '/' },
+        { label: 'Dashboard' }
+      ]"
+    >
+      <template #actions>
+        <Button 
+          @click="router.push('/shipments/create')"
+          class="shadow-sm hover:shadow-md"
+        >
+          <Plus class="w-4 h-4 mr-2" />
+          New Shipment
+        </Button>
+      </template>
+    </PageHeader>
 
     <!-- Error State -->
     <div v-if="error" class="bg-red-50 border-l-4 border-red-500 p-6 rounded-xl mb-8">
@@ -41,125 +46,139 @@
       </div>
     </div>
 
-    <!-- Metrics Grid (only show when not loading) -->
-    <div v-if="!isLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-      <div 
+    <!-- Metrics Grid - Compact & Clean Design -->
+    <div v-if="!isLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <Card 
         v-for="(metric, index) in metrics" 
         :key="metric.id"
-        class="bg-white rounded-[20px] p-7 shadow-[0_1px_3px_rgba(0,0,0,0.03),0_8px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 hover:scale-102 transition-all duration-300 cursor-pointer group"
+        class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 cursor-pointer group"
+        :class="getMetricBorderColor(metric.id)"
         :style="{ animationDelay: `${index * 100}ms` }"
       >
-        <div class="flex items-start justify-between mb-6">
-          <div :class="['w-12 h-12 rounded-full flex items-center justify-center shadow-sm', metric.iconBgColor]">
-            <component :is="metric.icon" :class="['w-7 h-7', metric.iconColor]" />
+        <CardContent class="px-4 py-3">
+          <div class="flex items-center justify-between mb-2">
+            <div :class="['w-9 h-9 rounded-lg flex items-center justify-center transition-transform duration-200 group-hover:scale-105', metric.iconBgColor]">
+              <component :is="metric.icon" :class="['w-5 h-5', metric.iconColor]" />
+            </div>
+            <Badge variant="secondary" class="text-[10px] px-1.5 py-0.5">
+              {{ metric.change }}
+            </Badge>
           </div>
-        </div>
-        <div class="mb-4">
-          <div class="text-5xl font-bold text-[#0F172A] leading-none tracking-tight mb-2">{{ metric.value }}</div>
-          <div class="text-[13px] font-medium text-[#6B7280]">{{ metric.label }}</div>
-        </div>
-        <div :class="['inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[13px] font-semibold', getChangeBadgeClass(metric.changeType)]">
-          <component :is="getChangeIcon(metric.changeType)" class="w-3.5 h-3.5" />
-          {{ metric.change }}
-        </div>
-      </div>
+          <div class="space-y-0.5">
+            <div class="text-2xl font-bold text-gray-900 leading-none tracking-tight">{{ metric.value }}</div>
+            <div class="text-xs font-medium text-gray-500">{{ metric.label }}</div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
 
     <!-- Main Content (only show when not loading) -->
-    <div v-if="!isLoading" class="grid grid-cols-1 lg:grid-cols-3 gap-7">
+    <div v-if="!isLoading" class="grid grid-cols-1 lg:grid-cols-3 gap-5">
       <!-- Recent Activity -->
-      <div class="lg:col-span-2 bg-white rounded-[20px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.03),0_8px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all duration-300">
-        <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center gap-3">
-            <Clock class="w-5 h-5 text-[#6B7280]" />
-            <h2 class="text-lg font-semibold text-[#1E293B]">Recent Activity</h2>
+      <Card class="lg:col-span-2 rounded-xl border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow">
+        <CardHeader class="pb-3">
+          <div class="flex items-center justify-between">
+            <CardTitle class="flex items-center gap-2 text-base">
+              <Clock class="w-4 h-4 text-gray-600" />
+              Recent Activity
+            </CardTitle>
+            <Button variant="link" size="sm" class="text-blue-600 text-xs h-auto p-0">
+              View all
+            </Button>
           </div>
-          <button class="text-sm text-[#3B82F6] hover:underline font-medium">View all</button>
-        </div>
-        
-        <div class="relative">
-          <!-- Timeline line -->
-          <div class="absolute left-5 top-0 bottom-0 w-0.5 bg-[#E5E7EB]"></div>
-          
-          <div class="space-y-3">
-            <div 
-              v-for="(activity, index) in activities" 
-              :key="activity.id"
-              @click="$emit('activity-click', activity)"
-              class="relative flex items-start gap-4 p-4 pl-12 rounded-xl hover:bg-[#F9FAFB] hover:translate-x-0.5 cursor-pointer transition-all duration-200 group"
-            >
-              <!-- Timeline dot with icon -->
-              <div :class="['absolute left-2 w-2.5 h-2.5 rounded-full border-2 border-white shadow-sm', getActivityDotColor(activity.type)]"></div>
-              
-              <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between">
-                  <div class="flex-1">
-                    <div class="flex items-center gap-2 mb-1">
-                      <component :is="getActivityIcon(activity.type)" :class="['w-4 h-4', getActivityIconColor(activity.type)]" />
-                      <p class="text-sm text-[#475569]">
-                        <span class="font-semibold text-[#1A1A1A]">{{ activity.shipmentId }}</span>
-                        {{ activity.action }}
-                      </p>
+        </CardHeader>
+        <CardContent class="pt-0">
+          <div class="relative">
+            <!-- Timeline line -->
+            <div class="absolute left-4 top-0 bottom-0 w-px bg-gray-200"></div>
+            
+            <div class="space-y-1">
+              <div 
+                v-for="(activity, index) in activities" 
+                :key="activity.id"
+                @click="$emit('activity-click', activity)"
+                class="relative flex items-start gap-3 p-3 pl-10 rounded-lg hover:bg-gray-50 cursor-pointer transition-all duration-200 group"
+              >
+                <!-- Timeline dot with icon -->
+                <div :class="['absolute left-2 w-2 h-2 rounded-full border-2 border-white shadow-sm', getActivityDotColor(activity.type)]"></div>
+                
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between gap-2">
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-1.5 mb-0.5">
+                        <component :is="getActivityIcon(activity.type)" :class="['w-3.5 h-3.5', getActivityIconColor(activity.type)]" />
+                        <p class="text-xs text-gray-700 truncate">
+                          <span class="font-semibold text-gray-900">{{ activity.shipmentId }}</span>
+                          {{ activity.action }}
+                        </p>
+                      </div>
+                      <p class="text-[10px] text-gray-500 font-medium">{{ activity.timestamp }}</p>
                     </div>
-                    <p class="text-xs text-[#9CA3AF] font-medium">{{ activity.timestamp }}</p>
-                  </div>
-                  <div v-if="activity.status" :class="['px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wider', getStatusBadgeClass(activity.status)]">
-                    {{ activity.status }}
+                    <Badge v-if="activity.status" :variant="getActivityBadgeVariant(activity.status)" class="text-[10px] px-1.5 py-0 shrink-0">
+                      {{ activity.status }}
+                    </Badge>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       <!-- Right Column -->
-      <div class="space-y-6">
+      <div class="space-y-5">
         <!-- Quick Actions -->
-        <div class="bg-white rounded-[20px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.03),0_8px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all duration-300">
-          <h2 class="text-lg font-semibold text-[#1E293B] mb-5">Quick Actions</h2>
-          <div class="space-y-3.5">
-            <button 
+        <Card class="rounded-xl border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow">
+          <CardHeader class="pb-3">
+            <CardTitle class="text-base">Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent class="space-y-2 pt-0">
+            <Button 
               v-for="action in quickActions" 
               :key="action.id"
               @click="$emit('action-click', action.id)"
-              class="w-full h-[52px] bg-white border-2 border-[#E5E7EB] text-[#374151] rounded-xl hover:border-[#3B82F6] hover:bg-gradient-to-br hover:from-white hover:to-[#F0F9FF] hover:text-[#2563EB] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(59,130,246,0.15)] active:scale-98 transition-all duration-200 flex items-center justify-center gap-3 font-semibold text-[15px] group"
+              variant="outline"
+              size="sm"
+              class="w-full justify-start gap-2 h-9 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200"
             >
-              <component :is="action.icon" class="w-5.5 h-5.5 text-[#6B7280] group-hover:text-[#3B82F6] transition-colors duration-200" />
-              {{ action.label }}
-            </button>
-          </div>
-        </div>
+              <component :is="action.icon" class="w-4 h-4" />
+              <span class="text-sm">{{ action.label }}</span>
+            </Button>
+          </CardContent>
+        </Card>
 
         <!-- Shipment Status -->
-        <div class="bg-white rounded-[20px] p-6 shadow-[0_1px_3px_rgba(0,0,0,0.03),0_8px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all duration-300">
-          <h2 class="text-lg font-semibold text-[#1E293B] mb-5">Shipment Status</h2>
-          
-          <!-- Status Bar with gaps -->
-          <div class="h-12 bg-[#F3F4F6] rounded-xl overflow-hidden mb-5 flex gap-1 p-1">
-            <div 
-              v-for="(status, index) in shipmentStatuses" 
-              :key="status.status"
-              :class="[status.gradientClass, 'rounded-lg transition-all duration-500 hover:scale-y-105 cursor-pointer']"
-              :style="{ width: `calc(${status.percentage}% - 4px)`, animationDelay: `${index * 150}ms` }"
-            ></div>
-          </div>
-
-          <!-- Legend -->
-          <div class="space-y-3">
-            <div 
-              v-for="status in shipmentStatuses" 
-              :key="status.status"
-              class="flex items-center justify-between text-sm group cursor-pointer"
-            >
-              <div class="flex items-center gap-3">
-                <div :class="['w-2.5 h-2.5 rounded-full shadow-sm transition-transform duration-200 group-hover:scale-125', status.color]"></div>
-                <span class="text-[#4B5563] font-medium">{{ status.status }}</span>
-              </div>
-              <span class="text-[#1F2937] font-semibold">({{ status.count }})</span>
+        <Card class="rounded-xl border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow">
+          <CardHeader class="pb-3">
+            <CardTitle class="text-base">Shipment Status</CardTitle>
+          </CardHeader>
+          <CardContent class="pt-0">
+            <!-- Status Bar with gaps -->
+            <div class="h-8 bg-gray-100 rounded-lg overflow-hidden mb-3 flex gap-0.5 p-0.5">
+              <div 
+                v-for="(status, index) in shipmentStatuses" 
+                :key="status.status"
+                :class="[status.gradientClass, 'rounded transition-all duration-500 hover:scale-y-105 cursor-pointer']"
+                :style="{ width: `calc(${status.percentage}% - 2px)`, animationDelay: `${index * 150}ms` }"
+              ></div>
             </div>
-          </div>
-        </div>
+
+            <!-- Legend -->
+            <div class="space-y-2">
+              <div 
+                v-for="status in shipmentStatuses" 
+                :key="status.status"
+                class="flex items-center justify-between text-xs group cursor-pointer"
+              >
+                <div class="flex items-center gap-2">
+                  <div :class="['w-2 h-2 rounded-full shadow-sm transition-transform duration-200 group-hover:scale-125', status.color]"></div>
+                  <span class="text-gray-700 font-medium">{{ status.status }}</span>
+                </div>
+                <Badge variant="secondary" class="text-[10px] px-1.5 py-0">{{ status.count }}</Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   </div>
@@ -167,12 +186,20 @@
 
 <script setup>
 import { reactive, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { 
   Plus, Clock, Truck, Package, Route, Users, 
   TrendingUp, TrendingDown, ArrowUp, ArrowDown, Minus,
-  CheckCircle, AlertCircle, MapPin, UserPlus
+  CheckCircle, AlertCircle, MapPin, UserPlus, Home
 } from 'lucide-vue-next'
 import { dashboardApi } from '../services/api.js'
+import PageHeader from './shared/PageHeader.vue'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+
+// Router
+const router = useRouter()
 
 // Loading and error states
 const isLoading = ref(true)
@@ -416,6 +443,34 @@ const getStatusBadgeClass = (status) => {
     case 'picked-up': return 'bg-[#DBEAFE] text-[#1E40AF]'
     case 'in-transit': return 'bg-[#E0F2FE] text-[#0C4A6E]'
     default: return 'bg-[#F3F4F6] text-[#374151]'
+  }
+}
+
+const getBadgeVariant = (type) => {
+  switch (type) {
+    case 'positive': return 'default'
+    case 'negative': return 'destructive'
+    case 'warning': return 'secondary'
+    default: return 'outline'
+  }
+}
+
+const getActivityBadgeVariant = (status) => {
+  switch (status) {
+    case 'delayed': return 'destructive'
+    case 'picked-up': return 'default'
+    case 'in-transit': return 'secondary'
+    default: return 'outline'
+  }
+}
+
+const getMetricBorderColor = (id) => {
+  switch (id) {
+    case 'shipments': return '!border-t-blue-400'
+    case 'cargo': return '!border-t-emerald-400'
+    case 'routes': return '!border-t-amber-400'
+    case 'vendors': return '!border-t-purple-400'
+    default: return '!border-t-gray-300'
   }
 }
 </script>
