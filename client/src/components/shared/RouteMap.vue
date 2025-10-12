@@ -40,6 +40,36 @@ const globalCoordinates = {
   'Delhi': [28.7041, 77.1025],
   'Bangalore': [12.9716, 77.5946],
   'Kolkata': [22.5726, 88.3639],
+  'Ahmedabad': [23.0225, 72.5714],
+  'Pune': [18.5204, 73.8567],
+  'Hyderabad': [17.3850, 78.4867],
+  'Jaipur': [26.9124, 75.7873],
+  'Surat': [21.1702, 72.8311],
+  'Visakhapatnam': [17.6868, 83.2185],
+  'Kochi': [9.9312, 76.2673],
+  'Thoothukudi': [8.7642, 78.1348],
+  'Goa': [15.3860, 73.8150],
+  'Coimbatore': [11.0168, 76.9558],
+  'Nagpur': [21.1458, 79.0882],
+  'Lucknow': [26.8467, 80.9462],
+  'Patna': [25.5941, 85.1376],
+  'Bhubaneswar': [20.2961, 85.8245],
+  'Indore': [22.7196, 75.8577],
+  'Kanpur': [26.4499, 80.3319],
+  'Vadodara': [22.3072, 73.1812],
+  'Ludhiana': [30.9009, 75.8573],
+  'Ranchi': [23.3441, 85.3096],
+  'Guwahati': [26.1445, 91.7362],
+  // Major Indian ports
+  'JNPT (Nhava Sheva)': [18.9460, 72.9460],
+  'Mundra Port': [22.7295, 69.7095],
+  'Kandla': [23.0333, 70.2167],
+  'Haldia': [22.0400, 88.0700],
+  'Paradip': [20.3167, 86.6167],
+  'Ennore': [13.2167, 80.3167],
+  'Krishnapatnam': [14.2522, 80.1203],
+  'Vizhinjam': [8.3776, 76.9781],
+  'Mangaluru': [12.9141, 74.8560],
   'Singapore': [1.3521, 103.8198],
   'Tokyo': [35.6762, 139.6503],
   'Hong Kong': [22.3193, 114.1694],
@@ -51,6 +81,19 @@ const globalCoordinates = {
   'Kuala Lumpur': [3.1390, 101.6869],
   'Sydney': [-33.8688, 151.2093],
   'Melbourne': [-37.8136, 144.9631],
+  'Busan': [35.1796, 129.0756],
+  'Yokohama': [35.4437, 139.6380],
+  'Nagoya': [35.1815, 136.9066],
+  'Shenzhen': [22.5431, 114.0579],
+  'Guangzhou': [23.1291, 113.2644],
+  'Ningbo': [29.8683, 121.5440],
+  'Qingdao': [36.0671, 120.3826],
+  'Tianjin': [39.3434, 117.3616],
+  'Xiamen': [24.4798, 118.0894],
+  'Kaohsiung': [22.6273, 120.3014],
+  'Tanjung Pelepas': [1.3566, 103.5392],
+  'Port Klang': [2.9947, 101.3929],
+  'Colombo': [6.9271, 79.8612],
   
   // Europe
   'London': [51.5074, -0.1278],
@@ -71,6 +114,15 @@ const globalCoordinates = {
   'Oslo': [59.9139, 10.7522],
   'Copenhagen': [55.6761, 12.5683],
   'Helsinki': [60.1695, 24.9354],
+  'Gibraltar': [36.1408, -5.3536],
+  'Algeciras': [36.1270, -5.4477],
+  'Valencia': [39.4699, -0.3763],
+  'Le Havre': [49.4944, 0.1079],
+  'Felixstowe': [51.9550, 1.3500],
+  'Southampton': [50.9097, -1.4044],
+  'Piraeus': [37.9420, 23.6460],
+  'Gdansk': [54.3520, 18.6466],
+  'Gothenburg': [57.7089, 11.9746],
   
   // North America
   'New York': [40.7128, -74.0060],
@@ -87,6 +139,19 @@ const globalCoordinates = {
   'Boston': [42.3601, -71.0589],
   'Washington DC': [38.9072, -77.0369],
   'Mexico City': [19.4326, -99.1332],
+  'Long Beach': [33.7701, -118.1937],
+  'Oakland': [37.8044, -122.2712],
+  'Prince Rupert': [54.3150, -130.3200],
+  'Manzanillo MX': [19.1138, -104.3421],
+  'Veracruz': [19.1738, -96.1342],
+  'Colon': [9.3590, -79.9014],
+  'Balboa': [8.9490, -79.5556],
+  'New Orleans': [29.9511, -90.0715],
+  'Savannah': [32.0809, -81.0912],
+  'Charleston': [32.7765, -79.9311],
+  'Norfolk': [36.8508, -76.2859],
+  'Newark': [40.7357, -74.1724],
+  'Halifax': [44.6488, -63.5752],
   
   // South America
   'São Paulo': [-23.5505, -46.6333],
@@ -109,6 +174,12 @@ const globalCoordinates = {
   'Durban': [-29.8587, 31.0218],
   'Algiers': [36.7538, 3.0588],
   'Tunis': [36.8065, 10.1815],
+  'Port Said': [31.2653, 32.3019],
+  'Mombasa': [-4.0435, 39.6682],
+  'Dar es Salaam': [-6.7924, 39.2083],
+  'Walvis Bay': [-22.9576, 14.5053],
+  'Tema': [5.6690, -0.0166],
+  'Abidjan': [5.3599, -4.0083],
   
   // Middle East
   'Dubai': [25.2048, 55.2708],
@@ -120,7 +191,17 @@ const globalCoordinates = {
   'Tehran': [35.6892, 51.3890],
   'Baghdad': [33.3152, 44.3661],
   'Istanbul': [41.0082, 28.9784],
-  'Ankara': [39.9334, 32.8597]
+  'Ankara': [39.9334, 32.8597],
+  'Jebel Ali': [25.0025, 55.0633],
+  'Salalah': [17.0197, 54.0897],
+  'Dammam': [26.4207, 50.0888],
+  'Muscat': [23.5880, 58.3829],
+  'Sohar': [24.3460, 56.7075],
+
+  // Strategic maritime choke points
+  'Suez Canal': [30.5850, 32.2654],
+  'Panama Canal': [9.0800, -79.6800],
+  'Cape of Good Hope': [-34.3568, 18.4740]
 }
 
 // Transport mode colors and styling
@@ -147,10 +228,10 @@ const transportModeStyles = {
     icon: '🚂'
   },
   'ROAD': {
-    color: '#7c3aed', // violet-600 - Road routes (flexible)
-    weight: 3,
-    opacity: 0.7,
-    dashArray: '2, 8', // Short dashes for road routes
+    color: '#000000', // Bold black road routes
+    weight: 5,
+    opacity: 0.95,
+    dashArray: null, // Solid line for road routes
     icon: '🚛'
   },
   // Legacy support for existing route types
@@ -182,6 +263,99 @@ const statusColors = {
   'Active': '#10b981', // emerald-500
   'Delayed': '#f59e0b', // amber-500
   'Closed': '#6b7280'   // gray-500
+}
+
+// Utility: Convert degrees to radians
+const toRad = (deg) => (deg * Math.PI) / 180
+// Utility: Convert radians to degrees
+const toDeg = (rad) => (rad * 180) / Math.PI
+
+// Generate great-circle points between two lat/lng pairs
+// Returns an array of [lat, lng]
+const greatCircleSegment = (start, end, segments = 128) => {
+  const [lat1, lon1] = start.map(toRad)
+  const [lat2, lon2] = end.map(toRad)
+
+  const d = 2 * Math.asin(
+    Math.sqrt(
+      Math.sin((lat2 - lat1) / 2) ** 2 +
+        Math.cos(lat1) * Math.cos(lat2) * Math.sin((lon2 - lon1) / 2) ** 2
+    )
+  )
+  if (d === 0) return [start, end]
+
+  const points = []
+  for (let i = 0; i <= segments; i++) {
+    const f = i / segments
+    const A = Math.sin((1 - f) * d) / Math.sin(d)
+    const B = Math.sin(f * d) / Math.sin(d)
+
+    const x = A * Math.cos(lat1) * Math.cos(lon1) + B * Math.cos(lat2) * Math.cos(lon2)
+    const y = A * Math.cos(lat1) * Math.sin(lon1) + B * Math.cos(lat2) * Math.sin(lon2)
+    const z = A * Math.sin(lat1) + B * Math.sin(lat2)
+
+    const lat = Math.atan2(z, Math.sqrt(x * x + y * y))
+    const lon = Math.atan2(y, x)
+    points.push([toDeg(lat), toDeg(lon)])
+  }
+  return points
+}
+
+// Given array of points, generate great-circle path across all
+const greatCirclePath = (coords, segmentsPerLeg = 64) => {
+  if (!coords || coords.length < 2) return []
+  const result = []
+  for (let i = 0; i < coords.length - 1; i++) {
+    const seg = greatCircleSegment(coords[i], coords[i + 1], segmentsPerLeg)
+    if (i > 0) seg.shift() // avoid duplicate point at joints
+    result.push(...seg)
+  }
+  return result
+}
+
+// Heuristic: infer ocean waypoints (Suez/Panama/Cape) for OCEAN routes
+const inferOceanWaypoints = (origin, destination) => {
+  const [olat, olon] = origin
+  const [dlat, dlon] = destination
+  const wps = []
+  // East Asia to US East/Europe -> Panama
+  if (olon > 100 && dlon < -40) {
+    wps.push(globalCoordinates['Panama Canal'])
+  }
+  // Europe/North Atlantic to Indian Ocean/Asia -> Suez
+  if (olon >= -15 && olon <= 30 && dlon >= 40 && dlon <= 120) {
+    wps.push(globalCoordinates['Suez Canal'])
+  }
+  // Southern routing option around Africa (fallback if both are in Atlantic/Indian and far south)
+  if ((olat < 0 || dlat < 0) && Math.abs(olon - dlon) > 60) {
+    // include Cape of Good Hope as scenic fallback
+    if (!wps.includes(globalCoordinates['Cape of Good Hope'])) {
+      wps.push(globalCoordinates['Cape of Good Hope'])
+    }
+  }
+  return wps
+}
+
+// Fetch turn-by-turn road geometry between ordered coordinates via OSRM
+// coordinates: array of [lat, lng]
+const fetchRoadGeometry = async (coordinates) => {
+  try {
+    if (!coordinates || coordinates.length < 2) return null
+    const coordParam = coordinates
+      .map(([lat, lng]) => `${lng},${lat}`) // OSRM expects lon,lat
+      .join(';')
+
+    const url = `https://router.project-osrm.org/route/v1/driving/${coordParam}?overview=full&geometries=geojson&steps=false&alternatives=false`
+    const res = await fetch(url)
+    if (!res.ok) throw new Error(`OSRM error ${res.status}`)
+    const data = await res.json()
+    if (!data?.routes?.[0]?.geometry?.coordinates) return null
+    const coords = data.routes[0].geometry.coordinates.map(([lon, lat]) => [lat, lon])
+    return coords
+  } catch (e) {
+    console.warn('OSRM routing failed, falling back to great-circle/straight:', e)
+    return null
+  }
 }
 
 // Initialize map
@@ -363,7 +537,7 @@ const createRoutePopup = (route) => {
 }
 
 // Render routes on map
-const renderRoutes = () => {
+const renderRoutes = async () => {
   if (!map || !markersLayer || !routesLayer) {
     console.warn('RouteMap: Map or layers not ready for rendering')
     return
@@ -392,17 +566,21 @@ const renderRoutes = () => {
 
   const processedLocations = new Set()
 
-  routesToRender.forEach((route, index) => {
+  // Collect layers to later fit bounds
+  const polylines = []
+
+  for (let index = 0; index < routesToRender.length; index++) {
+    const route = routesToRender[index]
     try {
       // Validate route structure
       if (!route || typeof route !== 'object') {
         console.warn(`RouteMap: Invalid route at index ${index}:`, route)
-        return
+        continue
       }
 
       if (!route.origin?.location || !route.destination?.location) {
         console.warn(`RouteMap: Route ${route.id || index} missing origin or destination location`)
-        return
+        continue
       }
 
       console.log(`RouteMap: Processing route ${index + 1}/${routesToRender.length}:`, route.id, route.name)
@@ -412,7 +590,7 @@ const renderRoutes = () => {
       
       if (!originCoords || !destCoords) {
         console.warn(`RouteMap: Could not get coordinates for route ${route.id}`)
-        return
+        continue
       }
       
       const transportMode = route.transportMode || route.routeType || 'standard'
@@ -424,42 +602,42 @@ const renderRoutes = () => {
       })
 
     // Add markers for origin and destination (avoid duplicates)
-    const originKey = `${route.origin.location}-origin`
-    const destKey = `${route.destination.location}-destination`
+      const originKey = `${route.origin.location}-origin`
+      const destKey = `${route.destination.location}-destination`
 
-    if (!processedLocations.has(originKey)) {
-      const originMarker = L.marker(originCoords, {
-        icon: createMarkerIcon('origin', route.status, transportMode)
-      })
-      .bindPopup(`
+      if (!processedLocations.has(originKey)) {
+        const originMarker = L.marker(originCoords, {
+          icon: createMarkerIcon('origin', route.status, transportMode)
+        })
+          .bindPopup(`
         <div class="p-3">
           <h4 class="font-bold text-blue-600 mb-2">${route.origin.location}</h4>
           <p class="text-sm text-gray-600 mb-1">Port/Terminal: ${route.origin.port || 'N/A'}</p>
           <p class="text-xs text-gray-500">Origin for ${transportMode.toUpperCase()} routes</p>
         </div>
       `)
-      .on('click', () => emit('marker-clicked', { type: 'origin', location: route.origin.location, transportMode }))
+          .on('click', () => emit('marker-clicked', { type: 'origin', location: route.origin.location, transportMode }))
 
-      markersLayer.addLayer(originMarker)
-      processedLocations.add(originKey)
-    }
+        markersLayer.addLayer(originMarker)
+        processedLocations.add(originKey)
+      }
 
-    if (!processedLocations.has(destKey)) {
-      const destMarker = L.marker(destCoords, {
-        icon: createMarkerIcon('destination', route.status, transportMode)
-      })
-      .bindPopup(`
+      if (!processedLocations.has(destKey)) {
+        const destMarker = L.marker(destCoords, {
+          icon: createMarkerIcon('destination', route.status, transportMode)
+        })
+          .bindPopup(`
         <div class="p-3">
           <h4 class="font-bold text-green-600 mb-2">${route.destination.location}</h4>
           <p class="text-sm text-gray-600 mb-1">Port/Terminal: ${route.destination.port || 'N/A'}</p>
           <p class="text-xs text-gray-500">Destination for ${transportMode.toUpperCase()} routes</p>
         </div>
       `)
-      .on('click', () => emit('marker-clicked', { type: 'destination', location: route.destination.location, transportMode }))
+          .on('click', () => emit('marker-clicked', { type: 'destination', location: route.destination.location, transportMode }))
 
-      markersLayer.addLayer(destMarker)
-      processedLocations.add(destKey)
-    }
+        markersLayer.addLayer(destMarker)
+        processedLocations.add(destKey)
+      }
 
     // Get transport mode styling
     const modeStyle = transportModeStyles[transportMode] || transportModeStyles['standard']
@@ -469,7 +647,9 @@ const renderRoutes = () => {
       color: modeStyle.color,
       weight: route.status === 'Active' ? modeStyle.weight : Math.max(2, modeStyle.weight - 1),
       opacity: route.status === 'Closed' ? 0.4 : modeStyle.opacity,
-      smoothFactor: 1
+      smoothFactor: 1,
+      lineCap: 'round',
+      lineJoin: 'round'
     }
     
     // Add dash pattern if specified for the transport mode
@@ -477,15 +657,66 @@ const renderRoutes = () => {
       routeLineOptions.dashArray = modeStyle.dashArray
     }
 
-    const routeLine = L.polyline([originCoords, destCoords], routeLineOptions)
-    .bindPopup(createRoutePopup(route))
-    .on('click', () => emit('route-clicked', route))
+      // Build geometry based on transport mode
+      let geometry = null
+      if (transportMode === 'ROAD' || transportMode === 'RAIL') {
+        // Road: try OSRM with optional waypoints
+        const roadCoords = [originCoords]
+        if (Array.isArray(route.waypoints) && route.waypoints.length > 0) {
+          for (const w of route.waypoints) {
+            if (typeof w?.lat === 'number' && typeof w?.lng === 'number') roadCoords.push([w.lat, w.lng])
+          }
+        }
+        roadCoords.push(destCoords)
+        geometry = await fetchRoadGeometry(roadCoords)
+        if (!geometry) {
+          // Fallback to great-circle
+          geometry = greatCirclePath([originCoords, destCoords], 128)
+        }
+      } else if (transportMode === 'OCEAN') {
+        // Ocean: attempt to include inferred canal waypoints unless route.waypoints provided
+        const oceanCoords = [originCoords]
+        if (Array.isArray(route.waypoints) && route.waypoints.length > 0) {
+          for (const w of route.waypoints) {
+            if (typeof w?.lat === 'number' && typeof w?.lng === 'number') oceanCoords.push([w.lat, w.lng])
+          }
+        } else {
+          const inferred = inferOceanWaypoints(originCoords, destCoords)
+          oceanCoords.push(...inferred)
+        }
+        oceanCoords.push(destCoords)
+        geometry = greatCirclePath(oceanCoords, 96)
+      } else if (transportMode === 'AIR') {
+        // Use exact provided waypoints if present; otherwise draw geodesic
+        if (Array.isArray(route.waypoints) && route.waypoints.length > 1) {
+          const airCoords = [originCoords]
+          for (const w of route.waypoints) {
+            if (typeof w?.lat === 'number' && typeof w?.lng === 'number') airCoords.push([w.lat, w.lng])
+          }
+          airCoords.push(destCoords)
+          geometry = greatCirclePath(airCoords, 96)
+        } else {
+          geometry = greatCirclePath([originCoords, destCoords], 128)
+        }
+      } else {
+        // Legacy or unknown: default to straight or gentle great-circle
+        geometry = greatCirclePath([originCoords, destCoords], 32)
+      }
 
-    routesLayer.addLayer(routeLine)
+      const routeLine = L.polyline(geometry && geometry.length > 1 ? geometry : [originCoords, destCoords], routeLineOptions)
+        .bindPopup(createRoutePopup(route))
+        .on('click', () => emit('route-clicked', route))
+
+      routesLayer.addLayer(routeLine)
+      // Emphasize road visibility when overlapping with others
+      if (transportMode === 'ROAD') {
+        routeLine.bringToFront()
+      }
+      polylines.push(routeLine)
     } catch (routeError) {
       console.error(`RouteMap: Error processing route ${route.id || index}:`, routeError)
     }
-  })
+  }
 
   // Fit map to show all routes if there are any
   if (routesToRender.length > 0) {
