@@ -35,7 +35,7 @@ public class ShipmentController {
     @GetMapping
     public ResponseEntity<List<Shipment>> getAllShipments() {
         try {
-            List<Shipment> shipments = shipmentRepository.findAll();
+            List<Shipment> shipments = shipmentRepository.findAllWithDetails(); // Use the new method here
             return ResponseEntity.ok(shipments);
         } catch (Exception e) {
             System.err.println("Error fetching shipments: " + e.getMessage());

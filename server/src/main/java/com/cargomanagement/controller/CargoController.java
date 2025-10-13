@@ -33,7 +33,7 @@ public class CargoController {
 
     @GetMapping
     public List<Cargo> getAllCargo() {
-        return cargoRepository.findAll();
+        return cargoRepository.findAllWithShipment(); // Use the new method here
     }
 
     @PostMapping(consumes = "application/json", produces = "application/json")
