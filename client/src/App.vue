@@ -1,41 +1,73 @@
 <template>
   <div class="app-container">
-    <!-- Show Sidebar only for authenticated routes -->
-    <Sidebar v-if="shouldShowSidebar" ref="sidebarRef" />
-    
-    <!-- Main Content Area -->
-    <main 
-      :class="[
-        'main-content',
-        shouldShowSidebar ? (isSidebarCollapsed ? 'ml-16' : 'ml-60') : 'ml-0',
-        'transition-all duration-300 ease-in-out',
-        'min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E2E8F0]'
-      ]"
-    >
-      <div class="content-wrapper">
-        <router-view v-slot="{ Component }">
-          <transition 
-            name="page-fade" 
-            mode="out-in"
-            appear
-          >
-            <component :is="Component" />
-          </transition>
-        </router-view>
-      </div>
-    </main>
+    <!-- Public routes without sidebar -->
+    <template v-if="!shouldShowSidebar">
+      <router-view v-slot="{ Component }">
+        <transition 
+          name="page-fade" 
+          mode="out-in"
+          appear
+        >
+          <component :is="Component" />
+        </transition>
+      </router-view>
+    </template>
+
+    <!-- Authenticated routes with sidebar -->
+    <SidebarProvider v-else>
+      <AppSidebar />
+      <SidebarInset>
+        <div class="flex flex-1 flex-col min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E2E8F0]">
+          <header class="flex h-16 shrink-0 items-center gap-2 border-b bg-white/50 backdrop-blur-sm px-4">
+            <SidebarTrigger class="-ml-1" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem class="hidden md:block">
+                  <BreadcrumbLink :href="currentBreadcrumb.parent?.url || '/dashboard'">
+                    {{ currentBreadcrumb.parent?.title || 'Dashboard' }}
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator v-if="currentBreadcrumb.current" class="hidden md:block" />
+                <BreadcrumbItem v-if="currentBreadcrumb.current">
+                  <BreadcrumbPage>{{ currentBreadcrumb.current }}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </header>
+          <main class="flex-1 p-6">
+            <router-view v-slot="{ Component }">
+              <transition 
+                name="page-fade" 
+                mode="out-in"
+                appear
+              >
+                <component :is="Component" />
+              </transition>
+            </router-view>
+          </main>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import Sidebar from './components/Sidebar.vue'
+import { SidebarProvider, SidebarInset, SidebarTrigger } from './components/ui/sidebar'
+import { 
+  Breadcrumb, 
+  BreadcrumbItem, 
+  BreadcrumbLink, 
+  BreadcrumbList, 
+  BreadcrumbPage, 
+  BreadcrumbSeparator 
+} from './components/ui/breadcrumb'
+import AppSidebar from './components/AppSidebar.vue'
 import { useAuth } from './services/auth'
 
 const route = useRoute()
 const auth = useAuth()
-const sidebarRef = ref(null)
 
 // Determine if sidebar should be shown
 const shouldShowSidebar = computed(() => {
@@ -44,9 +76,32 @@ const shouldShowSidebar = computed(() => {
   return !excludedRoutes.includes(route.path) && auth.isAuthenticated.value
 })
 
-// Track sidebar collapsed state
-const isSidebarCollapsed = computed(() => {
-  return sidebarRef.value?.isCollapsed || false
+// Breadcrumb logic
+const currentBreadcrumb = computed(() => {
+  const path = route.path
+  const segments = path.split('/').filter(Boolean)
+  
+  const breadcrumbMap = {
+    '/dashboard': { current: 'Dashboard' },
+    '/cargo': { current: 'Cargo Management' },
+    '/shipments': { current: 'Shipment Tracking' },
+    '/routes': { current: 'Route Management' },
+    '/vendors': { current: 'Vendor Coordination' },
+    '/analytics': { current: 'Analytics' },
+    '/settings': { current: 'Settings' },
+  }
+
+  // Handle nested routes
+  if (segments.length > 1) {
+    const parentPath = `/${segments[0]}`
+    const parentTitle = breadcrumbMap[parentPath]?.current || segments[0]
+    return {
+      parent: { title: parentTitle, url: parentPath },
+      current: segments[1] === 'create' ? 'Create New' : 'Details'
+    }
+  }
+
+  return breadcrumbMap[path] || { current: 'Page' }
 })
 
 // Watch for route changes and scroll to top

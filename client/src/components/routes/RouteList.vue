@@ -112,6 +112,57 @@
           </div>
         </CardHeader>
         <CardContent>
+          <!-- Search and Filter Section -->
+          <div class="flex flex-col md:flex-row gap-4 mb-6">
+            <!-- Search Input -->
+            <div class="relative flex-1">
+              <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search by route ID, origin, or destination..."
+                class="pl-10"
+              />
+            </div>
+
+            <!-- Filter by Transportation Mode -->
+            <Select v-model="filterMode">
+              <SelectTrigger class="w-full md:w-[200px]">
+                <SelectValue placeholder="Transport Mode" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Modes</SelectItem>
+                <SelectItem value="SEA">Sea</SelectItem>
+                <SelectItem value="AIR">Air</SelectItem>
+                <SelectItem value="LAND">Land</SelectItem>
+                <SelectItem value="RAIL">Rail</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <!-- Filter by Status -->
+            <Select v-model="filterStatus">
+              <SelectTrigger class="w-full md:w-[200px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="Active">Active</SelectItem>
+                <SelectItem value="Delayed">Delayed</SelectItem>
+                <SelectItem value="Closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <!-- Clear Filters Button -->
+            <Button 
+              v-if="searchQuery || filterMode !== 'all' || filterStatus !== 'all'"
+              @click="clearFilters" 
+              variant="outline"
+              size="icon"
+              class="shrink-0"
+            >
+              <X class="h-4 w-4" />
+            </Button>
+          </div>
           <div v-if="isLoading" class="flex items-center justify-center h-32">
             <Loader2 class="h-6 w-6 animate-spin" />
             <span class="ml-2">Loading routes...</span>
@@ -147,12 +198,20 @@
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow v-if="routes.length === 0">
+                <TableRow v-if="filteredRoutes.length === 0">
                   <TableCell :colspan="9" class="h-24 text-center">
-                    No routes found. Create your first route to get started.
+                    <div v-if="searchQuery || filterMode !== 'all' || filterStatus !== 'all'">
+                      <p class="text-gray-600 mb-2">No routes match your filters</p>
+                      <Button @click="clearFilters" variant="outline" size="sm">
+                        Clear Filters
+                      </Button>
+                    </div>
+                    <p v-else class="text-gray-600">
+                      No routes found. Create your first route to get started.
+                    </p>
                   </TableCell>
                 </TableRow>
-                <TableRow v-for="route in routes" :key="route.routeId">
+                <TableRow v-for="route in filteredRoutes" :key="route.routeId">
                   <TableCell class="font-medium">{{ route.routeId }}</TableCell>
                   <TableCell>{{ route.originPort }}</TableCell>
                   <TableCell>{{ route.destinationPort }}</TableCell>
@@ -193,7 +252,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/shared/PageHeader.vue'
 import RouteMap from '@/components/shared/RouteMap.vue'
@@ -201,6 +260,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { 
   Plus, 
   Route, 
@@ -213,7 +274,9 @@ import {
   Edit, 
   Trash2,
   List,
-  Map as MapIcon
+  Map as MapIcon,
+  Search,
+  X
 } from 'lucide-vue-next'
 import { routeApi } from '@/services/api'
 
@@ -224,18 +287,73 @@ const isLoading = ref(false)
 const error = ref(null)
 const viewMode = ref('table') // 'table' or 'map'
 
+// Search and Filter
+const searchQuery = ref('')
+const debouncedSearchQuery = ref('')
+const filterMode = ref('all')
+const filterStatus = ref('all')
+let debounceTimeout = null
+
+// Debounced search with 500ms delay
+watch(searchQuery, (newValue) => {
+  if (debounceTimeout) {
+    clearTimeout(debounceTimeout)
+  }
+  debounceTimeout = setTimeout(() => {
+    debouncedSearchQuery.value = newValue
+  }, 500)
+})
+
+// Filtered routes based on search and filters
+const filteredRoutes = computed(() => {
+  let filtered = routes.value
+
+  // Apply search filter
+  if (debouncedSearchQuery.value) {
+    const query = debouncedSearchQuery.value.toLowerCase()
+    filtered = filtered.filter(route => 
+      route.routeId?.toString().toLowerCase().includes(query) ||
+      route.originPort?.toLowerCase().includes(query) ||
+      route.destinationPort?.toLowerCase().includes(query)
+    )
+  }
+
+  // Apply transportation mode filter
+  if (filterMode.value && filterMode.value !== 'all') {
+    filtered = filtered.filter(route => 
+      route.transportationMode?.toUpperCase() === filterMode.value
+    )
+  }
+
+  // Apply status filter
+  if (filterStatus.value && filterStatus.value !== 'all') {
+    filtered = filtered.filter(route => 
+      route.status === filterStatus.value
+    )
+  }
+
+  return filtered
+})
+
 const stats = computed(() => {
-  const total = routes.value.length
+  const total = filteredRoutes.value.length
   const avgDuration = total > 0 
-    ? Math.round(routes.value.reduce((sum, route) => sum + (route.duration || 0), 0) / total)
+    ? Math.round(filteredRoutes.value.reduce((sum, route) => sum + (route.duration || 0), 0) / total)
     : 0
   const avgCost = total > 0 
-    ? Math.round(routes.value.reduce((sum, route) => sum + (route.cost || 0), 0) / total)
+    ? Math.round(filteredRoutes.value.reduce((sum, route) => sum + (route.cost || 0), 0) / total)
     : 0
-  const totalDistance = routes.value.reduce((sum, route) => sum + (route.distance || 0), 0)
+  const totalDistance = filteredRoutes.value.reduce((sum, route) => sum + (route.distance || 0), 0)
   
   return { total, avgDuration, avgCost, totalDistance }
 })
+
+const clearFilters = () => {
+  searchQuery.value = ''
+  debouncedSearchQuery.value = ''
+  filterMode.value = 'all'
+  filterStatus.value = 'all'
+}
 
 const loadRoutes = async () => {
   isLoading.value = true
@@ -317,6 +435,9 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (debounceTimeout) {
+    clearTimeout(debounceTimeout)
+  }
   window.removeEventListener('routes-updated', loadRoutes)
 })
 </script>

@@ -89,6 +89,48 @@
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <!-- Search and Filter Section -->
+          <div class="flex flex-col md:flex-row gap-4 mb-6">
+            <!-- Search Input -->
+            <div class="relative flex-1">
+              <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search by ID, type, origin, destination, or shipment..."
+                class="pl-10"
+              />
+            </div>
+
+            <!-- Filter by Type -->
+            <Select v-model="filterType">
+              <SelectTrigger class="w-full md:w-[200px]">
+                <SelectValue placeholder="Cargo Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="Electronics">Electronics</SelectItem>
+                <SelectItem value="Clothing">Clothing</SelectItem>
+                <SelectItem value="Food">Food</SelectItem>
+                <SelectItem value="Machinery">Machinery</SelectItem>
+                <SelectItem value="Perishables">Perishables</SelectItem>
+                <SelectItem value="Hazardous">Hazardous</SelectItem>
+                <SelectItem value="General">General</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <!-- Clear Filters Button -->
+            <Button
+              v-if="searchQuery || filterType !== 'all'"
+              @click="clearFilters"
+              variant="outline"
+              class="w-full md:w-auto"
+            >
+              <X class="h-4 w-4 mr-2" />
+              Clear
+            </Button>
+          </div>
+
           <div v-if="isLoading" class="flex items-center justify-center h-32">
             <Loader2 class="h-6 w-6 animate-spin" />
             <span class="ml-2">Loading cargo...</span>
@@ -117,16 +159,24 @@
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow v-if="cargo.length === 0">
+                <TableRow v-if="filteredCargo.length === 0">
                   <TableCell :colspan="8" class="h-24 text-center">
                     <div class="flex flex-col items-center justify-center text-gray-500">
                       <Package class="h-12 w-12 text-gray-300 mb-2" />
-                      <p class="font-medium">No cargo found</p>
-                      <p class="text-sm">Add your first cargo to get started.</p>
+                      <div v-if="searchQuery || filterType !== 'all'" class="space-y-2">
+                        <p class="font-medium">No cargo matches your filters</p>
+                        <Button @click="clearFilters" variant="outline" size="sm">
+                          Clear Filters
+                        </Button>
+                      </div>
+                      <div v-else>
+                        <p class="font-medium">No cargo found</p>
+                        <p class="text-sm">Add your first cargo to get started.</p>
+                      </div>
                     </div>
                   </TableCell>
                 </TableRow>
-                <TableRow v-for="item in cargo" :key="item.cargoId">
+                <TableRow v-for="item in filteredCargo" :key="item.cargoId">
                   <TableCell class="font-medium">#{{ item.cargoId }}</TableCell>
                   <TableCell>
                     <Badge :variant="getTypeBadgeVariant(item.type)">
@@ -167,12 +217,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { 
   Plus, 
   Loader2, 
@@ -180,7 +232,9 @@ import {
   Eye,
   Edit, 
   Trash2,
-  Package
+  Package,
+  Search,
+  X
 } from 'lucide-vue-next'
 import { cargoApi } from '@/services/api'
 
@@ -190,14 +244,62 @@ const cargo = ref([])
 const isLoading = ref(false)
 const error = ref(null)
 
+// Search and filter state
+const searchQuery = ref('')
+const debouncedSearchQuery = ref('')
+const filterType = ref('all')
+let debounceTimeout = null
+
+// Debounced search with 500ms delay
+watch(searchQuery, (newValue) => {
+  if (debounceTimeout) {
+    clearTimeout(debounceTimeout)
+  }
+  debounceTimeout = setTimeout(() => {
+    debouncedSearchQuery.value = newValue
+  }, 500)
+})
+
+// Filtered cargo based on search and filters
+const filteredCargo = computed(() => {
+  let filtered = cargo.value
+
+  // Apply search filter
+  if (debouncedSearchQuery.value) {
+    const query = debouncedSearchQuery.value.toLowerCase()
+    filtered = filtered.filter(item => 
+      item.cargoId?.toString().toLowerCase().includes(query) ||
+      item.type?.toLowerCase().includes(query) ||
+      item.shipment?.origin?.toLowerCase().includes(query) ||
+      item.shipment?.destination?.toLowerCase().includes(query) ||
+      item.shipment?.shipmentId?.toString().toLowerCase().includes(query)
+    )
+  }
+
+  // Apply type filter
+  if (filterType.value && filterType.value !== 'all') {
+    filtered = filtered.filter(item => 
+      item.type === filterType.value
+    )
+  }
+
+  return filtered
+})
+
 const stats = computed(() => {
-  const total = cargo.value.length
-  const totalWeight = cargo.value.reduce((sum, item) => sum + (item.weight || 0), 0)
-  const totalValue = cargo.value.reduce((sum, item) => sum + (item.value || 0), 0)
-  const electronics = cargo.value.filter(item => item.type === 'Electronics').length
+  const total = filteredCargo.value.length
+  const totalWeight = filteredCargo.value.reduce((sum, item) => sum + (item.weight || 0), 0)
+  const totalValue = filteredCargo.value.reduce((sum, item) => sum + (item.value || 0), 0)
+  const electronics = filteredCargo.value.filter(item => item.type === 'Electronics').length
   
   return { total, totalWeight, totalValue, electronics }
 })
+
+const clearFilters = () => {
+  searchQuery.value = ''
+  debouncedSearchQuery.value = ''
+  filterType.value = 'all'
+}
 
 const loadCargo = async () => {
   isLoading.value = true
@@ -261,6 +363,9 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (debounceTimeout) {
+    clearTimeout(debounceTimeout)
+  }
   window.removeEventListener('cargo-updated', loadCargo)
 })
 </script>

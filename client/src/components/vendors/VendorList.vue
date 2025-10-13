@@ -89,6 +89,45 @@
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <!-- Search and Filter Section -->
+          <div class="flex flex-col md:flex-row gap-4 mb-6">
+            <!-- Search Input -->
+            <div class="relative flex-1">
+              <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search by ID, name, email, phone, or address..."
+                class="pl-10"
+              />
+            </div>
+
+            <!-- Filter by Service Type -->
+            <Select v-model="filterServiceType">
+              <SelectTrigger class="w-full md:w-[200px]">
+                <SelectValue placeholder="Service Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="Logistics">Logistics</SelectItem>
+                <SelectItem value="Transportation">Transportation</SelectItem>
+                <SelectItem value="Warehousing">Warehousing</SelectItem>
+                <SelectItem value="Freight">Freight</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <!-- Clear Filters Button -->
+            <Button
+              v-if="searchQuery || filterServiceType !== 'all'"
+              @click="clearFilters"
+              variant="outline"
+              class="w-full md:w-auto"
+            >
+              <X class="h-4 w-4 mr-2" />
+              Clear
+            </Button>
+          </div>
+
           <div v-if="isLoading" class="flex items-center justify-center h-32">
             <Loader2 class="h-6 w-6 animate-spin" />
             <span class="ml-2">Loading vendors...</span>
@@ -116,12 +155,18 @@
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow v-if="vendors.length === 0">
+                <TableRow v-if="filteredVendors.length === 0">
                   <TableCell :colspan="7" class="h-24 text-center">
-                    No vendors found. Create your first vendor to get started.
+                    <div v-if="searchQuery || filterServiceType !== 'all'" class="space-y-2">
+                      <p>No vendors match your filters.</p>
+                      <Button @click="clearFilters" variant="outline" size="sm">
+                        Clear Filters
+                      </Button>
+                    </div>
+                    <p v-else>No vendors found. Create your first vendor to get started.</p>
                   </TableCell>
                 </TableRow>
-                <TableRow v-for="vendor in vendors" :key="vendor.vendorId">
+                <TableRow v-for="vendor in filteredVendors" :key="vendor.vendorId">
                   <TableCell class="font-medium">{{ vendor.vendorId }}</TableCell>
                   <TableCell>
                     <div class="font-medium">{{ vendor.name }}</div>
@@ -160,19 +205,23 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { 
   Plus, 
   Loader2, 
   AlertCircle, 
   Eye,
   Edit, 
-  Trash2 
+  Trash2,
+  Search,
+  X 
 } from 'lucide-vue-next'
 import { vendorApi } from '@/services/api'
 
@@ -182,14 +231,62 @@ const vendors = ref([])
 const isLoading = ref(false)
 const error = ref(null)
 
+// Search and filter state
+const searchQuery = ref('')
+const debouncedSearchQuery = ref('')
+const filterServiceType = ref('all')
+let debounceTimeout = null
+
+// Debounced search with 500ms delay
+watch(searchQuery, (newValue) => {
+  if (debounceTimeout) {
+    clearTimeout(debounceTimeout)
+  }
+  debounceTimeout = setTimeout(() => {
+    debouncedSearchQuery.value = newValue
+  }, 500)
+})
+
+// Filtered vendors based on search and filters
+const filteredVendors = computed(() => {
+  let filtered = vendors.value
+
+  // Apply search filter
+  if (debouncedSearchQuery.value) {
+    const query = debouncedSearchQuery.value.toLowerCase()
+    filtered = filtered.filter(vendor => 
+      vendor.vendorId?.toString().toLowerCase().includes(query) ||
+      vendor.name?.toLowerCase().includes(query) ||
+      vendor.contactEmail?.toLowerCase().includes(query) ||
+      vendor.contactPhone?.toLowerCase().includes(query) ||
+      vendor.address?.toLowerCase().includes(query)
+    )
+  }
+
+  // Apply service type filter
+  if (filterServiceType.value && filterServiceType.value !== 'all') {
+    filtered = filtered.filter(vendor => 
+      vendor.serviceType === filterServiceType.value
+    )
+  }
+
+  return filtered
+})
+
 const stats = computed(() => {
-  const total = vendors.value.length
-  const active = vendors.value.filter(v => v.serviceType !== 'Inactive').length
-  const logistics = vendors.value.filter(v => v.serviceType === 'Logistics').length
-  const transportation = vendors.value.filter(v => v.serviceType === 'Transportation').length
+  const total = filteredVendors.value.length
+  const active = filteredVendors.value.filter(v => v.serviceType !== 'Inactive').length
+  const logistics = filteredVendors.value.filter(v => v.serviceType === 'Logistics').length
+  const transportation = filteredVendors.value.filter(v => v.serviceType === 'Transportation').length
   
   return { total, active, logistics, transportation }
 })
+
+const clearFilters = () => {
+  searchQuery.value = ''
+  debouncedSearchQuery.value = ''
+  filterServiceType.value = 'all'
+}
 
 const loadVendors = async () => {
   isLoading.value = true
@@ -255,6 +352,9 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (debounceTimeout) {
+    clearTimeout(debounceTimeout)
+  }
   window.removeEventListener('vendors-updated', loadVendors)
 })
 </script>

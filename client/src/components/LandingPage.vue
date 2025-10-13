@@ -1,332 +1,338 @@
 <template>
   <div class="landing-page">
     <!-- Navigation Bar -->
-    <nav ref="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white/80 backdrop-blur-md border-b border-gray-100">
-      <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <!-- Logo Section -->
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-            </svg>
-          </div>
-          <div>
-            <h1 class="text-xl font-bold text-gray-900">CargoFlow</h1>
-            <p class="text-xs text-gray-500 tracking-wide uppercase">Supply Chain Management</p>
-          </div>
-        </div>
-
-        <!-- Navigation Links - Desktop -->
-        <div class="hidden lg:flex items-center space-x-8">
-          <a href="#features" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Features</a>
-          <a href="#solutions" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">Solutions</a>
-          <a href="#about" class="text-gray-600 hover:text-blue-600 font-medium transition-colors">About</a>
-        </div>
-
-        <!-- Action Buttons - Desktop -->
-        <div class="hidden lg:flex items-center space-x-4">
-          <button 
-            @click="showLoginModal = true"
-            class="px-4 py-2 text-gray-700 border border-gray-200 rounded-lg hover:border-blue-500 hover:text-blue-600 transition-all duration-200"
-          >
-            Login
-          </button>
-          <button 
-            @click="navigateToDashboard"
-            class="px-6 py-2 text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
-          >
-            Try CargoFlow
-          </button>
-        </div>
-
-        <!-- Mobile Menu Button -->
-        <button class="lg:hidden p-2" @click="showMobileMenu = !showMobileMenu">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Mobile Menu -->
-      <div v-if="showMobileMenu" class="lg:hidden bg-white border-t border-gray-100">
-        <div class="px-6 py-4 space-y-3">
-          <a href="#features" class="block text-gray-600 hover:text-blue-600 font-medium" @click="showMobileMenu = false">Features</a>
-          <a href="#solutions" class="block text-gray-600 hover:text-blue-600 font-medium" @click="showMobileMenu = false">Solutions</a>
-          <a href="#about" class="block text-gray-600 hover:text-blue-600 font-medium" @click="showMobileMenu = false">About</a>
-          <div class="pt-3 space-y-2">
-            <button @click="showLoginModal = true; showMobileMenu = false" class="w-full text-left text-gray-700 py-2">Login</button>
-            <button @click="navigateToDashboard" class="w-full px-4 py-2 text-white bg-blue-500 rounded-lg">Try CargoFlow</button>
-          </div>
-        </div>
-      </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100">
-      <!-- Background Decorations -->
-      <div class="absolute top-20 right-20 w-72 h-72 bg-gradient-to-br from-blue-500 to-teal-500 rounded-full blur-3xl opacity-10"></div>
-      <div class="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full blur-3xl opacity-10"></div>
-      
-      <!-- Floating Particles Animation -->
-      <div class="absolute inset-0 overflow-hidden">
-        <div 
-          v-for="particle in particles" 
-          :key="particle.id"
-          class="absolute w-2 h-2 bg-blue-400 rounded-full opacity-20"
-          :style="{ 
-            left: particle.x + '%', 
-            top: particle.y + '%',
-            animationDelay: particle.delay + 's',
-            animation: 'float 6s ease-in-out infinite'
-          }"
-        ></div>
-      </div>
-
-      <div class="container mx-auto px-6 pt-20 grid lg:grid-cols-2 gap-12 items-center relative z-10">
-        <!-- Left Column - Hero Content -->
-        <div class="space-y-8">
-          <div class="text-sm font-semibold text-blue-600 uppercase tracking-wider">
-            Modern Logistics Platform
-          </div>
-          
-          <h1 class="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-            Streamline Your 
-            <span class="bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">
-              Supply Chain
-            </span>
-            Operations
-          </h1>
-          
-          <p class="text-xl text-gray-600 leading-relaxed max-w-xl">
-            Manage cargo, track shipments, optimize routes, and coordinate with vendors—all in one powerful platform.
-          </p>
-
-          <!-- CTA Buttons -->
-          <div class="flex flex-col sm:flex-row gap-4">
-            <button 
-              @click="navigateToDashboard"
-              class="group px-8 py-4 text-white bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
-            >
-              Try CargoFlow
-              <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-              </svg>
-            </button>
-            <button class="px-8 py-4 text-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-200 flex items-center justify-center gap-2">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V17M6 10V9a3 3 0 113-3v1"/>
-              </svg>
-              View Demo
-            </button>
-          </div>
-
-          <!-- Trust Indicators -->
-          <div class="text-sm text-gray-500">
-            Professional supply chain management solution
-          </div>
-
-          <!-- Company Trust Bar -->
-          <div class="flex items-center gap-6 pt-6">
-            <span class="text-sm text-gray-600 font-medium">Trusted by 500+ companies</span>
-            <div class="flex items-center gap-6 opacity-60">
-              <div class="w-16 h-8 bg-gray-300 rounded"></div>
-              <div class="w-16 h-8 bg-gray-300 rounded"></div>
-              <div class="w-16 h-8 bg-gray-300 rounded"></div>
-              <div class="w-16 h-8 bg-gray-300 rounded"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Column - Dashboard Preview -->
-        <div class="relative">
-          <!-- Main Dashboard Preview -->
-          <div class="relative transform hover:scale-105 transition-transform duration-500">
-            <div class="bg-gray-100 rounded-xl p-4 shadow-2xl">
-              <!-- Browser Chrome -->
-              <div class="flex gap-2 mb-4">
-                <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                <div class="w-3 h-3 rounded-full bg-green-500"></div>
-              </div>
-              <!-- Dashboard Content Placeholder -->
-              <div class="bg-white rounded-lg p-6 space-y-4">
-                <div class="flex justify-between items-center">
-                  <div class="h-6 bg-gray-300 rounded w-32"></div>
-                  <div class="h-6 bg-blue-500 rounded w-24"></div>
+    <header>
+      <nav 
+        ref="navbar"
+        :data-state="menuState && 'active'"
+        :class="[
+          'fixed top-0 left-0 right-0 z-50 w-full border-b transition-colors duration-150',
+          scrolled ? 'bg-white/50 backdrop-blur-3xl' : 'bg-white'
+        ]"
+      >
+        <div class="mx-auto max-w-5xl px-6 transition-all duration-300">
+          <div class="relative flex flex-wrap items-center justify-between gap-6 py-3 lg:gap-0 lg:py-4">
+            <!-- Logo and Mobile Toggle -->
+            <div class="flex w-full items-center justify-between gap-12 lg:w-auto">
+              <a href="/" class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                  </svg>
                 </div>
-                <div class="grid grid-cols-3 gap-4">
-                  <div class="h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg"></div>
-                  <div class="h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-lg"></div>
-                  <div class="h-20 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg"></div>
-                </div>
-                <div class="h-32 bg-gray-100 rounded-lg"></div>
-              </div>
-            </div>
-          </div>
+                <span class="text-lg font-semibold text-gray-900">CargoFlow</span>
+              </a>
 
-          <!-- Floating Status Elements -->
-          <div class="absolute -top-4 -left-8 bg-white rounded-lg shadow-lg p-3 border border-gray-100 animate-bounce">
-            <div class="flex items-center gap-2">
-              <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span class="text-sm font-medium">4,590 km</span>
-            </div>
-          </div>
-
-          <div class="absolute top-8 -right-12 bg-white rounded-lg shadow-lg p-3 border border-gray-100" style="animation: float 3s ease-in-out infinite;">
-            <div class="flex items-center gap-2">
-              <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-              <span class="text-sm font-medium text-green-600">Delivered</span>
-            </div>
-          </div>
-
-          <div class="absolute bottom-8 -left-16 bg-white rounded-lg shadow-lg p-3 border border-gray-100" style="animation: float 4s ease-in-out infinite;">
-            <div class="text-sm">
-              <div class="font-medium">New Shipment</div>
-              <div class="text-gray-500">SH005</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Features Section -->
-    <section id="features" class="py-20 bg-white">
-      <div class="container mx-auto px-6">
-        <!-- Section Header -->
-        <div class="text-center mb-16">
-          <div class="text-sm font-semibold text-blue-600 uppercase tracking-wider mb-4">
-            Powerful Features
-          </div>
-          <h2 class="text-4xl font-bold text-gray-900 mb-6">
-            Everything You Need to Manage Logistics
-          </h2>
-          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-            Comprehensive tools designed for modern supply chain management
-          </p>
-        </div>
-
-        <!-- Features Grid -->
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <!-- Feature Card Template -->
-          <div 
-            v-for="feature in features" 
-            :key="feature.id"
-            class="group p-6 bg-white rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300"
-          >
-            <div :class="feature.iconBg" class="w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="feature.iconPath"/>
-              </svg>
-            </div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ feature.title }}</h3>
-            <p class="text-gray-600">{{ feature.description }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Solutions Section -->
-    <section id="solutions" class="py-20 bg-gray-50">
-      <div class="container mx-auto px-6">
-        <div class="text-center mb-16">
-          <h2 class="text-4xl font-bold text-gray-900 mb-6">
-            How CargoFlow Works
-          </h2>
-          <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-            Simple steps to transform your supply chain management
-          </p>
-        </div>
-
-        <!-- Workflow Steps -->
-        <div class="grid md:grid-cols-3 gap-8">
-          <div 
-            v-for="(step, index) in workflowSteps" 
-            :key="step.id"
-            class="text-center"
-          >
-            <div class="relative mb-6">
-              <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span class="text-2xl font-bold text-white">{{ index + 1 }}</span>
-              </div>
-              <!-- Connection Line (except for last item) -->
-              <div v-if="index < workflowSteps.length - 1" class="hidden md:block absolute top-8 left-1/2 w-full h-0.5 bg-gray-300 transform translate-x-8"></div>
-            </div>
-            <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ step.title }}</h3>
-            <p class="text-gray-600">{{ step.description }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about" class="py-20 bg-gray-50">
-      <div class="container mx-auto px-6">
-        <div class="max-w-4xl mx-auto text-center">
-          <h2 class="text-4xl font-bold text-gray-900 mb-6">
-            About CargoFlow
-          </h2>
-          <p class="text-xl text-gray-600 mb-8">
-            We're revolutionizing supply chain management with intelligent automation, 
-            real-time tracking, and comprehensive analytics to help businesses optimize 
-            their logistics operations.
-          </p>
-          
-          <!-- Stats -->
-          <div class="grid md:grid-cols-4 gap-8 mt-12">
-            <div v-for="stat in stats" :key="stat.label" class="text-center">
-              <div class="text-3xl font-bold text-blue-600 mb-2">{{ stat.value }}</div>
-              <div class="text-gray-600">{{ stat.label }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
-      <div class="container mx-auto px-6">
-        <div class="grid md:grid-cols-4 gap-8">
-          <!-- Logo and Description -->
-          <div class="md:col-span-2">
-            <div class="flex items-center space-x-3 mb-4">
-              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+              <!-- Mobile Menu Toggle -->
+              <button
+                @click="menuState = !menuState"
+                :aria-label="menuState ? 'Close Menu' : 'Open Menu'"
+                class="relative z-20 -m-2.5 -mr-4 cursor-pointer p-2.5 lg:hidden"
+              >
+                <svg 
+                  :class="[
+                    'm-auto size-6 duration-200',
+                    menuState ? 'rotate-180 scale-0 opacity-0' : ''
+                  ]"
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
-              </div>
-              <div>
-                <h3 class="text-xl font-bold">CargoFlow</h3>
-                <p class="text-sm text-gray-400 uppercase tracking-wide">Supply Chain Management</p>
+                <svg 
+                  :class="[
+                    'absolute inset-0 m-auto size-6 -rotate-180 scale-0 opacity-0 duration-200',
+                    menuState ? 'rotate-0 scale-100 opacity-100' : ''
+                  ]"
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+
+              <!-- Desktop Navigation Links -->
+              <div class="hidden lg:block">
+                <ul class="flex gap-8 text-sm">
+                  <li v-for="item in menuItems" :key="item.name">
+                    <a 
+                      :href="item.href" 
+                      @click.prevent="scrollToSection(item.href)"
+                      class="text-muted-foreground hover:text-accent-foreground block duration-150 text-gray-600 hover:text-gray-900 cursor-pointer"
+                    >
+                      <span>{{ item.name }}</span>
+                    </a>
+                  </li>
+                </ul>
               </div>
             </div>
-            <p class="text-gray-400 max-w-md">
-              Streamlining supply chain operations with intelligent automation and real-time insights.
+
+            <!-- Mobile Menu & CTA Buttons -->
+            <div 
+              :class="[
+                'bg-background mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 rounded-3xl border p-6 shadow-2xl shadow-zinc-300/20 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none',
+                menuState ? 'block lg:flex' : ''
+              ]"
+            >
+              <!-- Mobile Navigation Links -->
+              <div class="lg:hidden">
+                <ul class="space-y-6 text-base">
+                  <li v-for="item in menuItems" :key="item.name">
+                    <a 
+                      :href="item.href" 
+                      @click.prevent="scrollToSection(item.href); menuState = false"
+                      class="text-muted-foreground hover:text-accent-foreground block duration-150 text-gray-600 hover:text-gray-900 cursor-pointer"
+                    >
+                      <span>{{ item.name }}</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
+                <button
+                  @click="showLoginModal = true"
+                  class="px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Login
+                </button>
+                <button
+                  @click="navigateToDashboard"
+                  class="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  Sign Up
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="overflow-hidden">
+      <!-- Background Gradient Blobs -->
+      <div aria-hidden="true" class="absolute inset-0 isolate hidden lg:block">
+        <div class="absolute left-0 top-0 w-[560px] h-[1280px] -translate-y-[350px] -rotate-45 rounded-full bg-[radial-gradient(68.54%_68.72%_at_55.02%_31.46%,hsla(0,0%,85%,.08)_0,hsla(0,0%,55%,.02)_50%,hsla(0,0%,45%,0)_80%)]"></div>
+        <div class="absolute left-0 top-0 w-60 h-[1280px] -rotate-45 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.06)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)] translate-x-[5%] -translate-y-[50%]"></div>
+        <div class="absolute left-0 top-0 w-60 h-[1280px] -translate-y-[350px] -rotate-45 bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.04)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)]"></div>
+      </div>
+
+      <!-- Hero Section -->
+      <section>
+        <div class="relative pt-24">
+          <div class="absolute inset-0 -z-10 w-full h-full bg-[radial-gradient(125%_125%_at_50%_100%,transparent_0%,white_75%)]"></div>
+          <div class="mx-auto max-w-5xl px-6">
+            <div class="sm:mx-auto lg:mr-auto lg:mt-0">
+              <!-- Hero Title with Animation -->
+              <h1 class="mt-8 max-w-2xl text-balance text-5xl font-medium md:text-6xl lg:mt-16 animate-fade-in">
+                Streamline Your Supply Chain Operations
+              </h1>
+              
+              <!-- Hero Description -->
+              <p class="mt-8 max-w-2xl text-pretty text-lg text-gray-600 animate-fade-in" style="animation-delay: 0.2s;">
+                Manage cargo, track shipments, optimize routes, and coordinate with vendors—all in one powerful platform designed for modern logistics.
+              </p>
+
+              <!-- CTA Buttons -->
+              <div class="mt-12 flex items-center gap-2 animate-fade-in" style="animation-delay: 0.4s;">
+                <div class="bg-gray-900/5 rounded-2xl border border-gray-200 p-0.5">
+                  <button
+                    @click="navigateToDashboard"
+                    class="px-5 py-3 text-base font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors"
+                  >
+                    <span class="whitespace-nowrap">Get Started Free</span>
+                  </button>
+                </div>
+                <button
+                  @click="scrollToSection('#footer')"
+                  class="px-5 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors"
+                >
+                  <span class="whitespace-nowrap">Schedule Demo</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dashboard Preview Image -->
+          <div class="relative -mr-56 mt-8 overflow-hidden px-2 sm:mr-0 sm:mt-12 md:mt-20 animate-fade-in" style="animation-delay: 0.6s; -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%); mask-image: linear-gradient(to bottom, black 55%, transparent 100%);">
+            <div class="relative mx-auto max-w-5xl overflow-hidden rounded-2xl border border-gray-200 shadow-lg shadow-zinc-950/15 bg-white ring-1 ring-gray-100 p-4">
+              <!-- Hero Image -->
+              <div class="relative rounded-2xl overflow-hidden border border-gray-100">
+                <img 
+                  src="../assets/hero.png" 
+                  alt="CargoFlow Dashboard Preview" 
+                  class="w-full h-auto object-cover rounded-2xl aspect-[15/8]"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features Section -->
+      <section id="features" class="py-12 md:py-20">
+        <div class="mx-auto max-w-5xl space-y-8 px-6 md:space-y-16">
+          <div class="relative z-10 mx-auto max-w-xl space-y-6 text-center md:space-y-12">
+            <h2 class="text-balance text-4xl font-medium lg:text-5xl">
+              The foundation for modern supply chain management
+            </h2>
+            <p class="text-lg text-gray-600">
+              CargoFlow is evolving to be more than just tracking. It supports an entire ecosystem of tools helping businesses and logistics teams innovate.
             </p>
           </div>
 
-          <!-- Quick Links -->
-          <div>
-            <h4 class="font-semibold mb-4">Quick Links</h4>
-            <ul class="space-y-2">
-              <li><a href="#features" class="text-gray-400 hover:text-white transition-colors">Features</a></li>
-              <li><a href="#solutions" class="text-gray-400 hover:text-white transition-colors">Solutions</a></li>
-              <li><a href="#about" class="text-gray-400 hover:text-white transition-colors">About</a></li>
-            </ul>
-          </div>
+          <div class="relative mx-auto grid max-w-4xl divide-x divide-y border sm:grid-cols-2 lg:grid-cols-3">
+            <!-- Feature 1: Fast -->
+            <div class="space-y-3 p-12">
+              <div class="flex items-center gap-2">
+                <Zap class="w-4 h-4" />
+                <h3 class="text-sm font-medium">Lightning Fast</h3>
+              </div>
+              <p class="text-sm text-gray-600">Real-time tracking and instant updates across your entire supply chain network.</p>
+            </div>
 
-          <!-- Contact -->
-          <div>
-            <h4 class="font-semibold mb-4">Contact</h4>
-            <ul class="space-y-2 text-gray-400">
-              <li>support@cargoflow.com</li>
-              <li>+1 (555) 123-4567</li>
-              <li>San Francisco, CA</li>
-            </ul>
+            <!-- Feature 2: Powerful -->
+            <div class="space-y-2 p-12">
+              <div class="flex items-center gap-2">
+                <Cpu class="w-4 h-4" />
+                <h3 class="text-sm font-medium">Powerful Analytics</h3>
+              </div>
+              <p class="text-sm text-gray-600">Advanced insights and reporting to optimize routes and reduce costs.</p>
+            </div>
+
+            <!-- Feature 3: Security -->
+            <div class="space-y-2 p-12">
+              <div class="flex items-center gap-2">
+                <Fingerprint class="w-4 h-4" />
+                <h3 class="text-sm font-medium">Secure & Reliable</h3>
+              </div>
+              <p class="text-sm text-gray-600">Enterprise-grade security protecting your sensitive cargo and shipment data.</p>
+            </div>
+
+            <!-- Feature 4: Customization -->
+            <div class="space-y-2 p-12">
+              <div class="flex items-center gap-2">
+                <Pencil class="w-4 h-4" />
+                <h3 class="text-sm font-medium">Fully Customizable</h3>
+              </div>
+              <p class="text-sm text-gray-600">Tailor workflows and dashboards to match your unique business needs.</p>
+            </div>
+
+            <!-- Feature 5: Control -->
+            <div class="space-y-2 p-12">
+              <div class="flex items-center gap-2">
+                <Settings2 class="w-4 h-4" />
+                <h3 class="text-sm font-medium">Complete Control</h3>
+              </div>
+              <p class="text-sm text-gray-600">Manage vendors, routes, and shipments from a single unified platform.</p>
+            </div>
+
+            <!-- Feature 6: Built for Scale -->
+            <div class="space-y-2 p-12">
+              <div class="flex items-center gap-2">
+                <Sparkles class="w-4 h-4" />
+                <h3 class="text-sm font-medium">Built to Scale</h3>
+              </div>
+              <p class="text-sm text-gray-600">Seamlessly handle growth from small operations to enterprise logistics.</p>
+            </div>
           </div>
         </div>
-        
-        <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2024 CargoFlow. All rights reserved.</p>
+      </section>
+
+      <!-- Content Section -->
+      <section id="solutions" class="py-16 md:py-32">
+        <div class="mx-auto max-w-5xl space-y-8 px-6 md:space-y-16">
+          <h2 class="relative z-10 max-w-xl text-4xl font-medium lg:text-5xl">
+            The CargoFlow brings together our models.
+          </h2>
+          <div class="relative">
+            <div class="relative z-10 space-y-4 md:w-1/2">
+              <p>
+                CargoFlow is evolving to be more than just tracking. <span class="font-medium">It supports an entire ecosystem</span> — from cargo management to shipment optimization and vendor coordination.
+              </p>
+              <p>
+                It supports an entire ecosystem — from real-time tracking to advanced analytics and automation helping logistics teams and businesses innovate and scale efficiently.
+              </p>
+
+              <div class="grid grid-cols-2 gap-3 pt-6 sm:gap-4">
+                <div class="space-y-3">
+                  <div class="flex items-center gap-2">
+                    <Zap class="w-4 h-4" />
+                    <h3 class="text-sm font-medium">Real-Time Updates</h3>
+                  </div>
+                  <p class="text-gray-600 text-sm">
+                    Instant notifications and live tracking across your entire supply chain network.
+                  </p>
+                </div>
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2">
+                    <Cpu class="w-4 h-4" />
+                    <h3 class="text-sm font-medium">Smart Analytics</h3>
+                  </div>
+                  <p class="text-gray-600 text-sm">
+                    AI-powered insights to optimize routes, reduce costs, and improve efficiency.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div 
+              class="mt-12 h-fit md:absolute md:-inset-y-12 md:inset-x-0 md:mt-0"
+              style="-webkit-mask-image: linear-gradient(to left, black 35%, transparent 55%); mask-image: linear-gradient(to left, black 35%, transparent 55%);"
+            >
+              <div class="relative rounded-2xl border border-dotted border-gray-300 p-2">
+                <img
+                  src="../assets/charts-light.png"
+                  class="rounded-xl shadow-lg"
+                  alt="CargoFlow analytics dashboard"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer" class="border-t bg-white pt-20">
+      <div class="mx-auto max-w-5xl px-6">
+        <div class="grid gap-12 md:grid-cols-5">
+          <div class="md:col-span-2">
+            <a href="/" class="flex items-center space-x-2">
+              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                </svg>
+              </div>
+              <span class="text-lg font-semibold text-gray-900">CargoFlow</span>
+            </a>
+          </div>
+
+          <div class="grid grid-cols-2 gap-6 sm:grid-cols-4 md:col-span-3">
+            <div 
+              v-for="linkGroup in footerLinks" 
+              :key="linkGroup.group"
+              class="space-y-4 text-sm"
+            >
+              <span class="block font-medium">{{ linkGroup.group }}</span>
+              <a
+                v-for="item in linkGroup.items"
+                :key="item.title"
+                :href="item.href"
+                class="text-gray-600 hover:text-gray-900 block duration-150"
+              >
+                <span>{{ item.title }}</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="mt-12 flex flex-wrap items-end justify-between gap-6 border-t py-6">
+          <span class="order-last block text-center text-sm text-gray-600 md:order-first">
+            © {{ new Date().getFullYear() }} CargoFlow. All rights reserved
+          </span>
         </div>
       </div>
     </footer>
@@ -378,14 +384,71 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { Zap, Cpu, Fingerprint, Pencil, Settings2, Sparkles } from 'lucide-vue-next'
 
 // Router setup
 const router = useRouter()
 
 // Reactive state
-const showMobileMenu = ref(false)
+const menuState = ref(false)
+const scrolled = ref(false)
 const showLoginModal = ref(false)
 const navbar = ref(null)
+
+// Menu items
+const menuItems = ref([
+  { name: 'Features', href: '#features' },
+  { name: 'Content', href: '#solutions' },
+  { name: 'Footer', href: '#footer' }
+])
+
+// Footer links
+const footerLinks = ref([
+  {
+    group: 'Product',
+    items: [
+      { title: 'Features', href: '#features' },
+      { title: 'Cargo Management', href: '#' },
+      { title: 'Shipment Tracking', href: '#' },
+      { title: 'Route Optimization', href: '#' },
+      { title: 'Vendor Coordination', href: '#' },
+      { title: 'Analytics', href: '#' }
+    ]
+  },
+  {
+    group: 'Solutions',
+    items: [
+      { title: 'For Logistics', href: '#' },
+      { title: 'For Freight', href: '#' },
+      { title: 'For E-commerce', href: '#' },
+      { title: 'For Manufacturing', href: '#' },
+      { title: 'For Retail', href: '#' },
+      { title: 'Enterprise', href: '#' }
+    ]
+  },
+  {
+    group: 'Company',
+    items: [
+      { title: 'About Us', href: '#about' },
+      { title: 'Careers', href: '#' },
+      { title: 'Blog', href: '#' },
+      { title: 'Partners', href: '#' },
+      { title: 'Contact', href: '#' },
+      { title: 'Support', href: '#' }
+    ]
+  },
+  {
+    group: 'Resources',
+    items: [
+      { title: 'Documentation', href: '#' },
+      { title: 'API Reference', href: '#' },
+      { title: 'Guides', href: '#' },
+      { title: 'Privacy Policy', href: '#' },
+      { title: 'Terms of Service', href: '#' },
+      { title: 'Security', href: '#' }
+    ]
+  }
+])
 
 // Login form data
 const loginForm = ref({
@@ -468,6 +531,20 @@ const handleLogin = () => {
   navigateToDashboard()
 }
 
+const scrollToSection = (sectionId) => {
+  const element = document.querySelector(sectionId)
+  if (element) {
+    const navbarHeight = navbar.value?.offsetHeight || 80
+    const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
+    const offsetPosition = elementPosition - navbarHeight
+    
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    })
+  }
+}
+
 const generateParticles = () => {
   particles.value = Array.from({ length: 20 }, (_, i) => ({
     id: i,
@@ -478,11 +555,7 @@ const generateParticles = () => {
 }
 
 const handleScroll = () => {
-  if (navbar.value) {
-    const scrolled = window.scrollY > 50
-    navbar.value.classList.toggle('bg-white/90', scrolled)
-    navbar.value.classList.toggle('shadow-sm', scrolled)
-  }
+  scrolled.value = window.scrollY > 50
 }
 
 // Lifecycle hooks
@@ -497,6 +570,11 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
 /* Custom animations */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
@@ -512,6 +590,24 @@ onUnmounted(() => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    filter: blur(12px);
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out forwards;
+  opacity: 0;
 }
 
 /* Animation classes */

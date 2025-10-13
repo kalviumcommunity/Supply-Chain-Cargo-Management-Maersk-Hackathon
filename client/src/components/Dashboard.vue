@@ -4,10 +4,7 @@
     <PageHeader
       title="Dashboard"
       description="Welcome back! Here's your supply chain overview."
-      :breadcrumbs="[
-        { label: 'Home', href: '/' },
-        { label: 'Dashboard' }
-      ]"
+
     >
       <template #actions>
         <Button 

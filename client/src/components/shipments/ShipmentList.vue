@@ -10,6 +10,7 @@
         <Button @click="$router.push('/shipments/create')">
           <Plus class="mr-2 h-4 w-4" />
           Create Shipment
+
         </Button>
       </div>
 
@@ -89,6 +90,48 @@
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <!-- Search and Filter Section -->
+          <div class="flex flex-col md:flex-row gap-4 mb-6">
+            <!-- Search Input -->
+            <div class="relative flex-1">
+              <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search by ID, origin, destination, route, or vendor..."
+                class="pl-10"
+              />
+            </div>
+
+            <!-- Filter by Status -->
+            <Select v-model="filterStatus">
+              <SelectTrigger class="w-full md:w-[200px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="Pending">Pending</SelectItem>
+                <SelectItem value="Created">Created</SelectItem>
+                <SelectItem value="Picked Up">Picked Up</SelectItem>
+                <SelectItem value="Shipped">Shipped</SelectItem>
+                <SelectItem value="In Transit">In Transit</SelectItem>
+                <SelectItem value="Delivered">Delivered</SelectItem>
+                <SelectItem value="Cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <!-- Clear Filters Button -->
+            <Button
+              v-if="searchQuery || filterStatus !== 'all'"
+              @click="clearFilters"
+              variant="outline"
+              class="w-full md:w-auto"
+            >
+              <X class="h-4 w-4 mr-2" />
+              Clear
+            </Button>
+          </div>
+
           <div v-if="isLoading" class="flex items-center justify-center h-32">
             <Loader2 class="h-6 w-6 animate-spin" />
             <span class="ml-2">Loading shipments...</span>
@@ -116,16 +159,24 @@
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow v-if="shipments.length === 0">
+                <TableRow v-if="filteredShipments.length === 0">
                   <TableCell :colspan="7" class="h-24 text-center">
                     <div class="flex flex-col items-center justify-center text-gray-500">
                       <Truck class="h-12 w-12 text-gray-300 mb-2" />
-                      <p class="font-medium">No shipments found</p>
-                      <p class="text-sm">Create your first shipment to get started.</p>
+                      <div v-if="searchQuery || filterStatus !== 'all'" class="space-y-2">
+                        <p class="font-medium">No shipments match your filters</p>
+                        <Button @click="clearFilters" variant="outline" size="sm">
+                          Clear Filters
+                        </Button>
+                      </div>
+                      <div v-else>
+                        <p class="font-medium">No shipments found</p>
+                        <p class="text-sm">Create your first shipment to get started.</p>
+                      </div>
                     </div>
                   </TableCell>
                 </TableRow>
-                <TableRow v-for="shipment in shipments" :key="shipment.shipmentId">
+                <TableRow v-for="shipment in filteredShipments" :key="shipment.shipmentId">
                   <TableCell class="font-medium">#{{ shipment.shipmentId }}</TableCell>
                   <TableCell>
                     <div class="flex flex-col">
@@ -177,12 +228,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { 
   Plus, 
   Loader2, 
@@ -190,7 +243,9 @@ import {
   Eye,
   Edit, 
   Trash2,
-  Truck
+  Truck,
+  Search,
+  X
 } from 'lucide-vue-next'
 import { shipmentApi } from '@/services/api'
 
@@ -200,18 +255,67 @@ const shipments = ref([])
 const isLoading = ref(false)
 const error = ref(null)
 
+// Search and filter state
+const searchQuery = ref('')
+const debouncedSearchQuery = ref('')
+const filterStatus = ref('all')
+let debounceTimeout = null
+
+// Debounced search with 500ms delay
+watch(searchQuery, (newValue) => {
+  if (debounceTimeout) {
+    clearTimeout(debounceTimeout)
+  }
+  debounceTimeout = setTimeout(() => {
+    debouncedSearchQuery.value = newValue
+  }, 500)
+})
+
+// Filtered shipments based on search and filters
+const filteredShipments = computed(() => {
+  let filtered = shipments.value
+
+  // Apply search filter
+  if (debouncedSearchQuery.value) {
+    const query = debouncedSearchQuery.value.toLowerCase()
+    filtered = filtered.filter(shipment => 
+      shipment.shipmentId?.toString().toLowerCase().includes(query) ||
+      shipment.origin?.toLowerCase().includes(query) ||
+      shipment.destination?.toLowerCase().includes(query) ||
+      shipment.assignedRoute?.originPort?.toLowerCase().includes(query) ||
+      shipment.assignedRoute?.destinationPort?.toLowerCase().includes(query) ||
+      shipment.assignedVendor?.name?.toLowerCase().includes(query)
+    )
+  }
+
+  // Apply status filter
+  if (filterStatus.value && filterStatus.value !== 'all') {
+    filtered = filtered.filter(shipment => 
+      shipment.status === filterStatus.value
+    )
+  }
+
+  return filtered
+})
+
 const stats = computed(() => {
-  const total = shipments.value.length
-  const inTransit = shipments.value.filter(s => 
+  const total = filteredShipments.value.length
+  const inTransit = filteredShipments.value.filter(s => 
     s.status === 'In Transit' || s.status === 'Shipped' || s.status === 'Picked Up'
   ).length
-  const delivered = shipments.value.filter(s => s.status === 'Delivered').length
-  const pending = shipments.value.filter(s => 
+  const delivered = filteredShipments.value.filter(s => s.status === 'Delivered').length
+  const pending = filteredShipments.value.filter(s => 
     s.status === 'Pending' || s.status === 'Created'
   ).length
   
   return { total, inTransit, delivered, pending }
 })
+
+const clearFilters = () => {
+  searchQuery.value = ''
+  debouncedSearchQuery.value = ''
+  filterStatus.value = 'all'
+}
 
 const loadShipments = async () => {
   isLoading.value = true
@@ -285,6 +389,9 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (debounceTimeout) {
+    clearTimeout(debounceTimeout)
+  }
   window.removeEventListener('shipments-updated', loadShipments)
   window.removeEventListener('shipment-updated', loadShipments)
 })
