@@ -1,4 +1,6 @@
 # Supply Chain Cargo Management System
+
+**Deployed Frontend:** [http://cargo-flow.s3-website.ap-south-1.amazonaws.com/](http://cargo-flow.s3-website.ap-south-1.amazonaws.com/)
 ![Java](https://img.shields.io/badge/Java-17+-blue)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-green)
 ![Vue.js](https://img.shields.io/badge/Vue.js-3.3.0-brightgreen)
