@@ -1,10 +1,11 @@
-<script setup>
-import { MoreHorizontal } from "lucide-vue-next";
-import { cn } from "@/lib/utils";
+<script lang="ts" setup>
+import type { HTMLAttributes } from "vue"
+import { MoreHorizontal } from "lucide-vue-next"
+import { cn } from "@/lib/utils"
 
-const props = defineProps({
-  class: { type: null, required: false },
-});
+const props = defineProps<{
+  class?: HTMLAttributes["class"]
+}>()
 </script>
 
 <template>
