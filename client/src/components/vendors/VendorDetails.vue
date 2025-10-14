@@ -44,62 +44,64 @@
           </div>
         </div>
 
-        <!-- Stats Cards -->
+        <!-- Stats Cards (RouteList list-stats style) -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <!-- Service Type Card -->
-          <Card class="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-            <CardContent class="pt-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-blue-600">Service Type</p>
-                  <p class="text-2xl font-bold text-blue-900 mt-1">{{ vendor.serviceType }}</p>
-                </div>
-                <Package class="h-8 w-8 text-blue-600" />
+          <!-- Service Type -->
+          <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+            <div class="px-4 pt-2.5 pb-1.5 bg-white">
+              <span class="text-[13px] font-medium text-gray-600">Service Type</span>
+            </div>
+            <CardContent class="px-4 py-1.5 pb-3">
+              <div class="flex items-center gap-2">
+                <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ vendor.serviceType }}</div>
+              </div>
+              <div class="mt-1">
+                <span class="text-xs text-gray-500">Operational role</span>
               </div>
             </CardContent>
           </Card>
 
-          <!-- Contact Status Card -->
-          <Card class="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-            <CardContent class="pt-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-green-600">Contact Status</p>
-                  <p class="text-2xl font-bold text-green-900 mt-1">
-                    {{ vendor.contactEmail ? 'Available' : 'No Contact' }}
-                  </p>
-                </div>
-                <Mail class="h-8 w-8 text-green-600" />
+          <!-- Contact Status -->
+          <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+            <div class="px-4 pt-2.5 pb-1.5 bg-white">
+              <span class="text-[13px] font-medium text-gray-600">Contact Status</span>
+            </div>
+            <CardContent class="px-4 py-1.5 pb-3">
+              <div class="flex items-center gap-2">
+                <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ vendor.contactEmail ? 'Available' : 'No Contact' }}</div>
+              </div>
+              <div class="mt-1">
+                <span class="text-xs text-gray-500">Email availability</span>
               </div>
             </CardContent>
           </Card>
 
-          <!-- Phone Status Card -->
-          <Card class="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-            <CardContent class="pt-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-purple-600">Phone Status</p>
-                  <p class="text-2xl font-bold text-purple-900 mt-1">
-                    {{ vendor.contactPhone ? 'Available' : 'No Phone' }}
-                  </p>
-                </div>
-                <Phone class="h-8 w-8 text-purple-600" />
+          <!-- Phone Status -->
+          <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+            <div class="px-4 pt-2.5 pb-1.5 bg-white">
+              <span class="text-[13px] font-medium text-gray-600">Phone Status</span>
+            </div>
+            <CardContent class="px-4 py-1.5 pb-3">
+              <div class="flex items-center gap-2">
+                <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ vendor.contactPhone ? 'Available' : 'No Phone' }}</div>
+              </div>
+              <div class="mt-1">
+                <span class="text-xs text-gray-500">Phone availability</span>
               </div>
             </CardContent>
           </Card>
 
-          <!-- Address Status Card -->
-          <Card class="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-            <CardContent class="pt-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-orange-600">Address Status</p>
-                  <p class="text-2xl font-bold text-orange-900 mt-1">
-                    {{ vendor.address ? 'Available' : 'No Address' }}
-                  </p>
-                </div>
-                <MapPin class="h-8 w-8 text-orange-600" />
+          <!-- Address Status -->
+          <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+            <div class="px-4 pt-2.5 pb-1.5 bg-white">
+              <span class="text-[13px] font-medium text-gray-600">Address Status</span>
+            </div>
+            <CardContent class="px-4 py-1.5 pb-3">
+              <div class="flex items-center gap-2">
+                <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ vendor.address ? 'Available' : 'No Address' }}</div>
+              </div>
+              <div class="mt-1">
+                <span class="text-xs text-gray-500">Address availability</span>
               </div>
             </CardContent>
           </Card>

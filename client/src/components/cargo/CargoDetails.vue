@@ -46,58 +46,64 @@
           </div>
         </div>
 
-        <!-- Stats Cards -->
+        <!-- Stats Cards (RouteList list-stats style) -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <!-- Type Card -->
-          <Card class="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-            <CardContent class="pt-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-blue-600">Cargo Type</p>
-                  <p class="text-2xl font-bold text-blue-900 mt-1">{{ cargo.type }}</p>
-                </div>
-                <Package class="h-8 w-8 text-blue-600" />
+          <!-- Cargo Type -->
+          <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+            <div class="px-4 pt-2.5 pb-1.5 bg-white">
+              <span class="text-[13px] font-medium text-gray-600">Cargo Type</span>
+            </div>
+            <CardContent class="px-4 py-1.5 pb-3">
+              <div class="flex items-center gap-2">
+                <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ cargo.type }}</div>
+              </div>
+              <div class="mt-1">
+                <span class="text-xs text-gray-500">Category</span>
               </div>
             </CardContent>
           </Card>
 
-          <!-- Weight Card -->
-          <Card class="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-            <CardContent class="pt-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-green-600">Weight</p>
-                  <p class="text-2xl font-bold text-green-900 mt-1">{{ cargo.weight || 0 }} kg</p>
-                </div>
-                <Weight class="h-8 w-8 text-green-600" />
+          <!-- Weight -->
+          <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+            <div class="px-4 pt-2.5 pb-1.5 bg-white">
+              <span class="text-[13px] font-medium text-gray-600">Weight</span>
+            </div>
+            <CardContent class="px-4 py-1.5 pb-3">
+              <div class="flex items-center gap-2">
+                <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ cargo.weight || 0 }} kg</div>
+              </div>
+              <div class="mt-1">
+                <span class="text-xs text-gray-500">Gross weight</span>
               </div>
             </CardContent>
           </Card>
 
-          <!-- Value Card -->
-          <Card class="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-            <CardContent class="pt-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-purple-600">Value</p>
-                  <p class="text-2xl font-bold text-purple-900 mt-1">${{ formatNumber(cargo.value || 0) }}</p>
-                </div>
-                <DollarSign class="h-8 w-8 text-purple-600" />
+          <!-- Value -->
+          <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+            <div class="px-4 pt-2.5 pb-1.5 bg-white">
+              <span class="text-[13px] font-medium text-gray-600">Value</span>
+            </div>
+            <CardContent class="px-4 py-1.5 pb-3">
+              <div class="flex items-center gap-2">
+                <div class="text-3xl font-semibold tracking-tight text-gray-900">${{ formatNumber(cargo.value || 0) }}</div>
+              </div>
+              <div class="mt-1">
+                <span class="text-xs text-gray-500">Declared value</span>
               </div>
             </CardContent>
           </Card>
 
-          <!-- Volume Card -->
-          <Card class="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-            <CardContent class="pt-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-orange-600">Volume</p>
-                  <p class="text-2xl font-bold text-orange-900 mt-1">
-                    {{ cargo.volume ? `${cargo.volume} m³` : 'N/A' }}
-                  </p>
-                </div>
-                <Box class="h-8 w-8 text-orange-600" />
+          <!-- Volume -->
+          <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+            <div class="px-4 pt-2.5 pb-1.5 bg-white">
+              <span class="text-[13px] font-medium text-gray-600">Volume</span>
+            </div>
+            <CardContent class="px-4 py-1.5 pb-3">
+              <div class="flex items-center gap-2">
+                <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ cargo.volume ? `${cargo.volume} m³` : 'N/A' }}</div>
+              </div>
+              <div class="mt-1">
+                <span class="text-xs text-gray-500">Cubic volume</span>
               </div>
             </CardContent>
           </Card>

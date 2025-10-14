@@ -35,85 +35,94 @@
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="isLoading" class="flex items-center justify-center py-24">
-      <div class="flex flex-col items-center gap-4">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-        <p class="text-gray-600 font-medium">Loading dashboard...</p>
-      </div>
-    </div>
-
     <!-- Metrics Grid - Compact & Clean Design -->
-    <div v-if="!isLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
       <Card 
         v-for="(metric, index) in metrics" 
         :key="metric.id"
-        class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 cursor-pointer group"
-        :class="getMetricBorderColor(metric.id)"
+        class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]"
         :style="{ animationDelay: `${index * 100}ms` }"
       >
-        <CardContent class="px-4 py-3">
-          <div class="flex items-center justify-between mb-2">
-            <div :class="['w-9 h-9 rounded-lg flex items-center justify-center transition-transform duration-200 group-hover:scale-105', metric.iconBgColor]">
-              <component :is="metric.icon" :class="['w-5 h-5', metric.iconColor]" />
-            </div>
-            <Badge variant="secondary" class="text-[10px] px-1.5 py-0.5">
+        <div class="px-4 pt-2.5 pb-1.5 bg-white">
+          <span class="text-[13px] font-medium text-gray-600">{{ metric.label }}</span>
+        </div>
+        <CardContent class="px-4 py-1.5 pb-3">
+          <div class="flex items-center gap-2">
+            <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ metric.value }}</div>
+            <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">
               {{ metric.change }}
-            </Badge>
+            </span>
           </div>
-          <div class="space-y-0.5">
-            <div class="text-2xl font-bold text-gray-900 leading-none tracking-tight">{{ metric.value }}</div>
-            <div class="text-xs font-medium text-gray-500">{{ metric.label }}</div>
+          <div class="mt-1 flex items-center gap-1.5">
+            <component :is="metric.icon" :class="['w-3.5 h-3.5', metric.iconColor]" />
+            <span class="text-xs text-gray-500">{{ metric.description }}</span>
           </div>
         </CardContent>
       </Card>
     </div>
 
-    <!-- Main Content (only show when not loading) -->
-    <div v-if="!isLoading" class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
       <!-- Recent Activity -->
       <Card class="lg:col-span-2 rounded-xl border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow">
         <CardHeader class="pb-3">
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between gap-3">
             <CardTitle class="flex items-center gap-2 text-base">
               <Clock class="w-4 h-4 text-gray-600" />
               Recent Activity
             </CardTitle>
-            <Button variant="link" size="sm" class="text-blue-600 text-xs h-auto p-0">
+            <div class="hidden md:flex items-center gap-1">
+              <Button size="sm" :variant="activityFilter === 'all' ? 'default' : 'outline'" @click="activityFilter = 'all'">All</Button>
+              <Button size="sm" :variant="activityFilter === 'shipments' ? 'default' : 'outline'" @click="activityFilter = 'shipments'">Shipments</Button>
+              <Button size="sm" :variant="activityFilter === 'cargo' ? 'default' : 'outline'" @click="activityFilter = 'cargo'">Cargo</Button>
+              <Button size="sm" :variant="activityFilter === 'routes' ? 'default' : 'outline'" @click="activityFilter = 'routes'">Routes</Button>
+              <Button size="sm" :variant="activityFilter === 'vendors' ? 'default' : 'outline'" @click="activityFilter = 'vendors'">Vendors</Button>
+              <Button size="sm" :variant="activityFilter === 'deliveries' ? 'default' : 'outline'" @click="activityFilter = 'deliveries'">Deliveries</Button>
+            </div>
+            <Button variant="link" size="sm" class="text-blue-600 text-xs h-auto p-0" @click="router.push('/shipments')">
               View all
             </Button>
           </div>
         </CardHeader>
         <CardContent class="pt-0">
-          <div class="relative">
-            <!-- Timeline line -->
-            <div class="absolute left-4 top-0 bottom-0 w-px bg-gray-200"></div>
-            
-            <div class="space-y-1">
-              <div 
-                v-for="(activity, index) in activities" 
-                :key="activity.id"
-                @click="$emit('activity-click', activity)"
-                class="relative flex items-start gap-3 p-3 pl-10 rounded-lg hover:bg-gray-50 cursor-pointer transition-all duration-200 group"
-              >
-                <!-- Timeline dot with icon -->
-                <div :class="['absolute left-2 w-2 h-2 rounded-full border-2 border-white shadow-sm', getActivityDotColor(activity.type)]"></div>
-                
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-start justify-between gap-2">
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-1.5 mb-0.5">
-                        <component :is="getActivityIcon(activity.type)" :class="['w-3.5 h-3.5', getActivityIconColor(activity.type)]" />
-                        <p class="text-xs text-gray-700 truncate">
-                          <span class="font-semibold text-gray-900">{{ activity.shipmentId }}</span>
-                          {{ activity.action }}
-                        </p>
-                      </div>
-                      <p class="text-[10px] text-gray-500 font-medium">{{ activity.timestamp }}</p>
-                    </div>
-                    <Badge v-if="activity.status" :variant="getActivityBadgeVariant(activity.status)" class="text-[10px] px-1.5 py-0 shrink-0">
-                      {{ activity.status }}
+          <!-- Empty state -->
+          <div v-if="filteredActivities.length === 0" class="py-10 text-center">
+            <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+              <Clock class="h-5 w-5 text-gray-500" />
+            </div>
+            <p class="text-sm text-gray-600">No recent activity to display.</p>
+          </div>
+
+          <!-- Activity list -->
+          <div v-else class="divide-y divide-gray-100">
+            <div
+              v-for="activity in filteredActivities"
+              :key="activity.id || activity.timestamp"
+              @click="navigateToActivity(activity)"
+              class="group relative flex items-start gap-3 p-3 hover:bg-gray-50 cursor-pointer transition-colors border-l-2"
+              :class="getActivityAccent(activity.type)"
+            >
+              <!-- Icon bubble -->
+              <div class="mt-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 ring-1 ring-inset ring-gray-200">
+                <component :is="getActivityIcon(activity.type)" :class="['h-4.5 w-4.5', getActivityIconColor(activity.type)]" />
+              </div>
+              <!-- Content -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <p class="text-sm text-gray-900 truncate">
+                      {{ formatActivityTitle(activity) }}
+                    </p>
+                    <p v-if="formatActivitySubtitle(activity)" class="mt-0.5 text-xs text-gray-500 truncate">
+                      {{ formatActivitySubtitle(activity) }}
+                    </p>
+                  </div>
+                  <div class="flex items-center gap-2 shrink-0">
+                    <span class="text-[11px] text-gray-500 whitespace-nowrap">{{ formatRelativeTime(activity.timestamp) }}</span>
+                    <Badge v-if="activity.status" :variant="getActivityBadgeVariant(activity.status)" class="text-[10px] px-1.5 py-0">
+                      {{ formatStatus(activity.status) }}
                     </Badge>
+                    <svg class="h-4 w-4 text-gray-300 group-hover:text-gray-400 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
                   </div>
                 </div>
               </div>
@@ -182,7 +191,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { 
   Plus, Clock, Truck, Package, Route, Users, 
@@ -199,7 +208,7 @@ import { Button } from '@/components/ui/button'
 const router = useRouter()
 
 // Loading and error states
-const isLoading = ref(true)
+const isLoading = ref(false)
 const error = ref(null)
 
 // Reactive data with premium styling
@@ -208,45 +217,70 @@ const metrics = reactive([
     id: 'shipments',
     label: 'Total Shipments',
     value: 0,
-    change: 'Loading...',
-    changeType: 'positive',
+    change: '↗ 12%',
+    description: 'In transit and delivered',
     icon: Truck,
-    iconBgColor: 'bg-[#EFF6FF]',
     iconColor: 'text-[#3B82F6]'
   },
   {
     id: 'cargo',
     label: 'Active Cargo',
     value: 0,
-    change: 'Loading...',
-    changeType: 'positive',
+    change: '↗ 8%',
+    description: 'Items being tracked',
     icon: Package,
-    iconBgColor: 'bg-[#ECFDF5]',
     iconColor: 'text-[#10B981]'
   },
   {
     id: 'routes',
     label: 'Available Routes',
     value: 0,
-    change: 'Loading...',
-    changeType: 'warning',
+    change: '↗ 5%',
+    description: 'Active shipping routes',
     icon: Route,
-    iconBgColor: 'bg-[#FEF3C7]',
     iconColor: 'text-[#F59E0B]'
   },
   {
     id: 'vendors',
     label: 'Partner Vendors',
     value: 0,
-    change: 'Loading...',
-    changeType: 'positive',
+    change: '↗ 15%',
+    description: 'Verified partners',
     icon: Users,
-    iconBgColor: 'bg-[#F3E8FF]',
     iconColor: 'text-[#A855F7]'
   }
 ])
 
 const activities = reactive([])
+const activityFilter = ref('all') // all | shipments | cargo | routes | vendors | deliveries
+
+const filteredActivities = computed(() => {
+  if (activityFilter.value === 'all') return activities
+  
+  // Filter based on entity type (check ID properties)
+  return activities.filter(a => {
+    const filter = activityFilter.value
+    
+    if (filter === 'shipments') {
+      // Check if activity has shipmentId or is shipment-related type
+      return a.shipmentId || ['shipment', 'picked-up', 'delivered', 'delayed', 'in-transit', 'created'].includes((a.type || '').toLowerCase())
+    }
+    if (filter === 'cargo') {
+      return a.cargoId || (a.type || '').toLowerCase() === 'cargo'
+    }
+    if (filter === 'routes') {
+      return a.routeId || (a.type || '').toLowerCase() === 'route'
+    }
+    if (filter === 'vendors') {
+      return a.vendorId || (a.type || '').toLowerCase() === 'vendor'
+    }
+    if (filter === 'deliveries') {
+      return a.deliveryId || (a.type || '').toLowerCase() === 'delivery'
+    }
+    
+    return true
+  })
+})
 
 const quickActions = reactive([
   { id: 'add-cargo', label: 'Add New Cargo', icon: Plus },
@@ -271,8 +305,13 @@ const loadDashboardData = async () => {
     // Update metrics
     updateMetrics(metricsData)
     
-    // Update activities
-    activities.splice(0, activities.length, ...activitiesData)
+    // Normalize and update activities
+    const normalized = (activitiesData || []).map(a => ({
+      ...a,
+      type: (a.type || '').toLowerCase(),
+      timestamp: a.timestamp || a.time || new Date().toISOString()
+    }))
+    activities.splice(0, activities.length, ...normalized)
     
     // Update shipment statuses
     updateShipmentStatuses(metricsData.shipmentStatuses || {})
@@ -378,8 +417,92 @@ const updateShipmentStatuses = (statusData) => {
 }
 
 // Load data on component mount
+// Handle entity update events and add local activities
+const handleCargoUpdate = (event) => {
+  const { action, cargo } = event.detail || {}
+  if (cargo) {
+    // Add local activity entry
+    const newActivity = {
+      id: `cargo-${Date.now()}`,
+      cargoId: cargo.cargoId,
+      type: 'cargo',
+      action: `has been ${action}`,
+      timestamp: new Date().toISOString(),
+      status: action
+    }
+    activities.unshift(newActivity)
+  }
+  loadDashboardData()
+}
+
+const handleShipmentUpdate = (event) => {
+  const { action, shipment } = event.detail || {}
+  if (shipment) {
+    const newActivity = {
+      id: `shipment-${Date.now()}`,
+      shipmentId: shipment.shipmentId,
+      type: 'shipment',
+      action: `has been ${action}`,
+      origin: shipment.origin,
+      destination: shipment.destination,
+      timestamp: new Date().toISOString(),
+      status: action
+    }
+    activities.unshift(newActivity)
+  }
+  loadDashboardData()
+}
+
+const handleRouteUpdate = (event) => {
+  const { action, route } = event.detail || {}
+  if (route) {
+    const newActivity = {
+      id: `route-${Date.now()}`,
+      routeId: route.routeId,
+      type: 'route',
+      action: `has been ${action}`,
+      timestamp: new Date().toISOString(),
+      status: action
+    }
+    activities.unshift(newActivity)
+  }
+  loadDashboardData()
+}
+
+const handleVendorUpdate = (event) => {
+  const { action, vendor } = event.detail || {}
+  if (vendor) {
+    const newActivity = {
+      id: `vendor-${Date.now()}`,
+      vendorId: vendor.vendorId,
+      type: 'vendor',
+      action: `has been ${action}`,
+      timestamp: new Date().toISOString(),
+      status: action
+    }
+    activities.unshift(newActivity)
+  }
+  loadDashboardData()
+}
+
 onMounted(() => {
   loadDashboardData()
+  
+  // Listen for real-time updates from all entities with detailed handlers
+  window.addEventListener('cargo-updated', handleCargoUpdate)
+  window.addEventListener('shipments-updated', handleShipmentUpdate)
+  window.addEventListener('routes-updated', handleRouteUpdate)
+  window.addEventListener('vendors-updated', handleVendorUpdate)
+  window.addEventListener('deliveries-updated', loadDashboardData)
+})
+
+onUnmounted(() => {
+  // Clean up event listeners
+  window.removeEventListener('cargo-updated', handleCargoUpdate)
+  window.removeEventListener('shipments-updated', handleShipmentUpdate)
+  window.removeEventListener('routes-updated', handleRouteUpdate)
+  window.removeEventListener('vendors-updated', handleVendorUpdate)
+  window.removeEventListener('deliveries-updated', loadDashboardData)
 })
 
 // Helper functions for premium styling
@@ -403,33 +526,45 @@ const getChangeIcon = (type) => {
 
 const getActivityDotColor = (type) => {
   switch (type) {
-    case 'picked-up': return 'bg-[#3B82F6]'
+    case 'picked-up':
+    case 'shipment':
+    case 'in-transit': return 'bg-[#3B82F6]'
     case 'cargo': return 'bg-[#10B981]'
     case 'route': return 'bg-[#F59E0B]'
-    case 'delivered': return 'bg-[#8B5CF6]'
+    case 'delivered':
+    case 'delivery': return 'bg-[#8B5CF6]'
     case 'delayed': return 'bg-[#EF4444]'
+    case 'vendor': return 'bg-[#0EA5E9]'
     default: return 'bg-[#6B7280]'
   }
 }
 
 const getActivityIcon = (type) => {
   switch (type) {
-    case 'picked-up': return CheckCircle
+    case 'picked-up':
+    case 'in-transit':
+    case 'shipment': return CheckCircle
     case 'cargo': return Plus
     case 'route': return Route
-    case 'delivered': return Package
+    case 'delivered':
+    case 'delivery': return Package
     case 'delayed': return AlertCircle
+    case 'vendor': return Users
     default: return CheckCircle
   }
 }
 
 const getActivityIconColor = (type) => {
   switch (type) {
-    case 'picked-up': return 'text-[#3B82F6]'
+    case 'picked-up':
+    case 'shipment':
+    case 'in-transit': return 'text-[#3B82F6]'
     case 'cargo': return 'text-[#10B981]'
     case 'route': return 'text-[#F59E0B]'
-    case 'delivered': return 'text-[#8B5CF6]'
+    case 'delivered':
+    case 'delivery': return 'text-[#8B5CF6]'
     case 'delayed': return 'text-[#EF4444]'
+    case 'vendor': return 'text-[#0EA5E9]'
     default: return 'text-[#6B7280]'
   }
 }
@@ -457,6 +592,7 @@ const getActivityBadgeVariant = (status) => {
     case 'delayed': return 'destructive'
     case 'picked-up': return 'default'
     case 'in-transit': return 'secondary'
+    case 'delivered': return 'default'
     default: return 'outline'
   }
 }
@@ -469,5 +605,105 @@ const getMetricBorderColor = (id) => {
     case 'vendors': return '!border-t-purple-400'
     default: return '!border-t-gray-300'
   }
+}
+
+// Utilities
+const formatRelativeTime = (ts) => {
+  try {
+    const d = typeof ts === 'string' || typeof ts === 'number' ? new Date(ts) : ts
+    const diff = Date.now() - d.getTime()
+    const sec = Math.round(diff / 1000)
+    if (sec < 60) return `${sec}s ago`
+    const min = Math.round(sec / 60)
+    if (min < 60) return `${min}m ago`
+    const hr = Math.round(min / 60)
+    if (hr < 24) return `${hr}h ago`
+    const day = Math.round(hr / 24)
+    return `${day}d ago`
+  } catch (e) {
+    return ts || ''
+  }
+}
+
+const navigateToActivity = (activity) => {
+  // If shipmentId exists, it's a shipment activity - use the numeric id
+  if (activity.shipmentId && activity.id) {
+    return router.push(`/shipments/${activity.id}`)
+  }
+  
+  // If cargoId exists, it's a cargo activity
+  if (activity.cargoId && activity.id) {
+    return router.push(`/cargo/${activity.id}`)
+  }
+  
+  // If routeId exists, it's a route activity
+  if (activity.routeId && activity.id) {
+    return router.push(`/routes/${activity.id}`)
+  }
+  
+  // If vendorId exists, it's a vendor activity
+  if (activity.vendorId && activity.id) {
+    return router.push(`/vendors/${activity.id}`)
+  }
+  
+  // If deliveryId exists, navigate to deliveries
+  if (activity.deliveryId) {
+    return router.push(`/deliveries`)
+  }
+  
+  // Fallback: check nested objects
+  if (activity.shipment?.id) return router.push(`/shipments/${activity.shipment.id}`)
+  if (activity.cargo?.id) return router.push(`/cargo/${activity.cargo.id}`)
+  if (activity.route?.id) return router.push(`/routes/${activity.route.id}`)
+  if (activity.vendor?.id) return router.push(`/vendors/${activity.vendor.id}`)
+}
+
+const getActivityAccent = (type) => {
+  switch ((type || '').toLowerCase()) {
+    case 'shipment':
+    case 'picked-up':
+    case 'in-transit':
+      return 'border-l-blue-300'
+    case 'cargo':
+      return 'border-l-emerald-300'
+    case 'route':
+      return 'border-l-amber-300'
+    case 'delivery':
+      return 'border-l-violet-300'
+    case 'vendor':
+      return 'border-l-cyan-300'
+    default:
+      return 'border-l-gray-200'
+  }
+}
+
+const formatActivityTitle = (a) => {
+  // Use friendly shipmentId/cargoId for display (e.g., SH001, C001)
+  const idPart = a.shipmentId || a.shipment?.shipmentId
+    ? `Shipment #${a.shipmentId || a.shipment?.shipmentId}`
+    : a.cargoId || a.cargo?.cargoId
+    ? `Cargo #${a.cargoId || a.cargo?.cargoId}`
+    : a.routeId || a.route?.routeId
+    ? `Route #${a.routeId || a.route?.routeId}`
+    : a.vendorId || a.vendor?.vendorId || a.vendor?.name
+    ? `Vendor ${a.vendor?.name || '#' + (a.vendorId || a.vendor?.vendorId)}`
+    : a.deliveryId || a.delivery?.deliveryId
+    ? `Delivery #${a.deliveryId || a.delivery?.deliveryId}`
+    : 'Activity'
+  const action = a.action || a.message || 'Updated'
+  return `${idPart} ${action}`
+}
+
+const formatActivitySubtitle = (a) => {
+  if (a.details) return a.details
+  if (a.origin && a.destination) return `${a.origin} → ${a.destination}`
+  if (a.user) return `by ${a.user}`
+  return ''
+}
+
+const formatStatus = (status) => {
+  if (!status) return ''
+  const s = status.toString()
+  return s.charAt(0).toUpperCase() + s.slice(1)
 }
 </script>

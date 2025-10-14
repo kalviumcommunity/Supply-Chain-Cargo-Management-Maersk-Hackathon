@@ -13,6 +13,7 @@ import ShipmentDetails from '../components/shipments/ShipmentDetails.vue'
 import CargoList from '../components/cargo/CargoList.vue'
 import CargoForm from '../components/cargo/CargoForm.vue'
 import CargoDetails from '../components/cargo/CargoDetails.vue'
+import Deliveries from '../components/Deliveries.vue'
 import Login from '../components/Login.vue'
 import OAuthCallback from '../components/OAuthCallback.vue'
 import { useAuth } from '../services/auth'
@@ -177,6 +178,16 @@ const routes = [
     meta: {
       title: 'Edit Route',
       subtitle: 'Update route information',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/deliveries',
+    name: 'Deliveries',
+    component: Deliveries,
+    meta: {
+      title: 'Deliveries',
+      subtitle: 'Track your delivery status',
       requiresAuth: true
     }
   },

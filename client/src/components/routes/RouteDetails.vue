@@ -30,7 +30,7 @@
 
       <!-- Route Content -->
       <div v-else-if="routeData" class="space-y-6">
-        <!-- Route Information Card -->
+        <!-- Route Information Card + Compact Metrics -->
         <Card>
           <CardHeader>
             <div class="flex items-center justify-between">
@@ -51,27 +51,67 @@
             </div>
           </CardHeader>
           <CardContent>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div class="text-center p-4 bg-blue-50 rounded-lg">
-                <MapPin class="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <div class="text-2xl font-bold text-blue-600">{{ formatNumber(routeData.distance) }} km</div>
-                <p class="text-sm text-muted-foreground">Distance</p>
-              </div>
-              <div class="text-center p-4 bg-green-50 rounded-lg">
-                <Clock class="h-8 w-8 text-green-600 mx-auto mb-2" />
-                <div class="text-2xl font-bold text-green-600">{{ routeData.duration }} days</div>
-                <p class="text-sm text-muted-foreground">Duration</p>
-              </div>
-              <div class="text-center p-4 bg-yellow-50 rounded-lg">
-                <DollarSign class="h-8 w-8 text-yellow-600 mx-auto mb-2" />
-                <div class="text-2xl font-bold text-yellow-600">${{ formatNumber(routeData.cost) }}</div>
-                <p class="text-sm text-muted-foreground">Cost</p>
-              </div>
-              <div class="text-center p-4 bg-purple-50 rounded-lg">
-                <Calendar class="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                <div class="text-sm font-bold text-purple-600">{{ formatDate(routeData.createdAt) }}</div>
-                <p class="text-sm text-muted-foreground">Created</p>
-              </div>
+            <!-- List-style stat cards (match RouteList) -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <!-- Distance -->
+              <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+                <div class="px-4 pt-2.5 pb-1.5 bg-white">
+                  <span class="text-[13px] font-medium text-gray-600">Distance</span>
+                </div>
+                <CardContent class="px-4 py-1.5 pb-3">
+                  <div class="flex items-center gap-2">
+                    <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ formatNumber(routeData.distance) }} km</div>
+                  </div>
+                  <div class="mt-1">
+                    <span class="text-xs text-gray-500">Total route length</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <!-- Duration -->
+              <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+                <div class="px-4 pt-2.5 pb-1.5 bg-white">
+                  <span class="text-[13px] font-medium text-gray-600">Duration</span>
+                </div>
+                <CardContent class="px-4 py-1.5 pb-3">
+                  <div class="flex items-center gap-2">
+                    <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ routeData.duration }} days</div>
+                  </div>
+                  <div class="mt-1">
+                    <span class="text-xs text-gray-500">Estimated travel time</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <!-- Cost -->
+              <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+                <div class="px-4 pt-2.5 pb-1.5 bg-white">
+                  <span class="text-[13px] font-medium text-gray-600">Cost</span>
+                </div>
+                <CardContent class="px-4 py-1.5 pb-3">
+                  <div class="flex items-center gap-2">
+                    <div class="text-3xl font-semibold tracking-tight text-gray-900">${{ formatNumber(routeData.cost) }}</div>
+                  </div>
+                  <div class="mt-1">
+                    <span class="text-xs text-gray-500">Operational estimate</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <!-- Created -->
+              <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+                <div class="px-4 pt-2.5 pb-1.5 bg-white">
+                  <span class="text-[13px] font-medium text-gray-600">Created</span>
+                </div>
+                <CardContent class="px-4 py-1.5 pb-3">
+                  <div class="flex items-center gap-2">
+                    <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ formatDate(routeData.createdAt) }}</div>
+                  </div>
+                  <div class="mt-1">
+                    <span class="text-xs text-gray-500">Date added</span>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </CardContent>
         </Card>

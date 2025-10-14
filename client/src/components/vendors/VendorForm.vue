@@ -220,8 +220,17 @@ const handleSubmit = async () => {
       successMessage.value = 'Vendor created successfully!'
     }
 
-    // Emit event for real-time updates
-    window.dispatchEvent(new Event('vendors-updated'))
+    // Emit event for real-time updates with details
+    window.dispatchEvent(new CustomEvent('vendors-updated', {
+      detail: {
+        action: isEditMode.value ? 'updated' : 'created',
+        vendor: {
+          vendorId: payload.vendorId || vendorId.value,
+          name: payload.name,
+          serviceType: payload.serviceType
+        }
+      }
+    }))
 
     // Redirect after short delay
     setTimeout(() => {

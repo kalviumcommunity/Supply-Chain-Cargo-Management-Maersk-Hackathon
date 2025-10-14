@@ -273,8 +273,18 @@ const handleSubmit = async () => {
 
       console.log('Route saved:', savedRoute)
 
-      // Dispatch event for real-time updates
-      window.dispatchEvent(new CustomEvent('routes-updated'))
+      // Dispatch event for real-time updates with details
+      window.dispatchEvent(new CustomEvent('routes-updated', {
+        detail: {
+          action: isEditMode.value ? 'updated' : 'created',
+          route: {
+            routeId: savedRoute?.routeId,
+            originPort: routeData.originPort,
+            destinationPort: routeData.destinationPort,
+            transportationMode: routeData.transportationMode
+          }
+        }
+      }))
 
       // Redirect after short delay
       setTimeout(() => {
