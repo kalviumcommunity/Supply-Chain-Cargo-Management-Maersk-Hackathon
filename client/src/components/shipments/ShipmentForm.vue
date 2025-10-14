@@ -332,8 +332,18 @@ const handleSubmit = async () => {
       successMessage.value = 'Shipment created successfully!'
     }
 
-    // Emit event for real-time updates
-    window.dispatchEvent(new Event('shipments-updated'))
+    // Emit event for real-time updates with details
+    window.dispatchEvent(new CustomEvent('shipments-updated', {
+      detail: {
+        action: isEditMode.value ? 'updated' : 'created',
+        shipment: {
+          shipmentId: result?.shipmentId || shipmentId.value,
+          origin: payload.origin,
+          destination: payload.destination,
+          status: payload.status
+        }
+      }
+    }))
 
     // Redirect after short delay
     setTimeout(() => {

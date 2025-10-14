@@ -48,60 +48,64 @@
           </div>
         </div>
 
-        <!-- Stats Cards -->
+        <!-- Stats Cards (RouteList list-stats style) -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <!-- Status Card -->
-          <Card class="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-            <CardContent class="pt-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-blue-600">Status</p>
-                  <p class="text-2xl font-bold text-blue-900 mt-1">{{ shipment.status }}</p>
-                </div>
-                <Truck class="h-8 w-8 text-blue-600" />
+          <!-- Status -->
+          <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+            <div class="px-4 pt-2.5 pb-1.5 bg-white">
+              <span class="text-[13px] font-medium text-gray-600">Status</span>
+            </div>
+            <CardContent class="px-4 py-1.5 pb-3">
+              <div class="flex items-center gap-2">
+                <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ shipment.status }}</div>
+              </div>
+              <div class="mt-1">
+                <span class="text-xs text-gray-500">Current shipment status</span>
               </div>
             </CardContent>
           </Card>
 
-          <!-- Estimated Delivery Card -->
-          <Card class="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-            <CardContent class="pt-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-green-600">Est. Delivery</p>
-                  <p class="text-2xl font-bold text-green-900 mt-1">{{ formatDate(shipment.estimatedDelivery) }}</p>
-                </div>
-                <Calendar class="h-8 w-8 text-green-600" />
+          <!-- Est. Delivery -->
+          <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+            <div class="px-4 pt-2.5 pb-1.5 bg-white">
+              <span class="text-[13px] font-medium text-gray-600">Est. Delivery</span>
+            </div>
+            <CardContent class="px-4 py-1.5 pb-3">
+              <div class="flex items-center gap-2">
+                <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ formatDate(shipment.estimatedDelivery) }}</div>
+              </div>
+              <div class="mt-1">
+                <span class="text-xs text-gray-500">Expected arrival date</span>
               </div>
             </CardContent>
           </Card>
 
-          <!-- Cargo Items Card -->
-          <Card class="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-            <CardContent class="pt-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-purple-600">Cargo Items</p>
-                  <p class="text-2xl font-bold text-purple-900 mt-1">
-                    {{ shipment.cargoItems?.length || 0 }}
-                  </p>
-                </div>
-                <Package class="h-8 w-8 text-purple-600" />
+          <!-- Cargo Items -->
+          <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+            <div class="px-4 pt-2.5 pb-1.5 bg-white">
+              <span class="text-[13px] font-medium text-gray-600">Cargo Items</span>
+            </div>
+            <CardContent class="px-4 py-1.5 pb-3">
+              <div class="flex items-center gap-2">
+                <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ shipment.cargoItems?.length || 0 }}</div>
+              </div>
+              <div class="mt-1">
+                <span class="text-xs text-gray-500">Items in this shipment</span>
               </div>
             </CardContent>
           </Card>
 
-          <!-- Route Status Card -->
-          <Card class="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-            <CardContent class="pt-6">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-orange-600">Route Status</p>
-                  <p class="text-2xl font-bold text-orange-900 mt-1">
-                    {{ shipment.assignedRoute ? 'Assigned' : 'Unassigned' }}
-                  </p>
-                </div>
-                <MapPin class="h-8 w-8 text-orange-600" />
+          <!-- Route Assignment -->
+          <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
+            <div class="px-4 pt-2.5 pb-1.5 bg-white">
+              <span class="text-[13px] font-medium text-gray-600">Route Status</span>
+            </div>
+            <CardContent class="px-4 py-1.5 pb-3">
+              <div class="flex items-center gap-2">
+                <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ shipment.assignedRoute ? 'Assigned' : 'Unassigned' }}</div>
+              </div>
+              <div class="mt-1">
+                <span class="text-xs text-gray-500">Route assignment</span>
               </div>
             </CardContent>
           </Card>
@@ -186,19 +190,31 @@
                 <TableHeader>
                   <TableRow>
                     <TableHead>Cargo ID</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Weight</TableHead>
-                    <TableHead>Volume</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Weight (kg)</TableHead>
+                    <TableHead>Volume (m³)</TableHead>
+                    <TableHead>Value ($)</TableHead>
+                    <TableHead class="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   <TableRow v-for="item in shipment.cargoItems" :key="item.cargoId">
                     <TableCell class="font-medium">#{{ item.cargoId }}</TableCell>
-                    <TableCell>{{ item.name }}</TableCell>
-                    <TableCell>{{ item.description || 'N/A' }}</TableCell>
-                    <TableCell>{{ item.weight }} kg</TableCell>
-                    <TableCell>{{ item.volume }} m³</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{{ item.type || 'N/A' }}</Badge>
+                    </TableCell>
+                    <TableCell>{{ item.weight || 0 }}</TableCell>
+                    <TableCell>{{ item.volume || 'N/A' }}</TableCell>
+                    <TableCell>${{ formatNumber(item.value || 0) }}</TableCell>
+                    <TableCell class="text-right">
+                      <Button 
+                        @click="viewCargo(item)" 
+                        size="sm" 
+                        variant="outline"
+                      >
+                        View Details
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 </TableBody>
               </Table>
@@ -232,7 +248,7 @@ import {
   Package,
   MapPin
 } from 'lucide-vue-next'
-import { shipmentApi } from '@/services/api'
+import { shipmentApi, cargoApi } from '@/services/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -248,6 +264,28 @@ const loadShipment = async () => {
   error.value = null
   try {
     const data = await shipmentApi.getById(shipmentId)
+    
+    // Fetch all cargo items and filter by this shipment
+    try {
+      const allCargo = await cargoApi.getAll()
+      // Filter cargo items that belong to this shipment
+      const shipmentCargo = allCargo.filter(cargo => {
+        // Check if cargo has shipmentId matching this shipment
+        return cargo.shipmentId === shipmentId || 
+               cargo.shipmentId === parseInt(shipmentId) ||
+               cargo.shipment?.shipmentId === shipmentId ||
+               cargo.shipment?.shipmentId === parseInt(shipmentId)
+      })
+      
+      // Attach cargo items to shipment data
+      data.cargoItems = shipmentCargo
+      console.log('Loaded cargo items for shipment:', shipmentCargo)
+    } catch (cargoErr) {
+      console.error('Error loading cargo items:', cargoErr)
+      // Continue with empty cargo items if fetch fails
+      data.cargoItems = []
+    }
+    
     shipment.value = data
   } catch (err) {
     error.value = err.message || 'Failed to load shipment details'
@@ -277,6 +315,15 @@ const formatDate = (dateString) => {
     day: 'numeric',
     year: 'numeric'
   })
+}
+
+const formatNumber = (num) => {
+  if (!num && num !== 0) return '0'
+  return new Intl.NumberFormat().format(num)
+}
+
+const viewCargo = (cargo) => {
+  router.push(`/cargo/${cargo.cargoId}`)
 }
 
 const editShipment = () => {
