@@ -94,16 +94,25 @@
               <!-- Action Buttons -->
               <div class="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
                 <button
-                  @click="showLoginModal = true"
+                  v-if="!auth.isAuthenticated.value"
+                  @click="navigateToLogin"
                   class="px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Login
                 </button>
                 <button
-                  @click="navigateToDashboard"
+                  v-if="!auth.isAuthenticated.value"
+                  @click="navigateToSignup"
                   class="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
                 >
                   Sign Up
+                </button>
+                <button
+                  v-if="auth.isAuthenticated.value"
+                  @click="navigateToDashboard"
+                  class="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  Go to Dashboard
                 </button>
               </div>
             </div>
@@ -144,14 +153,14 @@
                     @click="navigateToDashboard"
                     class="px-5 py-3 text-base font-medium text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition-colors"
                   >
-                    <span class="whitespace-nowrap">Get Started Free</span>
+                    <span class="whitespace-nowrap">{{ auth.isAuthenticated.value ? 'Go to Dashboard' : 'Get Started' }}</span>
                   </button>
                 </div>
                 <button
-                  @click="scrollToSection('#footer')"
+                  @click="scrollToSection('#features')"
                   class="px-5 py-3 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-xl transition-colors"
                 >
-                  <span class="whitespace-nowrap">Schedule Demo</span>
+                  <span class="whitespace-nowrap">View Features</span>
                 </button>
               </div>
             </div>
@@ -336,48 +345,6 @@
         </div>
       </div>
     </footer>
-
-    <!-- Login Modal -->
-    <div v-if="showLoginModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" @click="showLoginModal = false">
-      <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4" @click.stop>
-        <div class="text-center mb-6">
-          <h3 class="text-2xl font-bold text-gray-900">Welcome Back</h3>
-          <p class="text-gray-600">Sign in to your CargoFlow account</p>
-        </div>
-        
-        <form @submit.prevent="handleLogin" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input 
-              v-model="loginForm.email" 
-              type="email" 
-              required
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter your email"
-            >
-          </div>
-          
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input 
-              v-model="loginForm.password" 
-              type="password" 
-              required
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter your password"
-            >
-          </div>
-          
-          <button type="submit" class="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
-            Sign In
-          </button>
-        </form>
-        
-        <div class="text-center mt-4">
-          <button @click="showLoginModal = false" class="text-gray-500 hover:text-gray-700">Cancel</button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -385,14 +352,15 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Zap, Cpu, Fingerprint, Pencil, Settings2, Sparkles } from 'lucide-vue-next'
+import { useAuth } from '../services/auth'
 
 // Router setup
 const router = useRouter()
+const auth = useAuth()
 
 // Reactive state
 const menuState = ref(false)
 const scrolled = ref(false)
-const showLoginModal = ref(false)
 const navbar = ref(null)
 
 // Menu items
@@ -449,12 +417,6 @@ const footerLinks = ref([
     ]
   }
 ])
-
-// Login form data
-const loginForm = ref({
-  email: '',
-  password: ''
-})
 
 // Floating particles data
 const particles = ref([])
@@ -520,15 +482,21 @@ const stats = ref([
 
 // Methods
 const navigateToDashboard = () => {
-  router.push('/dashboard')
+  // Check if user is authenticated
+  if (auth.isAuthenticated.value) {
+    router.push('/dashboard')
+  } else {
+    // Redirect to login page if not authenticated
+    router.push('/login')
+  }
 }
 
-const handleLogin = () => {
-  // Handle login logic here
-  console.log('Login attempt:', loginForm.value)
-  // For demo purposes, just close modal and navigate to dashboard
-  showLoginModal.value = false
-  navigateToDashboard()
+const navigateToLogin = () => {
+  router.push('/login')
+}
+
+const navigateToSignup = () => {
+  router.push('/login')
 }
 
 const scrollToSection = (sectionId) => {
@@ -560,6 +528,11 @@ const handleScroll = () => {
 
 // Lifecycle hooks
 onMounted(() => {
+  // Check if user is already logged in, redirect to dashboard
+  if (auth.isAuthenticated.value) {
+    router.push('/dashboard')
+  }
+  
   generateParticles()
   window.addEventListener('scroll', handleScroll)
 })

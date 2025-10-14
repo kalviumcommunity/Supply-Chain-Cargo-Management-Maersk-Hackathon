@@ -328,8 +328,18 @@ const handleSubmit = async () => {
       successMessage.value = 'Cargo created successfully!'
     }
 
-    // Emit event for real-time updates
-    window.dispatchEvent(new Event('cargo-updated'))
+    // Emit event for real-time updates with details
+    window.dispatchEvent(new CustomEvent('cargo-updated', {
+      detail: {
+        action: isEditMode.value ? 'updated' : 'created',
+        cargo: {
+          cargoId: result?.cargoId || cargoId.value,
+          type: payload.type,
+          weight: payload.weight,
+          value: payload.value
+        }
+      }
+    }))
 
     // Redirect after short delay
     setTimeout(() => {

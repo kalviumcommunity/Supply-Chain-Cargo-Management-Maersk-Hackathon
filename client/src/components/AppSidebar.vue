@@ -11,7 +11,8 @@ import {
   Users,
   BarChart3,
   Settings,
-  LogOut
+  LogOut,
+  PackageCheck
 } from "lucide-vue-next"
 import {
   Sidebar,
@@ -61,6 +62,11 @@ const data = {
       title: "Shipment Tracking",
       url: "/shipments",
       icon: Truck,
+    },
+    {
+      title: "Deliveries",
+      url: "/deliveries",
+      icon: PackageCheck,
     },
     {
       title: "Route Management",
