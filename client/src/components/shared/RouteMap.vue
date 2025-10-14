@@ -18,13 +18,16 @@ const props = defineProps({
   },
   filteredRoutes: {
     type: Array,
-    required: true,
     default: () => []
+  },
+  highlightedRouteId: {
+    type: [Number, String],
+    default: null
   }
 })
 
 // Emits
-const emit = defineEmits(['route-clicked', 'marker-clicked'])
+const emit = defineEmits(['marker-clicked'])
 
 // Reactive data
 const mapContainer = ref(null)
@@ -33,8 +36,11 @@ let markersLayer = null
 let routesLayer = null
 
 // Global coordinates mapping for major cities and ports worldwide
+// 🌍 Global Coordinates Dataset
+// Extended with additional major cities and ports for logistics, route mapping, and visualization.
+
 const globalCoordinates = {
-  // Asia-Pacific
+  // === Asia-Pacific (India + Neighbors) ===
   'Mumbai': [19.0760, 72.8777],
   'Chennai': [13.0827, 80.2707],
   'Delhi': [28.7041, 77.1025],
@@ -60,7 +66,8 @@ const globalCoordinates = {
   'Ludhiana': [30.9009, 75.8573],
   'Ranchi': [23.3441, 85.3096],
   'Guwahati': [26.1445, 91.7362],
-  // Major Indian ports
+  
+  // Major Indian Ports
   'JNPT (Nhava Sheva)': [18.9460, 72.9460],
   'Mundra Port': [22.7295, 69.7095],
   'Kandla': [23.0333, 70.2167],
@@ -70,20 +77,28 @@ const globalCoordinates = {
   'Krishnapatnam': [14.2522, 80.1203],
   'Vizhinjam': [8.3776, 76.9781],
   'Mangaluru': [12.9141, 74.8560],
+
+  // Southeast & East Asia
   'Singapore': [1.3521, 103.8198],
-  'Tokyo': [35.6762, 139.6503],
-  'Hong Kong': [22.3193, 114.1694],
+  'Beijing': [39.9042, 116.4074],
   'Shanghai': [31.2304, 121.4737],
-  'Seoul': [37.5665, 126.9780],
-  'Bangkok': [13.7563, 100.5018],
-  'Manila': [14.5995, 120.9842],
-  'Jakarta': [6.2088, 106.8456],
-  'Kuala Lumpur': [3.1390, 101.6869],
-  'Sydney': [-33.8688, 151.2093],
-  'Melbourne': [-37.8136, 144.9631],
-  'Busan': [35.1796, 129.0756],
+  'Hong Kong': [22.3193, 114.1694],
+  'Tokyo': [35.6762, 139.6503],
   'Yokohama': [35.4437, 139.6380],
+  'Osaka': [34.6937, 135.5023],
   'Nagoya': [35.1815, 136.9066],
+  'Seoul': [37.5665, 126.9780],
+  'Busan': [35.1796, 129.0756],
+  'Taipei': [25.0330, 121.5654],
+  'Bangkok': [13.7563, 100.5018],
+  'Hanoi': [21.0278, 105.8342],
+  'Ho Chi Minh City': [10.8231, 106.6297],
+  'Manila': [14.5995, 120.9842],
+  'Jakarta': [-6.2088, 106.8456],
+  'Kuala Lumpur': [3.1390, 101.6869],
+  'Dhaka': [23.8103, 90.4125],
+  'Chongqing': [29.4316, 106.9123],
+  'Wuhan': [30.5928, 114.3055],
   'Shenzhen': [22.5431, 114.0579],
   'Guangzhou': [23.1291, 113.2644],
   'Ningbo': [29.8683, 121.5440],
@@ -94,8 +109,12 @@ const globalCoordinates = {
   'Tanjung Pelepas': [1.3566, 103.5392],
   'Port Klang': [2.9947, 101.3929],
   'Colombo': [6.9271, 79.8612],
-  
-  // Europe
+  'Auckland': [-36.8485, 174.7633],
+  'Wellington': [-41.2865, 174.7762],
+  'Sydney': [-33.8688, 151.2093],
+  'Melbourne': [-37.8136, 144.9631],
+
+  // === Europe ===
   'London': [51.5074, -0.1278],
   'Hamburg': [53.5511, 9.9937],
   'Rotterdam': [51.9244, 4.4777],
@@ -114,95 +133,101 @@ const globalCoordinates = {
   'Oslo': [59.9139, 10.7522],
   'Copenhagen': [55.6761, 12.5683],
   'Helsinki': [60.1695, 24.9354],
-  'Gibraltar': [36.1408, -5.3536],
-  'Algeciras': [36.1270, -5.4477],
-  'Valencia': [39.4699, -0.3763],
-  'Le Havre': [49.4944, 0.1079],
-  'Felixstowe': [51.9550, 1.3500],
-  'Southampton': [50.9097, -1.4044],
+  'Warsaw': [52.2297, 21.0122],
+  'Zurich': [47.3769, 8.5417],
+  'Prague': [50.0755, 14.4378],
+  'Brussels': [50.8503, 4.3517],
+  'Lisbon': [38.7169, -9.1399],
+  'Dublin': [53.3498, -6.2603],
+  'Istanbul': [41.0082, 28.9784],
   'Piraeus': [37.9420, 23.6460],
   'Gdansk': [54.3520, 18.6466],
   'Gothenburg': [57.7089, 11.9746],
+  'Le Havre': [49.4944, 0.1079],
+  'Southampton': [50.9097, -1.4044],
+  'Valencia': [39.4699, -0.3763],
+  'Gibraltar': [36.1408, -5.3536],
+  'Algeciras': [36.1270, -5.4477],
   
-  // North America
-  'New York': [40.7128, -74.0060],
-  'Los Angeles': [34.0522, -118.2437],
-  'Chicago': [41.8781, -87.6298],
-  'Miami': [25.7617, -80.1918],
-  'Seattle': [47.6062, -122.3321],
-  'Vancouver': [49.2827, -123.1207],
-  'Toronto': [43.6532, -79.3832],
-  'Montreal': [45.5017, -73.5673],
-  'San Francisco': [37.7749, -122.4194],
-  'Houston': [29.7604, -95.3698],
-  'Atlanta': [33.7490, -84.3880],
-  'Boston': [42.3601, -71.0589],
-  'Washington DC': [38.9072, -77.0369],
-  'Mexico City': [19.4326, -99.1332],
-  'Long Beach': [33.7701, -118.1937],
-  'Oakland': [37.8044, -122.2712],
-  'Prince Rupert': [54.3150, -130.3200],
-  'Manzanillo MX': [19.1138, -104.3421],
-  'Veracruz': [19.1738, -96.1342],
-  'Colon': [9.3590, -79.9014],
-  'Balboa': [8.9490, -79.5556],
-  'New Orleans': [29.9511, -90.0715],
-  'Savannah': [32.0809, -81.0912],
-  'Charleston': [32.7765, -79.9311],
-  'Norfolk': [36.8508, -76.2859],
-  'Newark': [40.7357, -74.1724],
-  'Halifax': [44.6488, -63.5752],
+  // === Middle East ===
+  'Dubai': [25.2048, 55.2708],
+  'Abu Dhabi': [24.4539, 54.3773],
+  'Doha': [25.2854, 51.5310],
+  'Kuwait City': [29.3759, 47.9774],
+  'Riyadh': [24.7136, 46.6753],
+  'Jeddah': [21.4858, 39.1925],
+  'Muscat': [23.5880, 58.3829],
+  'Sohar': [24.3460, 56.7075],
+  'Salalah': [17.0197, 54.0897],
+  'Baghdad': [33.3152, 44.3661],
+  'Tehran': [35.6892, 51.3890],
+  'Dammam': [26.4207, 50.0888],
+  'Jebel Ali': [25.0025, 55.0633],
   
-  // South America
-  'São Paulo': [-23.5505, -46.6333],
-  'Rio de Janeiro': [-22.9068, -43.1729],
-  'Buenos Aires': [-34.6118, -58.3960],
-  'Lima': [-12.0464, -77.0428],
-  'Bogotá': [4.7110, -74.0721],
-  'Santiago': [-33.4489, -70.6693],
-  'Caracas': [10.4806, -66.9036],
-  'Montevideo': [-34.9011, -56.1645],
-  
-  // Africa
+  // === Africa ===
   'Cairo': [30.0444, 31.2357],
-  'Cape Town': [-33.9249, 18.4241],
+  'Alexandria': [31.2001, 29.9187],
   'Lagos': [6.5244, 3.3792],
   'Nairobi': [-1.2921, 36.8219],
   'Johannesburg': [-26.2041, 28.0473],
-  'Casablanca': [33.5731, -7.5898],
-  'Alexandria': [31.2001, 29.9187],
+  'Cape Town': [-33.9249, 18.4241],
   'Durban': [-29.8587, 31.0218],
-  'Algiers': [36.7538, 3.0588],
+  'Casablanca': [33.5731, -7.5898],
   'Tunis': [36.8065, 10.1815],
-  'Port Said': [31.2653, 32.3019],
+  'Algiers': [36.7538, 3.0588],
   'Mombasa': [-4.0435, 39.6682],
   'Dar es Salaam': [-6.7924, 39.2083],
   'Walvis Bay': [-22.9576, 14.5053],
   'Tema': [5.6690, -0.0166],
   'Abidjan': [5.3599, -4.0083],
+  'Port Said': [31.2653, 32.3019],
   
-  // Middle East
-  'Dubai': [25.2048, 55.2708],
-  'Abu Dhabi': [24.2539, 54.3773],
-  'Doha': [25.2854, 51.5310],
-  'Kuwait City': [29.3759, 47.9774],
-  'Riyadh': [24.7136, 46.6753],
-  'Jeddah': [21.4858, 39.1925],
-  'Tehran': [35.6892, 51.3890],
-  'Baghdad': [33.3152, 44.3661],
-  'Istanbul': [41.0082, 28.9784],
-  'Ankara': [39.9334, 32.8597],
-  'Jebel Ali': [25.0025, 55.0633],
-  'Salalah': [17.0197, 54.0897],
-  'Dammam': [26.4207, 50.0888],
-  'Muscat': [23.5880, 58.3829],
-  'Sohar': [24.3460, 56.7075],
-
-  // Strategic maritime choke points
+  // === North America ===
+  'New York': [40.7128, -74.0060],
+  'Los Angeles': [34.0522, -118.2437],
+  'Chicago': [41.8781, -87.6298],
+  'Miami': [25.7617, -80.1918],
+  'Seattle': [47.6062, -122.3321],
+  'San Francisco': [37.7749, -122.4194],
+  'Houston': [29.7604, -95.3698],
+  'Atlanta': [33.7490, -84.3880],
+  'Boston': [42.3601, -71.0589],
+  'Washington DC': [38.9072, -77.0369],
+  'Vancouver': [49.2827, -123.1207],
+  'Toronto': [43.6532, -79.3832],
+  'Montreal': [45.5017, -73.5673],
+  'Mexico City': [19.4326, -99.1332],
+  'New Orleans': [29.9511, -90.0715],
+  'Savannah': [32.0809, -81.0912],
+  'Charleston': [32.7765, -79.9311],
+  'Norfolk': [36.8508, -76.2859],
+  'Oakland': [37.8044, -122.2712],
+  'Long Beach': [33.7701, -118.1937],
+  'Prince Rupert': [54.3150, -130.3200],
+  'Veracruz': [19.1738, -96.1342],
+  'Manzanillo MX': [19.1138, -104.3421],
+  'Balboa': [8.9490, -79.5556],
+  'Colon': [9.3590, -79.9014],
+  'Halifax': [44.6488, -63.5752],
+  
+  // === South America ===
+  'São Paulo': [-23.5505, -46.6333],
+  'Rio de Janeiro': [-22.9068, -43.1729],
+  'Buenos Aires': [-34.6037, -58.3816],
+  'Lima': [-12.0464, -77.0428],
+  'Santiago': [-33.4489, -70.6693],
+  'Bogotá': [4.7110, -74.0721],
+  'Caracas': [10.4806, -66.9036],
+  'Montevideo': [-34.9011, -56.1645],
+  
+  // === Strategic Maritime Points ===
   'Suez Canal': [30.5850, 32.2654],
   'Panama Canal': [9.0800, -79.6800],
-  'Cape of Good Hope': [-34.3568, 18.4740]
-}
+  'Cape of Good Hope': [-34.3568, 18.4740],
+  'North Pole': [90.0000, 0.0000],
+  'South Pole': [-90.0000, 0.0000]
+};
+
 
 // Transport mode colors and styling
 const transportModeStyles = {
@@ -454,11 +479,8 @@ const createMarkerIcon = (type, status, transportMode = null) => {
 
 // Create route popup content with enhanced transport mode information
 const createRoutePopup = (route) => {
-  const efficiency = route.efficiencyScore || 0
-  const efficiencyColor = efficiency >= 90 ? '#10b981' : efficiency >= 75 ? '#f59e0b' : '#ef4444'
-  
   // Get transport mode details
-  const transportMode = route.transportMode || route.routeType || 'standard'
+  const transportMode = route.transportationMode || route.routeType || 'standard'
   const modeStyle = transportModeStyles[transportMode] || transportModeStyles['standard']
   const modeIcon = modeStyle.icon
   const modeLabel = transportMode.charAt(0).toUpperCase() + transportMode.slice(1).toLowerCase()
@@ -466,7 +488,7 @@ const createRoutePopup = (route) => {
   return `
     <div class="route-popup p-4 min-w-[280px] max-w-[350px]">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="font-bold text-lg text-gray-900">${route.id}</h3>
+        <h3 class="font-bold text-lg text-gray-900">Route #${route.routeId}</h3>
         <div class="flex items-center gap-2">
           <span class="text-lg">${modeIcon}</span>
           <span class="px-3 py-1 text-xs font-medium rounded-full border" 
@@ -477,32 +499,25 @@ const createRoutePopup = (route) => {
       </div>
       
       <div class="space-y-3 text-sm">
-        <div>
-          <span class="font-medium text-gray-700">Route:</span>
-          <span class="text-gray-900 ml-1">${route.name}</span>
-        </div>
-        
         <div class="grid grid-cols-2 gap-4">
           <div>
             <span class="font-medium text-gray-700">Distance:</span>
-            <div class="text-gray-900 font-mono">${route.distance.toLocaleString()} km</div>
+            <div class="text-gray-900 font-mono">${(route.distance || 0).toLocaleString()} km</div>
           </div>
           <div>
             <span class="font-medium text-gray-700">Duration:</span>
-            <div class="text-gray-900">${route.duration}h</div>
+            <div class="text-gray-900">${route.duration || 0} days</div>
           </div>
         </div>
         
         <div class="grid grid-cols-2 gap-4">
           <div>
             <span class="font-medium text-gray-700">Origin:</span>
-            <div class="text-gray-900">${route.origin.location}</div>
-            <div class="text-xs text-gray-500">${route.origin.port || 'N/A'}</div>
+            <div class="text-gray-900">${route.originPort}</div>
           </div>
           <div>
             <span class="font-medium text-gray-700">Destination:</span>
-            <div class="text-gray-900">${route.destination.location}</div>
-            <div class="text-xs text-gray-500">${route.destination.port || 'N/A'}</div>
+            <div class="text-gray-900">${route.destinationPort}</div>
           </div>
         </div>
         
@@ -513,28 +528,17 @@ const createRoutePopup = (route) => {
             ${route.status}
           </span>
         </div>
-        
+
         <div>
-          <span class="font-medium text-gray-700">Efficiency:</span>
-          <div class="flex items-center mt-1">
-            <div class="flex-1 bg-gray-200 rounded-full h-2 mr-2">
-              <div class="h-2 rounded-full transition-all duration-300" 
-                   style="width: ${efficiency}%; background-color: ${efficiencyColor};"></div>
-            </div>
-            <span class="text-sm font-medium" style="color: ${efficiencyColor};">${efficiency}%</span>
-          </div>
-        </div>
-        
-        <div class="flex items-center justify-between pt-2 border-t border-gray-200">
-          <span class="font-medium text-gray-700">Active Shipments:</span>
-          <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-            ${route.activeShipments || 0}
-          </span>
+            <span class="font-medium text-gray-700">Cost:</span>
+            <span class="text-gray-900 ml-1">$${(route.cost || 0).toLocaleString()}</span>
         </div>
       </div>
     </div>
   `
 }
+
+let routeLayers = {};
 
 // Render routes on map
 const renderRoutes = async () => {
@@ -544,20 +548,21 @@ const renderRoutes = async () => {
   }
 
   // Use filtered routes for rendering
-  const routesToRender = props.filteredRoutes && props.filteredRoutes.length > 0 
-    ? props.filteredRoutes 
-    : props.routes
+  const routesToRender =
+    props.filteredRoutes && props.filteredRoutes.length > 0
+      ? props.filteredRoutes
+      : props.routes;
 
   console.log('RouteMap: Rendering routes:', {
     filteredRoutesCount: props.filteredRoutes?.length || 0,
     totalRoutesCount: props.routes?.length || 0,
     routesToRenderCount: routesToRender?.length || 0,
-    routesToRender: routesToRender?.map(r => ({ id: r.id, name: r.name })) || []
   })
 
   // Clear existing layers
   markersLayer.clearLayers()
   routesLayer.clearLayers()
+  routeLayers = {}
 
   if (!routesToRender || routesToRender.length === 0) {
     console.log('RouteMap: No routes to render')
@@ -565,9 +570,6 @@ const renderRoutes = async () => {
   }
 
   const processedLocations = new Set()
-
-  // Collect layers to later fit bounds
-  const polylines = []
 
   for (let index = 0; index < routesToRender.length; index++) {
     const route = routesToRender[index]
@@ -578,32 +580,24 @@ const renderRoutes = async () => {
         continue
       }
 
-      if (!route.origin?.location || !route.destination?.location) {
-        console.warn(`RouteMap: Route ${route.id || index} missing origin or destination location`)
+      if (!route.originPort || !route.destinationPort) {
+        console.warn(`RouteMap: Route ${route.routeId || index} missing origin or destination port`)
         continue
       }
-
-      console.log(`RouteMap: Processing route ${index + 1}/${routesToRender.length}:`, route.id, route.name)
       
-      const originCoords = getCoordinates(route.origin.location)
-      const destCoords = getCoordinates(route.destination.location)
+      const originCoords = getCoordinates(route.originPort)
+      const destCoords = getCoordinates(route.destinationPort)
       
       if (!originCoords || !destCoords) {
-        console.warn(`RouteMap: Could not get coordinates for route ${route.id}`)
+        console.warn(`RouteMap: Could not get coordinates for route ${route.routeId}`)
         continue
       }
       
-      const transportMode = route.transportMode || route.routeType || 'standard'
-
-      console.log(`RouteMap: Coordinates for ${route.id}:`, {
-        origin: { location: route.origin.location, coords: originCoords },
-        destination: { location: route.destination.location, coords: destCoords },
-        transportMode: transportMode
-      })
+      const transportMode = route.transportationMode || 'STANDARD'
 
     // Add markers for origin and destination (avoid duplicates)
-      const originKey = `${route.origin.location}-origin`
-      const destKey = `${route.destination.location}-destination`
+      const originKey = `${route.originPort}-origin`
+      const destKey = `${route.destinationPort}-destination`
 
       if (!processedLocations.has(originKey)) {
         const originMarker = L.marker(originCoords, {
@@ -611,12 +605,11 @@ const renderRoutes = async () => {
         })
           .bindPopup(`
         <div class="p-3">
-          <h4 class="font-bold text-blue-600 mb-2">${route.origin.location}</h4>
-          <p class="text-sm text-gray-600 mb-1">Port/Terminal: ${route.origin.port || 'N/A'}</p>
+          <h4 class="font-bold text-blue-600 mb-2">${route.originPort}</h4>
           <p class="text-xs text-gray-500">Origin for ${transportMode.toUpperCase()} routes</p>
         </div>
       `)
-          .on('click', () => emit('marker-clicked', { type: 'origin', location: route.origin.location, transportMode }))
+          .on('click', () => emit('marker-clicked', { type: 'origin', location: route.originPort, transportMode }))
 
         markersLayer.addLayer(originMarker)
         processedLocations.add(originKey)
@@ -628,12 +621,11 @@ const renderRoutes = async () => {
         })
           .bindPopup(`
         <div class="p-3">
-          <h4 class="font-bold text-green-600 mb-2">${route.destination.location}</h4>
-          <p class="text-sm text-gray-600 mb-1">Port/Terminal: ${route.destination.port || 'N/A'}</p>
+          <h4 class="font-bold text-green-600 mb-2">${route.destinationPort}</h4>
           <p class="text-xs text-gray-500">Destination for ${transportMode.toUpperCase()} routes</p>
         </div>
       `)
-          .on('click', () => emit('marker-clicked', { type: 'destination', location: route.destination.location, transportMode }))
+          .on('click', () => emit('marker-clicked', { type: 'destination', location: route.destinationPort, transportMode }))
 
         markersLayer.addLayer(destMarker)
         processedLocations.add(destKey)
@@ -660,86 +652,47 @@ const renderRoutes = async () => {
       // Build geometry based on transport mode
       let geometry = null
       if (transportMode === 'ROAD' || transportMode === 'RAIL') {
-        // Road: try OSRM with optional waypoints
-        const roadCoords = [originCoords]
-        if (Array.isArray(route.waypoints) && route.waypoints.length > 0) {
-          for (const w of route.waypoints) {
-            if (typeof w?.lat === 'number' && typeof w?.lng === 'number') roadCoords.push([w.lat, w.lng])
-          }
-        }
-        roadCoords.push(destCoords)
+        const roadCoords = [originCoords, destCoords]
         geometry = await fetchRoadGeometry(roadCoords)
         if (!geometry) {
           // Fallback to great-circle
           geometry = greatCirclePath([originCoords, destCoords], 128)
         }
       } else if (transportMode === 'OCEAN') {
-        // Ocean: attempt to include inferred canal waypoints unless route.waypoints provided
         const oceanCoords = [originCoords]
-        if (Array.isArray(route.waypoints) && route.waypoints.length > 0) {
-          for (const w of route.waypoints) {
-            if (typeof w?.lat === 'number' && typeof w?.lng === 'number') oceanCoords.push([w.lat, w.lng])
-          }
-        } else {
-          const inferred = inferOceanWaypoints(originCoords, destCoords)
-          oceanCoords.push(...inferred)
-        }
+        const inferred = inferOceanWaypoints(originCoords, destCoords)
+        oceanCoords.push(...inferred)
         oceanCoords.push(destCoords)
         geometry = greatCirclePath(oceanCoords, 96)
-      } else if (transportMode === 'AIR') {
-        // Use exact provided waypoints if present; otherwise draw geodesic
-        if (Array.isArray(route.waypoints) && route.waypoints.length > 1) {
-          const airCoords = [originCoords]
-          for (const w of route.waypoints) {
-            if (typeof w?.lat === 'number' && typeof w?.lng === 'number') airCoords.push([w.lat, w.lng])
-          }
-          airCoords.push(destCoords)
-          geometry = greatCirclePath(airCoords, 96)
-        } else {
-          geometry = greatCirclePath([originCoords, destCoords], 128)
-        }
-      } else {
-        // Legacy or unknown: default to straight or gentle great-circle
-        geometry = greatCirclePath([originCoords, destCoords], 32)
+      } else { // AIR or other
+        geometry = greatCirclePath([originCoords, destCoords], 128)
       }
 
       const routeLine = L.polyline(geometry && geometry.length > 1 ? geometry : [originCoords, destCoords], routeLineOptions)
         .bindPopup(createRoutePopup(route))
-        .on('click', () => emit('route-clicked', route))
 
       routesLayer.addLayer(routeLine)
+      routeLayers[route.routeId] = { line: routeLine, options: routeLineOptions };
+
       // Emphasize road visibility when overlapping with others
       if (transportMode === 'ROAD') {
         routeLine.bringToFront()
       }
-      polylines.push(routeLine)
     } catch (routeError) {
-      console.error(`RouteMap: Error processing route ${route.id || index}:`, routeError)
+      console.error(`RouteMap: Error processing route ${route.routeId || index}:`, routeError)
     }
   }
 
   // Fit map to show all routes if there are any
   if (routesToRender.length > 0) {
     try {
-      // Check if layers have any actual content before creating featureGroup
       const allLayers = []
-      
-      // Add all markers from markersLayer
-      markersLayer.eachLayer((layer) => {
-        allLayers.push(layer)
-      })
-      
-      // Add all routes from routesLayer
-      routesLayer.eachLayer((layer) => {
-        allLayers.push(layer)
-      })
+      markersLayer.eachLayer((layer) => { allLayers.push(layer) })
+      routesLayer.eachLayer((layer) => { allLayers.push(layer) })
       
       if (allLayers.length > 0) {
         const group = new L.featureGroup(allLayers)
         map.fitBounds(group.getBounds().pad(0.1))
-        console.log('RouteMap: Map bounds fitted to show all routes')
-      } else {
-        console.warn('RouteMap: No layers to fit bounds to')
       }
     } catch (error) {
       console.error('RouteMap: Error fitting bounds:', error)
@@ -766,6 +719,23 @@ watch(() => props.routes, (newRoutes, oldRoutes) => {
   })
   renderRoutes()
 }, { deep: true })
+
+watch(
+    () => props.highlightedRouteId,
+    (newId, oldId) => {
+      if (oldId && routeLayers[oldId]) {
+        routeLayers[oldId].line.setStyle(routeLayers[oldId].options);
+      }
+      if (newId && routeLayers[newId]) {
+        routeLayers[newId].line.setStyle({
+          color: '#ffc107',
+          weight: routeLayers[newId].options.weight + 3,
+          opacity: 1
+        });
+        routeLayers[newId].line.bringToFront();
+      }
+    }
+  );
 
 // Lifecycle hooks
 onMounted(() => {
