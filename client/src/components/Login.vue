@@ -3,7 +3,7 @@
     <div class="w-full max-w-md">
       <!-- Logo/Title -->
       <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-900 mb-2">Supply Chain</h1>
+  <h1 class="text-4xl font-bold text-gray-900 mb-2">CargoFlow</h1>
         <p class="text-gray-600">Cargo Management System</p>
       </div>
 
