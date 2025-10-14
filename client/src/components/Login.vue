@@ -1,11 +1,4 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-    <div class="w-full max-w-md">
-      <!-- Logo/Title -->
-      <div class="text-center mb-8">
-  <h1 class="text-4xl font-bold text-gray-900 mb-2">CargoFlow</h1>
-        <p class="text-gray-600">Cargo Management System</p>
-      </div>
   <div class="w-full min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-gray-50 to-gray-100">
     <!-- Login Card -->
     <Card v-if="activeTab === 'login'" class="mx-auto w-full max-w-sm">
