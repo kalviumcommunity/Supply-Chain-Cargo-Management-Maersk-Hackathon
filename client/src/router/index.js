@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+
 import LandingPage from '../components/LandingPage.vue'
 import Dashboard from '../components/Dashboard.vue'
 import RouteList from '../components/routes/RouteList.vue'
@@ -15,11 +16,10 @@ import CargoForm from '../components/cargo/CargoForm.vue'
 import CargoDetails from '../components/cargo/CargoDetails.vue'
 import Login from '../components/Login.vue'
 import OAuthCallback from '../components/OAuthCallback.vue'
+import Settings from '../components/Settings.vue'
 import { useAuth } from '../services/auth'
-
 // Create placeholder components for other routes
 const Analytics = { template: '<div class="p-8"><h1 class="text-2xl font-bold mb-4">Analytics</h1><p>View analytics and reports.</p></div>' }
-const Settings = { template: '<div class="p-8"><h1 class="text-2xl font-bold mb-4">Settings</h1><p>Configure application settings.</p></div>' }
 
 const routes = [
   {
