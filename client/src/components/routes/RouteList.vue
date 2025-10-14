@@ -132,9 +132,9 @@
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Modes</SelectItem>
-                <SelectItem value="SEA">Sea</SelectItem>
+                <SelectItem value="OCEAN">OCEAN</SelectItem>
                 <SelectItem value="AIR">Air</SelectItem>
-                <SelectItem value="LAND">Land</SelectItem>
+                <SelectItem value="ROAD">Land</SelectItem>
                 <SelectItem value="RAIL">Rail</SelectItem>
               </SelectContent>
             </Select>
@@ -178,7 +178,12 @@
           
           <!-- Map View -->
           <div v-else-if="viewMode === 'map'" class="h-[600px]">
-            <RouteMap :routes="routes" class="h-full rounded-lg" />
+            <RouteMap 
+              :routes="routes" 
+              :filteredRoutes="filteredRoutes"
+              :highlightedRouteId="highlightedRouteId"
+              class="h-full rounded-lg" 
+            />
           </div>
           
           <!-- Table View -->
@@ -211,7 +216,13 @@
                     </p>
                   </TableCell>
                 </TableRow>
-                <TableRow v-for="route in filteredRoutes" :key="route.routeId">
+                <TableRow 
+                  v-for="route in filteredRoutes" 
+                  :key="route.routeId"
+                  :data-route-id="route.routeId"
+                  @mouseover="highlightedRouteId = route.routeId"
+                  @mouseleave="highlightedRouteId = null"
+                >
                   <TableCell class="font-medium">{{ route.routeId }}</TableCell>
                   <TableCell>{{ route.originPort }}</TableCell>
                   <TableCell>{{ route.destinationPort }}</TableCell>
@@ -286,6 +297,7 @@ const routes = ref([])
 const isLoading = ref(false)
 const error = ref(null)
 const viewMode = ref('table') // 'table' or 'map'
+const highlightedRouteId = ref(null)
 
 // Search and Filter
 const searchQuery = ref('')
@@ -336,16 +348,21 @@ const filteredRoutes = computed(() => {
 })
 
 const stats = computed(() => {
-  const total = filteredRoutes.value.length
-  const avgDuration = total > 0 
-    ? Math.round(filteredRoutes.value.reduce((sum, route) => sum + (route.duration || 0), 0) / total)
+  const total = routes.value.length
+  const avgDuration = routes.value.length > 0 
+    ? Math.round(routes.value.reduce((sum, route) => sum + (route.duration || 0), 0) / routes.value.length)
     : 0
-  const avgCost = total > 0 
-    ? Math.round(filteredRoutes.value.reduce((sum, route) => sum + (route.cost || 0), 0) / total)
+  const avgCost = routes.value.length > 0
+    ? Math.round(routes.value.reduce((sum, route) => sum + (route.cost || 0), 0) / routes.value.length)
     : 0
-  const totalDistance = filteredRoutes.value.reduce((sum, route) => sum + (route.distance || 0), 0)
+  const totalDistance = routes.value.reduce((sum, route) => sum + (route.distance || 0), 0)
   
-  return { total, avgDuration, avgCost, totalDistance }
+  return {
+    total,
+    avgDuration,
+    avgCost,
+    totalDistance
+  }
 })
 
 const clearFilters = () => {
