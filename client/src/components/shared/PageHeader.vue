@@ -24,24 +24,24 @@
           v-if="icon" 
           :class="[
             'flex items-center justify-center rounded-2xl p-4 shadow-sm',
-            iconBgColor || 'bg-gradient-to-br from-blue-50 to-blue-100'
+            iconBgColor || 'bg-gradient-to-br from-gray-50 to-gray-100 dark:from-sidebar-accent dark:to-sidebar'
           ]"
         >
           <component 
             :is="icon" 
             :class="[
               'w-7 h-7',
-              iconColor || 'text-blue-600'
+              iconColor || 'text-gray-900 dark:text-sidebar-foreground'
             ]" 
           />
         </div>
 
         <!-- Title and Description -->
         <div class="flex-1">
-          <h1 class="text-4xl font-bold text-gray-900 tracking-tight leading-tight">
+          <h1 class="text-4xl font-bold text-gray-900 dark:text-sidebar-foreground tracking-tight leading-tight">
             {{ title }}
           </h1>
-          <p v-if="description" class="text-base text-gray-600 mt-2 leading-relaxed max-w-3xl">
+          <p v-if="description" class="text-base text-gray-600 dark:text-sidebar-foreground/70 mt-2 leading-relaxed max-w-3xl">
             {{ description }}
           </p>
         </div>
@@ -54,7 +54,7 @@
     </div>
 
     <!-- Optional Tabs or Additional Content -->
-    <div v-if="$slots.tabs" class="border-b border-gray-200">
+    <div v-if="$slots.tabs" class="border-b border-gray-200 dark:border-sidebar-border">
       <slot name="tabs" />
     </div>
 

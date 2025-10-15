@@ -4,8 +4,8 @@
       <!-- Header Section -->
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">Shipment Tracking</h1>
-          <p class="mt-2 text-gray-600">Monitor and manage your shipments</p>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">Shipment Tracking</h1>
+          <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">Monitor and manage your shipments</p>
         </div>
         <Button @click="$router.push('/shipments/create')">
           <Plus class="mr-2 h-4 w-4" />
@@ -17,65 +17,65 @@
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- Total Shipments Card -->
-        <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-          <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Total Shipments</span>
+        <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+          <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Total Shipments</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
-              <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ formatNumber(stats.total) }}</div>
-              <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 15%</span>
+              <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ formatNumber(stats.total) }}</div>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 15%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Compared to the previous period</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Compared to the previous period</span>
             </div>
           </CardContent>
         </Card>
 
         <!-- In Transit Card -->
-        <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-          <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">In Transit</span>
+        <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+          <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">In Transit</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
-              <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ stats.inTransit }}</div>
-              <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 8%</span>
+              <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ stats.inTransit }}</div>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 8%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Currently moving</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Currently moving</span>
             </div>
           </CardContent>
         </Card>
 
         <!-- Delivered Card -->
-        <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-          <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Delivered</span>
+        <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+          <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Delivered</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
-              <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ stats.delivered }}</div>
-              <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 10%</span>
+              <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ stats.delivered }}</div>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 10%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Successfully completed</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Successfully completed</span>
             </div>
           </CardContent>
         </Card>
 
         <!-- Pending Card -->
-        <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-          <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Pending</span>
+        <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+          <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Pending</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
-              <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ stats.pending }}</div>
-              <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 5%</span>
+              <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ stats.pending }}</div>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 5%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Awaiting processing</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Awaiting processing</span>
             </div>
           </CardContent>
         </Card>

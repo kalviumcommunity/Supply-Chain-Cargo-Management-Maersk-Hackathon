@@ -8,10 +8,10 @@
           Back to Routes
         </Button>
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">
             {{ isEditMode ? 'Edit Route' : 'Create New Route' }}
           </h1>
-          <p class="mt-2 text-gray-600">
+          <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">
             {{ isEditMode ? 'Update route information' : 'Set up a new shipping route' }}
           </p>
         </div>
@@ -19,8 +19,8 @@
 
       <!-- Loading State -->
       <div v-if="isLoading" class="flex items-center justify-center h-32">
-        <Loader2 class="h-6 w-6 animate-spin" />
-        <span class="ml-2">{{ isEditMode ? 'Loading route...' : 'Saving route...' }}</span>
+        <Loader2 class="h-6 w-6 animate-spin dark:text-sidebar-foreground" />
+        <span class="ml-2 dark:text-sidebar-foreground">{{ isEditMode ? 'Loading route...' : 'Saving route...' }}</span>
       </div>
 
       <!-- Form Card -->
@@ -36,7 +36,7 @@
             <!-- Origin and Destination -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-2">
-                <label class="text-sm font-medium" for="originPort">
+                <label class="text-sm font-medium dark:text-sidebar-foreground" for="originPort">
                   Origin Port <span class="text-red-500">*</span>
                 </label>
                 <Input
@@ -48,7 +48,7 @@
               </div>
 
               <div class="space-y-2">
-                <label class="text-sm font-medium" for="destinationPort">
+                <label class="text-sm font-medium dark:text-sidebar-foreground" for="destinationPort">
                   Destination Port <span class="text-red-500">*</span>
                 </label>
                 <Input
@@ -63,7 +63,7 @@
             <!-- Duration and Distance -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-2">
-                <label class="text-sm font-medium" for="duration">
+                <label class="text-sm font-medium dark:text-sidebar-foreground" for="duration">
                   Duration (days) <span class="text-red-500">*</span>
                 </label>
                 <Input
@@ -77,7 +77,7 @@
               </div>
 
               <div class="space-y-2">
-                <label class="text-sm font-medium" for="distance">
+                <label class="text-sm font-medium dark:text-sidebar-foreground" for="distance">
                   Distance (km)
                 </label>
                 <Input
@@ -94,7 +94,7 @@
             <!-- Transportation Mode and Status -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-2">
-                <label class="text-sm font-medium" for="transportationMode">
+                <label class="text-sm font-medium dark:text-sidebar-foreground" for="transportationMode">
                   Transport Mode
                 </label>
                 <select
@@ -110,7 +110,7 @@
               </div>
 
               <div class="space-y-2">
-                <label class="text-sm font-medium" for="status">
+                <label class="text-sm font-medium dark:text-sidebar-foreground" for="status">
                   Status <span class="text-red-500">*</span>
                 </label>
                 <select
@@ -128,7 +128,7 @@
 
             <!-- Cost -->
             <div class="space-y-2">
-              <label class="text-sm font-medium" for="cost">
+              <label class="text-sm font-medium dark:text-sidebar-foreground" for="cost">
                 Cost ($)
               </label>
               <Input

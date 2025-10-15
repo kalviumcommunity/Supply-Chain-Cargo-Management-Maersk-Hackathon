@@ -7,10 +7,10 @@
           <ArrowLeft class="mr-2 h-4 w-4" />
           Back to Shipments
         </Button>
-        <h1 class="text-3xl font-bold text-gray-900">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">
           {{ isEditMode ? 'Edit Shipment' : 'Create Shipment' }}
         </h1>
-        <p class="mt-2 text-gray-600">
+        <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">
           {{ isEditMode ? 'Update shipment information' : 'Add a new shipment to your supply chain' }}
         </p>
       </div>
@@ -28,7 +28,7 @@
             <!-- Origin and Destination -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-2">
-                <label for="origin" class="text-sm font-medium">
+                <label for="origin" class="text-sm font-medium dark:text-sidebar-foreground">
                   Origin <span class="text-red-500">*</span>
                 </label>
                 <Input
@@ -41,7 +41,7 @@
               </div>
               
               <div class="space-y-2">
-                <label for="destination" class="text-sm font-medium">
+                <label for="destination" class="text-sm font-medium dark:text-sidebar-foreground">
                   Destination <span class="text-red-500">*</span>
                 </label>
                 <Input
@@ -57,7 +57,7 @@
             <!-- Status and Estimated Delivery -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-2">
-                <label for="status" class="text-sm font-medium">
+                <label for="status" class="text-sm font-medium dark:text-sidebar-foreground">
                   Status <span class="text-red-500">*</span>
                 </label>
                 <select 
@@ -79,7 +79,7 @@
               </div>
               
               <div class="space-y-2">
-                <label for="estimatedDelivery" class="text-sm font-medium">
+                <label for="estimatedDelivery" class="text-sm font-medium dark:text-sidebar-foreground">
                   Estimated Delivery <span class="text-red-500">*</span>
                 </label>
                 <Input
@@ -95,7 +95,7 @@
             <!-- Route and Vendor -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-2">
-                <label for="assignedRoute" class="text-sm font-medium">
+                <label for="assignedRoute" class="text-sm font-medium dark:text-sidebar-foreground">
                   Assigned Route (Optional)
                 </label>
                 <div class="relative">
@@ -116,15 +116,15 @@
                       {{ route.originPort }} → {{ route.destinationPort }} ({{ route.duration }} days)
                     </option>
                   </select>
-                  <Loader2 v-if="isLoadingData" class="absolute right-3 top-3 h-4 w-4 animate-spin text-gray-400" />
+                  <Loader2 v-if="isLoadingData" class="absolute right-3 top-3 h-4 w-4 animate-spin text-gray-400 dark:text-sidebar-foreground/60" />
                 </div>
-                <p v-if="routes.length === 0 && !isLoadingData" class="text-xs text-gray-500">
+                <p v-if="routes.length === 0 && !isLoadingData" class="text-xs text-gray-500 dark:text-sidebar-foreground/60">
                   No routes available. Create a route first.
                 </p>
               </div>
               
               <div class="space-y-2">
-                <label for="assignedVendor" class="text-sm font-medium">
+                <label for="assignedVendor" class="text-sm font-medium dark:text-sidebar-foreground">
                   Assigned Vendor (Optional)
                 </label>
                 <div class="relative">
@@ -145,9 +145,9 @@
                       {{ vendor.name }} ({{ vendor.serviceType }})
                     </option>
                   </select>
-                  <Loader2 v-if="isLoadingData" class="absolute right-3 top-3 h-4 w-4 animate-spin text-gray-400" />
+                  <Loader2 v-if="isLoadingData" class="absolute right-3 top-3 h-4 w-4 animate-spin text-gray-400 dark:text-sidebar-foreground/60" />
                 </div>
-                <p v-if="vendors.length === 0 && !isLoadingData" class="text-xs text-gray-500">
+                <p v-if="vendors.length === 0 && !isLoadingData" class="text-xs text-gray-500 dark:text-sidebar-foreground/60">
                   No vendors available. Create a vendor first.
                 </p>
               </div>

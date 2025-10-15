@@ -122,7 +122,7 @@ const handleLogout = async () => {
         <SidebarMenuItem>
           <SidebarMenuButton size="lg" as-child>
             <router-link to="/dashboard">
-              <div class="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-md">
+              <div class="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-gray-700 to-gray-900 dark:from-sidebar-accent dark:to-sidebar-border text-white dark:text-sidebar-foreground shadow-md">
                 <span class="font-bold text-sm">CF</span>
               </div>
               <div class="flex flex-col gap-0.5 leading-none">

@@ -8,21 +8,21 @@
           Back to Routes
         </Button>
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">Route Details</h1>
-          <p class="mt-2 text-gray-600">Detailed information about the selected route</p>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">Route Details</h1>
+          <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">Detailed information about the selected route</p>
         </div>
       </div>
 
       <!-- Loading State -->
       <div v-if="isLoading" class="flex items-center justify-center h-32">
-        <Loader2 class="h-6 w-6 animate-spin" />
-        <span class="ml-2">Loading route details...</span>
+        <Loader2 class="h-6 w-6 animate-spin dark:text-sidebar-foreground" />
+        <span class="ml-2 dark:text-sidebar-foreground">Loading route details...</span>
       </div>
       
       <!-- Error State -->
       <div v-else-if="error" class="text-center py-8">
         <AlertCircle class="h-12 w-12 text-red-500 mx-auto mb-4" />
-        <p class="text-gray-600">{{ error }}</p>
+        <p class="text-gray-600 dark:text-sidebar-foreground/70">{{ error }}</p>
         <Button @click="loadRoute" class="mt-4" variant="outline">
           Try Again
         </Button>
@@ -54,61 +54,61 @@
             <!-- List-style stat cards (match RouteList) -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
               <!-- Distance -->
-              <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-                <div class="px-4 pt-2.5 pb-1.5 bg-white">
-                  <span class="text-[13px] font-medium text-gray-600">Distance</span>
+              <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+                <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+                  <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Distance</span>
                 </div>
                 <CardContent class="px-4 py-1.5 pb-3">
                   <div class="flex items-center gap-2">
-                    <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ formatNumber(routeData.distance) }} km</div>
+                    <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ formatNumber(routeData.distance) }} km</div>
                   </div>
                   <div class="mt-1">
-                    <span class="text-xs text-gray-500">Total route length</span>
+                    <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Total route length</span>
                   </div>
                 </CardContent>
               </Card>
 
               <!-- Duration -->
-              <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-                <div class="px-4 pt-2.5 pb-1.5 bg-white">
-                  <span class="text-[13px] font-medium text-gray-600">Duration</span>
+              <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+                <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+                  <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Duration</span>
                 </div>
                 <CardContent class="px-4 py-1.5 pb-3">
                   <div class="flex items-center gap-2">
-                    <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ routeData.duration }} days</div>
+                    <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ routeData.duration }} days</div>
                   </div>
                   <div class="mt-1">
-                    <span class="text-xs text-gray-500">Estimated travel time</span>
+                    <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Estimated travel time</span>
                   </div>
                 </CardContent>
               </Card>
 
               <!-- Cost -->
-              <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-                <div class="px-4 pt-2.5 pb-1.5 bg-white">
-                  <span class="text-[13px] font-medium text-gray-600">Cost</span>
+              <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+                <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+                  <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Cost</span>
                 </div>
                 <CardContent class="px-4 py-1.5 pb-3">
                   <div class="flex items-center gap-2">
-                    <div class="text-3xl font-semibold tracking-tight text-gray-900">${{ formatNumber(routeData.cost) }}</div>
+                    <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">${{ formatNumber(routeData.cost) }}</div>
                   </div>
                   <div class="mt-1">
-                    <span class="text-xs text-gray-500">Operational estimate</span>
+                    <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Operational estimate</span>
                   </div>
                 </CardContent>
               </Card>
 
               <!-- Created -->
-              <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-                <div class="px-4 pt-2.5 pb-1.5 bg-white">
-                  <span class="text-[13px] font-medium text-gray-600">Created</span>
+              <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+                <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+                  <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Created</span>
                 </div>
                 <CardContent class="px-4 py-1.5 pb-3">
                   <div class="flex items-center gap-2">
-                    <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ formatDate(routeData.createdAt) }}</div>
+                    <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ formatDate(routeData.createdAt) }}</div>
                   </div>
                   <div class="mt-1">
-                    <span class="text-xs text-gray-500">Date added</span>
+                    <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Date added</span>
                   </div>
                 </CardContent>
               </Card>
@@ -139,12 +139,12 @@
           </CardHeader>
           <CardContent>
             <div v-if="loadingShipments" class="flex items-center justify-center h-32">
-              <Loader2 class="h-6 w-6 animate-spin" />
-              <span class="ml-2">Loading shipments...</span>
+              <Loader2 class="h-6 w-6 animate-spin dark:text-sidebar-foreground" />
+              <span class="ml-2 dark:text-sidebar-foreground">Loading shipments...</span>
             </div>
             <div v-else-if="assignedShipments.length === 0" class="text-center py-8">
-              <Package class="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p class="text-gray-600">No shipments assigned to this route</p>
+              <Package class="h-12 w-12 text-gray-400 dark:text-sidebar-foreground/60 mx-auto mb-4" />
+              <p class="text-gray-600 dark:text-sidebar-foreground/70">No shipments assigned to this route</p>
             </div>
             <div v-else>
               <Table>

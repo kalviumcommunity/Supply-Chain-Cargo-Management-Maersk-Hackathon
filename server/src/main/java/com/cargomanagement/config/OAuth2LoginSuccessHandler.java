@@ -63,7 +63,34 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             session.setAttribute("userEmail", user.getEmail());
         }
         
+        // Determine the frontend URL to redirect to based on the request origin
+        String redirectUrl = determineRedirectUrl(request);
+        
         // Redirect to frontend OAuth callback
-        getRedirectStrategy().sendRedirect(request, response, "http://localhost:5173/oauth-callback");
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl + "/oauth-callback");
+    }
+    
+    private String determineRedirectUrl(HttpServletRequest request) {
+        String origin = request.getHeader("Origin");
+        String referer = request.getHeader("Referer");
+        
+        // Check if request came from AWS deployment
+        if (origin != null && origin.contains("cargo-flow.s3-website.ap-south-1.amazonaws.com")) {
+            return "http://cargo-flow.s3-website.ap-south-1.amazonaws.com";
+        }
+        if (referer != null && referer.contains("cargo-flow.s3-website.ap-south-1.amazonaws.com")) {
+            return "http://cargo-flow.s3-website.ap-south-1.amazonaws.com";
+        }
+        
+        // Check for localhost:5174
+        if (origin != null && origin.contains("localhost:5174")) {
+            return "http://localhost:5174";
+        }
+        if (referer != null && referer.contains("localhost:5174")) {
+            return "http://localhost:5174";
+        }
+        
+        // Default to localhost:5173
+        return "http://localhost:5173";
     }
 }
