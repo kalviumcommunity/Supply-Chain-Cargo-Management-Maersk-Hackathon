@@ -4,13 +4,12 @@
       <!-- Header Section -->
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">Shipment Tracking</h1>
-          <p class="mt-2 text-gray-600">Monitor and manage your shipments</p>
+          <h1 class="text-3xl font-bold text-gray-900">{{ $t('shipments.title') }}</h1>
+          <p class="mt-2 text-gray-600">{{ $t('shipments.subtitle') }}</p>
         </div>
         <Button @click="$router.push('/shipments/create')">
           <Plus class="mr-2 h-4 w-4" />
-          Create Shipment
-
+          {{ $t('common.newShipment') }}
         </Button>
       </div>
 
