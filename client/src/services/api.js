@@ -31,8 +31,47 @@ const apiRequest = async (endpoint, options = {}) => {
     clearTimeout(timeoutId)
     
     if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`HTTP ${response.status}: ${errorText || response.statusText}`)
+      const contentType = response.headers.get('content-type')
+      let errorMessage = response.statusText
+      
+      // Parse JSON error response if available
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          const errorData = await response.json()
+          errorMessage = errorData.message || errorData.error || errorMessage
+          
+          // Handle specific error cases with user-friendly messages
+          if (errorMessage.includes('foreign key constraint') && errorMessage.includes('shipment')) {
+            throw new Error('Cannot delete route: This route is currently assigned to one or more shipments. Please reassign or delete those shipments first.')
+          }
+          
+          if (errorMessage.includes('foreign key constraint') && errorMessage.includes('cargo')) {
+            throw new Error('Cannot delete cargo: This cargo is currently assigned to a shipment or route. Please remove those assignments first.')
+          }
+          
+          if (errorMessage.includes('foreign key constraint') && errorMessage.includes('vendor')) {
+            throw new Error('Cannot delete vendor: This vendor is currently assigned to active shipments or routes. Please reassign those first.')
+          }
+          
+          // If backend already provides a user-friendly message (like from our new controller)
+          if (errorMessage.includes('Cannot delete')) {
+            throw new Error(errorMessage)
+          }
+          
+        } catch (parseError) {
+          // If JSON parsing fails, try text
+          if (parseError.message && parseError.message.includes('Cannot delete')) {
+            throw parseError // Re-throw our custom error
+          }
+          const errorText = await response.text()
+          errorMessage = errorText || errorMessage
+        }
+      } else {
+        const errorText = await response.text()
+        errorMessage = errorText || errorMessage
+      }
+      
+      throw new Error(`${errorMessage}`)
     }
     
     // Handle empty responses (like 204 No Content)

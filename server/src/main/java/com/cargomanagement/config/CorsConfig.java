@@ -15,10 +15,11 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Allow frontend origins
+        // Allow frontend origins (local development + AWS deployment)
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:5173",
-            "http://localhost:5174"
+            "http://localhost:5174",
+            "http://cargo-flow.s3-website.ap-south-1.amazonaws.com"
         ));
         
        

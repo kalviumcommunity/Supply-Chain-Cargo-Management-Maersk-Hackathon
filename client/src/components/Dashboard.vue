@@ -18,17 +18,17 @@
     </PageHeader>
 
     <!-- Error State -->
-    <div v-if="error" class="bg-red-50 border-l-4 border-red-500 p-6 rounded-xl mb-8">
+    <div v-if="error" class="bg-red-50 dark:bg-destructive/10 border-l-4 border-red-500 dark:border-destructive p-6 rounded-xl mb-8">
       <div class="flex items-center gap-3">
-        <svg class="w-5 h-5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg class="w-5 h-5 text-red-500 dark:text-destructive-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="15" y1="9" x2="9" y2="15"></line>
           <line x1="9" y1="9" x2="15" y2="15"></line>
         </svg>
-        <span class="text-red-700 font-medium">{{ error }}</span>
+        <span class="text-red-700 dark:text-destructive-foreground font-medium">{{ error }}</span>
         <button 
           @click="loadDashboardData" 
-          class="ml-auto px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors text-sm font-medium"
+          class="ml-auto px-3 py-1 bg-red-100 dark:bg-sidebar-accent text-red-700 dark:text-sidebar-foreground rounded-md hover:bg-red-200 dark:hover:bg-sidebar-border transition-colors text-sm font-medium"
         >
           Retry
         </button>
@@ -40,22 +40,22 @@
       <Card 
         v-for="(metric, index) in metrics" 
         :key="metric.id"
-        class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]"
+        class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0"
         :style="{ animationDelay: `${index * 100}ms` }"
       >
-        <div class="px-4 pt-2.5 pb-1.5 bg-white">
-          <span class="text-[13px] font-medium text-gray-600">{{ metric.label }}</span>
+        <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+          <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">{{ metric.label }}</span>
         </div>
         <CardContent class="px-4 py-1.5 pb-3">
           <div class="flex items-center gap-2">
-            <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ metric.value }}</div>
-            <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">
+            <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ metric.value }}</div>
+            <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">
               {{ metric.change }}
             </span>
           </div>
           <div class="mt-1 flex items-center gap-1.5">
             <component :is="metric.icon" :class="['w-3.5 h-3.5', metric.iconColor]" />
-            <span class="text-xs text-gray-500">{{ metric.description }}</span>
+            <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">{{ metric.description }}</span>
           </div>
         </CardContent>
       </Card>
@@ -64,11 +64,11 @@
     <!-- Main Content -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
       <!-- Recent Activity -->
-      <Card class="lg:col-span-2 rounded-xl border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow">
+      <Card class="lg:col-span-2 rounded-xl border shadow-sm hover:shadow-md transition-shadow">
         <CardHeader class="pb-3">
           <div class="flex items-center justify-between gap-3">
             <CardTitle class="flex items-center gap-2 text-base">
-              <Clock class="w-4 h-4 text-gray-600" />
+              <Clock class="w-4 h-4 text-gray-600 dark:text-sidebar-foreground/70" />
               Recent Activity
             </CardTitle>
             <div class="hidden md:flex items-center gap-1">
@@ -79,7 +79,7 @@
               <Button size="sm" :variant="activityFilter === 'vendors' ? 'default' : 'outline'" @click="activityFilter = 'vendors'">Vendors</Button>
               <Button size="sm" :variant="activityFilter === 'deliveries' ? 'default' : 'outline'" @click="activityFilter = 'deliveries'">Deliveries</Button>
             </div>
-            <Button variant="link" size="sm" class="text-blue-600 text-xs h-auto p-0" @click="router.push('/shipments')">
+            <Button variant="link" size="sm" class="text-xs h-auto p-0" @click="router.push('/shipments')">
               View all
             </Button>
           </div>
@@ -87,42 +87,42 @@
         <CardContent class="pt-0">
           <!-- Empty state -->
           <div v-if="filteredActivities.length === 0" class="py-10 text-center">
-            <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
-              <Clock class="h-5 w-5 text-gray-500" />
+            <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-sidebar-accent">
+              <Clock class="h-5 w-5 text-gray-500 dark:text-sidebar-foreground/70" />
             </div>
-            <p class="text-sm text-gray-600">No recent activity to display.</p>
+            <p class="text-sm text-gray-600 dark:text-sidebar-foreground/70">No recent activity to display.</p>
           </div>
 
           <!-- Activity list -->
-          <div v-else class="divide-y divide-gray-100">
+          <div v-else class="divide-y divide-gray-100 dark:divide-sidebar-border">
             <div
               v-for="activity in filteredActivities"
               :key="activity.id || activity.timestamp"
               @click="navigateToActivity(activity)"
-              class="group relative flex items-start gap-3 p-3 hover:bg-gray-50 cursor-pointer transition-colors border-l-2"
+              class="group relative flex items-start gap-3 p-3 hover:bg-gray-50 dark:hover:bg-sidebar-accent/50 cursor-pointer transition-colors border-l-2"
               :class="getActivityAccent(activity.type)"
             >
               <!-- Icon bubble -->
-              <div class="mt-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 ring-1 ring-inset ring-gray-200">
+              <div class="mt-0.5 flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 dark:bg-sidebar-accent ring-1 ring-inset ring-gray-200 dark:ring-sidebar-border">
                 <component :is="getActivityIcon(activity.type)" :class="['h-4.5 w-4.5', getActivityIconColor(activity.type)]" />
               </div>
               <!-- Content -->
               <div class="flex-1 min-w-0">
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
-                    <p class="text-sm text-gray-900 truncate">
+                    <p class="text-sm text-gray-900 dark:text-sidebar-foreground truncate">
                       {{ formatActivityTitle(activity) }}
                     </p>
-                    <p v-if="formatActivitySubtitle(activity)" class="mt-0.5 text-xs text-gray-500 truncate">
+                    <p v-if="formatActivitySubtitle(activity)" class="mt-0.5 text-xs text-gray-500 dark:text-sidebar-foreground/60 truncate">
                       {{ formatActivitySubtitle(activity) }}
                     </p>
                   </div>
                   <div class="flex items-center gap-2 shrink-0">
-                    <span class="text-[11px] text-gray-500 whitespace-nowrap">{{ formatRelativeTime(activity.timestamp) }}</span>
+                    <span class="text-[11px] text-gray-500 dark:text-sidebar-foreground/60 whitespace-nowrap">{{ formatRelativeTime(activity.timestamp) }}</span>
                     <Badge v-if="activity.status" :variant="getActivityBadgeVariant(activity.status)" class="text-[10px] px-1.5 py-0">
                       {{ formatStatus(activity.status) }}
                     </Badge>
-                    <svg class="h-4 w-4 text-gray-300 group-hover:text-gray-400 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                    <svg class="h-4 w-4 text-gray-300 dark:text-sidebar-border group-hover:text-gray-400 dark:group-hover:text-sidebar-foreground/50 transition-opacity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
                   </div>
                 </div>
               </div>
@@ -134,7 +134,7 @@
       <!-- Right Column -->
       <div class="space-y-5">
         <!-- Quick Actions -->
-        <Card class="rounded-xl border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow">
+        <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow">
           <CardHeader class="pb-3">
             <CardTitle class="text-base">Quick Actions</CardTitle>
           </CardHeader>
@@ -145,7 +145,7 @@
               @click="$emit('action-click', action.id)"
               variant="outline"
               size="sm"
-              class="w-full justify-start gap-2 h-9 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200"
+              class="w-full justify-start gap-2 h-9 hover:bg-sidebar-accent dark:hover:bg-sidebar-accent transition-all duration-200"
             >
               <component :is="action.icon" class="w-4 h-4" />
               <span class="text-sm">{{ action.label }}</span>
@@ -154,13 +154,13 @@
         </Card>
 
         <!-- Shipment Status -->
-        <Card class="rounded-xl border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow">
+        <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow">
           <CardHeader class="pb-3">
             <CardTitle class="text-base">Shipment Status</CardTitle>
           </CardHeader>
           <CardContent class="pt-0">
             <!-- Status Bar with gaps -->
-            <div class="h-8 bg-gray-100 rounded-lg overflow-hidden mb-3 flex gap-0.5 p-0.5">
+            <div class="h-8 bg-gray-100 dark:bg-sidebar-accent rounded-lg overflow-hidden mb-3 flex gap-0.5 p-0.5">
               <div 
                 v-for="(status, index) in shipmentStatuses" 
                 :key="status.status"
@@ -178,7 +178,7 @@
               >
                 <div class="flex items-center gap-2">
                   <div :class="['w-2 h-2 rounded-full shadow-sm transition-transform duration-200 group-hover:scale-125', status.color]"></div>
-                  <span class="text-gray-700 font-medium">{{ status.status }}</span>
+                  <span class="text-gray-700 dark:text-sidebar-foreground font-medium">{{ status.status }}</span>
                 </div>
                 <Badge variant="secondary" class="text-[10px] px-1.5 py-0">{{ status.count }}</Badge>
               </div>

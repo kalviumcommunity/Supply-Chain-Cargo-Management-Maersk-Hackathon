@@ -17,7 +17,11 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/shipments")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
+@CrossOrigin(origins = {
+    "http://localhost:5173", 
+    "http://localhost:5174",
+    "http://cargo-flow.s3-website.ap-south-1.amazonaws.com"
+})
 public class ShipmentController {
 
     private final ShipmentRepository shipmentRepository;

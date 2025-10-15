@@ -4,8 +4,8 @@
       <!-- Header Section -->
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">Vendor Management</h1>
-          <p class="mt-2 text-gray-600">Manage your supply chain vendors</p>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">Vendor Management</h1>
+          <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">Manage your supply chain vendors</p>
         </div>
         <Button @click="$router.push('/vendors/create')">
           <Plus class="mr-2 h-4 w-4" />
@@ -16,65 +16,65 @@
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- Total Vendors Card -->
-        <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-          <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Total Vendors</span>
+        <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+          <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Total Vendors</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
-              <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ formatNumber(stats.total) }}</div>
-              <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 12%</span>
+              <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ formatNumber(stats.total) }}</div>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 12%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Compared to the previous period</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Compared to the previous period</span>
             </div>
           </CardContent>
         </Card>
 
         <!-- Active Vendors Card -->
-        <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-          <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Active Vendors</span>
+        <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+          <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Active Vendors</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
-              <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ stats.active }}</div>
-              <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 8%</span>
+              <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ stats.active }}</div>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 8%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Currently operational</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Currently operational</span>
             </div>
           </CardContent>
         </Card>
 
         <!-- Logistics Vendors Card -->
-        <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-          <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Logistics</span>
+        <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+          <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Logistics</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
-              <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ stats.logistics }}</div>
-              <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 5%</span>
+              <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ stats.logistics }}</div>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 5%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Service providers</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Service providers</span>
             </div>
           </CardContent>
         </Card>
 
         <!-- Transportation Vendors Card -->
-        <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-          <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Transportation</span>
+        <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+          <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Transportation</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
-              <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ stats.transportation }}</div>
-              <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 3%</span>
+              <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ stats.transportation }}</div>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 3%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Service providers</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Service providers</span>
             </div>
           </CardContent>
         </Card>
