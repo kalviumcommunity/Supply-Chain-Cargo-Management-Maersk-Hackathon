@@ -28,7 +28,7 @@
       
       <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
         <div class="px-4 pt-2.5 pb-1.5 bg-white">
-          <span class="text-[13px] font-medium text-gray-600">Delivered</span>
+          <span class="text-[13px] font-medium text-gray-600">{{ $t('deliveries.delivered') }}</span>
         </div>
         <CardContent class="px-4 py-1.5 pb-3">
           <div class="flex items-center gap-2">
@@ -37,14 +37,14 @@
           </div>
           <div class="mt-1 flex items-center gap-1.5">
             <CheckCircle class="w-3.5 h-3.5 text-green-500" />
-            <span class="text-xs text-gray-500">Successfully completed</span>
+            <span class="text-xs text-gray-500">{{ $t('deliveries.successfullyCompleted') }}</span>
           </div>
         </CardContent>
       </Card>
       
       <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
         <div class="px-4 pt-2.5 pb-1.5 bg-white">
-          <span class="text-[13px] font-medium text-gray-600">In Transit</span>
+          <span class="text-[13px] font-medium text-gray-600">{{ $t('deliveries.inTransit') }}</span>
         </div>
         <CardContent class="px-4 py-1.5 pb-3">
           <div class="flex items-center gap-2">
@@ -53,14 +53,14 @@
           </div>
           <div class="mt-1 flex items-center gap-1.5">
             <Clock class="w-3.5 h-3.5 text-yellow-500" />
-            <span class="text-xs text-gray-500">Currently on the way</span>
+            <span class="text-xs text-gray-500">{{ $t('deliveries.currentlyOnWay') }}</span>
           </div>
         </CardContent>
       </Card>
       
       <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
         <div class="px-4 pt-2.5 pb-1.5 bg-white">
-          <span class="text-[13px] font-medium text-gray-600">Pending</span>
+          <span class="text-[13px] font-medium text-gray-600">{{ $t('deliveries.pending') }}</span>
         </div>
         <CardContent class="px-4 py-1.5 pb-3">
           <div class="flex items-center gap-2">
@@ -69,7 +69,7 @@
           </div>
           <div class="mt-1 flex items-center gap-1.5">
             <Package class="w-3.5 h-3.5 text-purple-500" />
-            <span class="text-xs text-gray-500">Awaiting pickup</span>
+            <span class="text-xs text-gray-500">{{ $t('deliveries.awaitingPickup') }}</span>
           </div>
         </CardContent>
       </Card>
