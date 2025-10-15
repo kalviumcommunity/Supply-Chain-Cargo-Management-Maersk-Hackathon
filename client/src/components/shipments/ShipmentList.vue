@@ -18,7 +18,7 @@
         <!-- Total Shipments Card -->
         <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
           <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Total Shipments</span>
+            <span class="text-[13px] font-medium text-gray-600">{{ $t('shipments.totalShipments') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -26,7 +26,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 15%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Compared to the previous period</span>
+              <span class="text-xs text-gray-500">{{ $t('common.comparedPrevious') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -34,7 +34,7 @@
         <!-- In Transit Card -->
         <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
           <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">In Transit</span>
+            <span class="text-[13px] font-medium text-gray-600">{{ $t('shipments.inTransit') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -42,7 +42,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 8%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Currently moving</span>
+              <span class="text-xs text-gray-500">{{ $t('common.currentlyMoving') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -50,7 +50,7 @@
         <!-- Delivered Card -->
         <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
           <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Delivered</span>
+            <span class="text-[13px] font-medium text-gray-600">{{ $t('shipments.delivered') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -58,7 +58,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 10%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Successfully completed</span>
+              <span class="text-xs text-gray-500">{{ $t('common.successfullyCompleted') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -66,7 +66,7 @@
         <!-- Pending Card -->
         <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
           <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Pending</span>
+            <span class="text-[13px] font-medium text-gray-600">{{ $t('shipments.pending') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -74,7 +74,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 5%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Awaiting processing</span>
+              <span class="text-xs text-gray-500">{{ $t('common.awaitingProcessing') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -105,17 +105,17 @@
             <!-- Filter by Status -->
             <Select v-model="filterStatus">
               <SelectTrigger class="w-full md:w-[200px]">
-                <SelectValue placeholder="Status" />
+                <SelectValue :placeholder="$t('common.status')" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="Pending">Pending</SelectItem>
-                <SelectItem value="Created">Created</SelectItem>
-                <SelectItem value="Picked Up">Picked Up</SelectItem>
-                <SelectItem value="Shipped">Shipped</SelectItem>
-                <SelectItem value="In Transit">In Transit</SelectItem>
-                <SelectItem value="Delivered">Delivered</SelectItem>
-                <SelectItem value="Cancelled">Cancelled</SelectItem>
+                <SelectItem value="all">{{ $t('common.allStatus') }}</SelectItem>
+                <SelectItem value="Pending">{{ $t('shipments.pending') }}</SelectItem>
+                <SelectItem value="Created">{{ $t('shipments.pending') }}</SelectItem>
+                <SelectItem value="Picked Up">{{ $t('shipments.pending') }}</SelectItem>
+                <SelectItem value="Shipped">{{ $t('shipments.inTransit') }}</SelectItem>
+                <SelectItem value="In Transit">{{ $t('shipments.inTransit') }}</SelectItem>
+                <SelectItem value="Delivered">{{ $t('shipments.delivered') }}</SelectItem>
+                <SelectItem value="Cancelled">{{ $t('shipments.cancelled') }}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -148,13 +148,13 @@
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Origin → Destination</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Est. Delivery</TableHead>
-                  <TableHead>Route</TableHead>
-                  <TableHead>Vendor</TableHead>
-                  <TableHead class="text-right">Actions</TableHead>
+                  <TableHead>{{ $t('common.id') }}</TableHead>
+                  <TableHead>{{ $t('common.origin') }} → {{ $t('common.destination') }}</TableHead>
+                  <TableHead>{{ $t('common.status') }}</TableHead>
+                  <TableHead>{{ $t('common.estDelivery') }}</TableHead>
+                  <TableHead>{{ $t('common.route') }}</TableHead>
+                  <TableHead>{{ $t('common.vendor') }}</TableHead>
+                  <TableHead class="text-right">{{ $t('common.actions') }}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
