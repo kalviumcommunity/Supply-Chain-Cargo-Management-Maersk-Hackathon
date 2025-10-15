@@ -17,8 +17,8 @@
     <SidebarProvider v-else>
       <AppSidebar />
       <SidebarInset>
-        <div class="flex flex-1 flex-col min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E2E8F0]">
-          <header class="flex h-16 shrink-0 items-center gap-2 border-b bg-white/50 backdrop-blur-sm px-4">
+        <div class="flex flex-1 flex-col min-h-screen bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9] to-[#E2E8F0] dark:from-background dark:via-background dark:to-background dark:bg-background">
+          <header class="flex h-16 shrink-0 items-center gap-2 border-b bg-white/50 dark:bg-sidebar/80 backdrop-blur-sm px-4 border-gray-200 dark:border-sidebar-border">
             <SidebarTrigger class="-ml-1" />
             <Breadcrumb>
               <BreadcrumbList>
@@ -33,8 +33,11 @@
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
+            <div class="ml-auto">
+              <ModeToggle />
+            </div>
           </header>
-          <main class="flex-1 p-6">
+          <main class="flex-1 p-6 bg-background">
             <router-view v-slot="{ Component }">
               <transition 
                 name="page-fade" 
@@ -64,6 +67,7 @@ import {
   BreadcrumbSeparator 
 } from './components/ui/breadcrumb'
 import AppSidebar from './components/AppSidebar.vue'
+import ModeToggle from './components/shared/ModeToggle.vue'
 import { useAuth } from './services/auth'
 
 const route = useRoute()
@@ -185,13 +189,25 @@ body {
   background: #f1f5f9;
 }
 
+.dark ::-webkit-scrollbar-track {
+  background: var(--sidebar);
+}
+
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 4px;
 }
 
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--border);
+}
+
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--ring);
 }
 
 /* Smooth transitions for interactive elements */

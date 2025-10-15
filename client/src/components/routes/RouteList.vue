@@ -17,65 +17,65 @@
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- Total Routes Card -->
-        <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-          <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Total Routes</span>
+        <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+          <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Total Routes</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
-              <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ formatNumber(stats.total) }}</div>
-              <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 12%</span>
+              <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ formatNumber(stats.total) }}</div>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 12%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Compared to the previous period</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Compared to the previous period</span>
             </div>
           </CardContent>
         </Card>
 
         <!-- Avg Duration Card -->
-        <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-          <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Avg Duration</span>
+        <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+          <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Avg Duration</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
-              <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ stats.avgDuration }}</div>
-              <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 12%</span>
+              <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ stats.avgDuration }}</div>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 12%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Days per route</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Days per route</span>
             </div>
           </CardContent>
         </Card>
 
         <!-- Avg Cost Card -->
-        <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-          <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Avg Cost</span>
+        <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+          <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Avg Cost</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
-              <div class="text-3xl font-semibold tracking-tight text-gray-900">${{ formatNumber(stats.avgCost) }}</div>
-              <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 12%</span>
+              <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">${{ formatNumber(stats.avgCost) }}</div>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 12%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Per route</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Per route</span>
             </div>
           </CardContent>
         </Card>
 
         <!-- Total Distance Card -->
-        <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-          <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Total Distance</span>
+        <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+          <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Total Distance</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
-              <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ formatNumber(stats.totalDistance) }}</div>
-              <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 12%</span>
+              <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ formatNumber(stats.totalDistance) }}</div>
+              <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 12%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Kilometers covered</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Kilometers covered</span>
             </div>
           </CardContent>
         </Card>
@@ -247,7 +247,7 @@
                       <Button @click="editRoute(route)" size="sm" variant="outline">
                         <Edit class="h-4 w-4" />
                       </Button>
-                      <Button @click="confirmDelete(route)" size="sm" variant="outline" class="text-red-600 hover:text-red-700">
+                      <Button @click="openDeleteDialog(route)" size="sm" variant="outline" class="text-red-600 hover:text-red-700">
                         <Trash2 class="h-4 w-4" />
                       </Button>
                     </div>
@@ -259,6 +259,84 @@
         </CardContent>
       </Card>
     </div>
+
+    <!-- Delete Confirmation Dialog -->
+    <Dialog v-model:open="deleteDialog.isOpen">
+      <DialogContent class="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>
+            <div class="flex items-center gap-2">
+              <AlertCircle class="h-5 w-5 text-red-500" />
+              {{ deleteDialog.title }}
+            </div>
+          </DialogTitle>
+          <DialogDescription>
+            {{ deleteDialog.message }}
+          </DialogDescription>
+        </DialogHeader>
+        
+        <!-- Route Details -->
+        <div v-if="deleteDialog.route" class="bg-gray-50 rounded-lg p-4 my-4">
+          <div class="space-y-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Route ID:</span>
+              <span class="font-medium">{{ deleteDialog.route.routeId }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">From:</span>
+              <span class="font-medium">{{ deleteDialog.route.originPort }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">To:</span>
+              <span class="font-medium">{{ deleteDialog.route.destinationPort }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Message with Shipment Count -->
+        <div v-if="deleteDialog.shipmentCount > 0" class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div class="flex gap-3">
+            <AlertCircle class="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div class="flex-1">
+              <p class="text-sm font-medium text-amber-800 mb-1">
+                Cannot Delete Route
+              </p>
+              <p class="text-sm text-amber-700">
+                This route is currently assigned to <strong>{{ deleteDialog.shipmentCount }} shipment(s)</strong>. 
+                Please reassign or delete those shipments before deleting this route.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button 
+            v-if="deleteDialog.shipmentCount > 0"
+            @click="closeDeleteDialog" 
+            variant="default"
+            class="w-full sm:w-auto"
+          >
+            Got it
+          </Button>
+          <template v-else>
+            <Button 
+              @click="closeDeleteDialog" 
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Button 
+              @click="handleDelete" 
+              variant="destructive"
+              :disabled="deleteDialog.isDeleting"
+            >
+              <Loader2 v-if="deleteDialog.isDeleting" class="mr-2 h-4 w-4 animate-spin" />
+              Delete Route
+            </Button>
+          </template>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
 
@@ -273,6 +351,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle 
+} from '@/components/ui/dialog'
 import { 
   Plus, 
   Route, 
@@ -305,6 +391,16 @@ const debouncedSearchQuery = ref('')
 const filterMode = ref('all')
 const filterStatus = ref('all')
 let debounceTimeout = null
+
+// Delete Dialog State
+const deleteDialog = ref({
+  isOpen: false,
+  isDeleting: false,
+  route: null,
+  title: '',
+  message: '',
+  shipmentCount: 0
+})
 
 // Debounced search with 500ms delay
 watch(searchQuery, (newValue) => {
@@ -430,17 +526,65 @@ const editRoute = (route) => {
   router.push(`/routes/${route.routeId}/edit`)
 }
 
-const confirmDelete = async (route) => {
-  if (!confirm(`Are you sure you want to delete route "${route.originPort} → ${route.destinationPort}"?`)) {
-    return
+const openDeleteDialog = (route) => {
+  deleteDialog.value = {
+    isOpen: true,
+    isDeleting: false,
+    route: route,
+    title: 'Delete Route',
+    message: `Are you sure you want to delete this route from ${route.originPort} to ${route.destinationPort}? This action cannot be undone.`,
+    shipmentCount: 0
   }
+}
+
+const closeDeleteDialog = () => {
+  deleteDialog.value = {
+    isOpen: false,
+    isDeleting: false,
+    route: null,
+    title: '',
+    message: '',
+    shipmentCount: 0
+  }
+}
+
+const handleDelete = async () => {
+  if (!deleteDialog.value.route) return
+  
+  deleteDialog.value.isDeleting = true
   
   try {
-    await routeApi.delete(route.routeId)
-    await loadRoutes() // Reload routes after deletion
+    await routeApi.delete(deleteDialog.value.route.routeId)
+    
+    // Success - close dialog and reload routes
+    closeDeleteDialog()
+    await loadRoutes()
+    
+    // Optional: Show success toast/notification
+    console.log('✅ Route deleted successfully')
+    
   } catch (error) {
     console.error('❌ Error deleting route:', error)
-    alert('Failed to delete route. Please try again.')
+    
+    // Check if error is about shipment assignments
+    const errorMessage = error.message || ''
+    
+    if (errorMessage.includes('shipment')) {
+      // Extract shipment count if available from backend response
+      const countMatch = errorMessage.match(/(\d+)\s+shipment/i)
+      const shipmentCount = countMatch ? parseInt(countMatch[1]) : 1
+      
+      // Update dialog to show error state
+      deleteDialog.value.title = 'Unable to Delete Route'
+      deleteDialog.value.message = errorMessage
+      deleteDialog.value.shipmentCount = shipmentCount
+    } else {
+      // Generic error - close dialog and show alert
+      closeDeleteDialog()
+      alert(`Failed to delete route: ${errorMessage}`)
+    }
+  } finally {
+    deleteDialog.value.isDeleting = false
   }
 }
 

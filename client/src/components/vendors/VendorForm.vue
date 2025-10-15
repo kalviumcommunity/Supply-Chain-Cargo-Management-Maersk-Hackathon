@@ -7,10 +7,10 @@
           <ArrowLeft class="mr-2 h-4 w-4" />
           Back to Vendors
         </Button>
-        <h1 class="text-3xl font-bold text-gray-900">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">
           {{ isEditMode ? 'Edit Vendor' : 'Create Vendor' }}
         </h1>
-        <p class="mt-2 text-gray-600">
+        <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">
           {{ isEditMode ? 'Update vendor information' : 'Add a new vendor to your supply chain' }}
         </p>
       </div>
@@ -27,7 +27,7 @@
           <form @submit.prevent="handleSubmit" class="space-y-6">
             <!-- Vendor Name -->
             <div class="space-y-2">
-              <label for="name" class="text-sm font-medium">
+              <label for="name" class="text-sm font-medium dark:text-sidebar-foreground">
                 Vendor Name <span class="text-red-500">*</span>
               </label>
               <Input
@@ -41,7 +41,7 @@
 
             <!-- Service Type -->
             <div class="space-y-2">
-              <label for="serviceType" class="text-sm font-medium">
+              <label for="serviceType" class="text-sm font-medium dark:text-sidebar-foreground">
                 Service Type <span class="text-red-500">*</span>
               </label>
               <Select v-model="formData.serviceType" required :disabled="isSubmitting">
@@ -59,7 +59,7 @@
 
             <!-- Contact Email -->
             <div class="space-y-2">
-              <label for="contactEmail" class="text-sm font-medium">
+              <label for="contactEmail" class="text-sm font-medium dark:text-sidebar-foreground">
                 Contact Email
               </label>
               <Input
@@ -73,7 +73,7 @@
 
             <!-- Contact Phone -->
             <div class="space-y-2">
-              <label for="contactPhone" class="text-sm font-medium">
+              <label for="contactPhone" class="text-sm font-medium dark:text-sidebar-foreground">
                 Contact Phone
               </label>
               <Input
@@ -86,7 +86,7 @@
 
             <!-- Address -->
             <div class="space-y-2">
-              <label for="address" class="text-sm font-medium">
+              <label for="address" class="text-sm font-medium dark:text-sidebar-foreground">
                 Address
               </label>
               <Textarea

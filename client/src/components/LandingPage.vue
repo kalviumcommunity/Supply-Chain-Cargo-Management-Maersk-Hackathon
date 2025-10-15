@@ -7,7 +7,7 @@
         :data-state="menuState && 'active'"
         :class="[
           'fixed top-0 left-0 right-0 z-50 w-full border-b transition-colors duration-150',
-          scrolled ? 'bg-white/50 backdrop-blur-3xl' : 'bg-white'
+          scrolled ? 'bg-white/50 dark:bg-gray-900/50 backdrop-blur-3xl border-gray-200 dark:border-gray-800' : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800'
         ]"
       >
         <div class="mx-auto max-w-5xl px-6 transition-all duration-300">
@@ -20,7 +20,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                   </svg>
                 </div>
-                <span class="text-lg font-semibold text-gray-900">CargoFlow</span>
+                <span class="text-lg font-semibold text-gray-900 dark:text-gray-100">CargoFlow</span>
               </a>
 
               <!-- Mobile Menu Toggle -->

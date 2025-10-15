@@ -1,12 +1,12 @@
 <template>
-  <div class="w-full min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-gray-50 to-gray-100">
+  <div class="w-full min-h-screen flex items-center justify-center px-4 bg-black">
     <!-- Login Card -->
-    <Card v-if="activeTab === 'login'" class="mx-auto w-full max-w-sm">
+    <Card v-if="activeTab === 'login'" class="mx-auto w-full max-w-sm bg-zinc-900 border-zinc-800">
       <CardHeader>
-        <CardTitle class="text-2xl">
+        <CardTitle class="text-2xl text-white">
           Sign In
         </CardTitle>
-        <CardDescription>
+        <CardDescription class="text-gray-400">
           Enter your email and password to access your account
         </CardDescription>
       </CardHeader>
@@ -15,25 +15,27 @@
           <div class="grid gap-4">
             <!-- Email Field -->
             <div class="grid gap-2">
-              <Label for="login-email">Email</Label>
+              <Label for="login-email" class="text-gray-200">Email</Label>
               <Input
                 id="login-email"
                 v-model="loginForm.email"
                 type="email"
                 placeholder="m@example.com"
                 required
+                class="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-500"
               />
             </div>
 
             <!-- Password Field -->
             <div class="grid gap-2">
-              <Label for="login-password">Password</Label>
+              <Label for="login-password" class="text-gray-200">Password</Label>
               <Input
                 id="login-password"
                 v-model="loginForm.password"
                 type="password"
                 placeholder="••••••••"
                 required
+                class="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-500"
               />
             </div>
 
@@ -77,9 +79,9 @@
           </div>
 
           <!-- Switch to Sign Up -->
-          <div class="mt-4 text-center text-sm">
+          <div class="mt-4 text-center text-sm text-gray-400">
             Don't have an account?
-            <a href="#" @click.prevent="activeTab = 'signup'" class="underline hover:text-primary">
+            <a href="#" @click.prevent="activeTab = 'signup'" class="underline hover:text-primary text-white">
               Sign up
             </a>
           </div>
@@ -88,12 +90,12 @@
     </Card>
 
     <!-- Sign Up Card -->
-    <Card v-if="activeTab === 'signup'" class="mx-auto w-full max-w-sm">
+    <Card v-if="activeTab === 'signup'" class="mx-auto w-full max-w-sm bg-zinc-900 border-zinc-800">
       <CardHeader>
-        <CardTitle class="text-2xl">
+        <CardTitle class="text-2xl text-white">
           Sign Up
         </CardTitle>
-        <CardDescription>
+        <CardDescription class="text-gray-400">
           Enter your information to create an account
         </CardDescription>
       </CardHeader>
@@ -102,31 +104,33 @@
           <div class="grid gap-4">
             <!-- Full Name Field -->
             <div class="grid gap-2">
-              <Label for="signup-name">Full Name</Label>
+              <Label for="signup-name" class="text-gray-200">Full Name</Label>
               <Input
                 id="signup-name"
                 v-model="signupForm.name"
                 type="text"
                 placeholder="John Doe"
                 required
+                class="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-500"
               />
             </div>
 
             <!-- Email Field -->
             <div class="grid gap-2">
-              <Label for="signup-email">Email</Label>
+              <Label for="signup-email" class="text-gray-200">Email</Label>
               <Input
                 id="signup-email"
                 v-model="signupForm.email"
                 type="email"
                 placeholder="m@example.com"
                 required
+                class="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-500"
               />
             </div>
 
             <!-- Password Field -->
             <div class="grid gap-2">
-              <Label for="signup-password">Password</Label>
+              <Label for="signup-password" class="text-gray-200">Password</Label>
               <Input
                 id="signup-password"
                 v-model="signupForm.password"
@@ -134,8 +138,9 @@
                 placeholder="••••••••"
                 minlength="6"
                 required
+                class="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-500"
               />
-              <p class="text-xs text-muted-foreground">At least 6 characters</p>
+              <p class="text-xs text-gray-400">At least 6 characters</p>
             </div>
 
             <!-- Error Message -->
@@ -178,9 +183,9 @@
           </div>
 
           <!-- Switch to Sign In -->
-          <div class="mt-4 text-center text-sm">
+          <div class="mt-4 text-center text-sm text-gray-400">
             Already have an account?
-            <a href="#" @click.prevent="activeTab = 'login'" class="underline hover:text-primary">
+            <a href="#" @click.prevent="activeTab = 'login'" class="underline hover:text-primary text-white">
               Sign in
             </a>
           </div>

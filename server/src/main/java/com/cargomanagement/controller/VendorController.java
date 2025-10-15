@@ -13,7 +13,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/vendors")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
+@CrossOrigin(origins = {
+    "http://localhost:5173", 
+    "http://localhost:5174",
+    "http://cargo-flow.s3-website.ap-south-1.amazonaws.com"
+})
 public class VendorController {
 
     private final VendorRepository vendorRepository;

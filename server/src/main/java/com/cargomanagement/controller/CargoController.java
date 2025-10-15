@@ -17,7 +17,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/cargo")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"}) // Allow frontend access
+@CrossOrigin(origins = {
+    "http://localhost:5173", 
+    "http://localhost:5174",
+    "http://cargo-flow.s3-website.ap-south-1.amazonaws.com"
+}) // Allow frontend access
 public class CargoController {
 
     private final CargoRepository cargoRepository;
