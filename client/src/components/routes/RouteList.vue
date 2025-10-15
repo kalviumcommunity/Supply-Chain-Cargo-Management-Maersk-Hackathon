@@ -3,13 +3,13 @@
     <div class="space-y-6">
       <!-- Header Section -->
       <PageHeader 
-        title="Route Management"
-        description="Manage and optimize your shipping routes"
+        :title="$t('routes.title')"
+        :description="$t('routes.subtitle')"
       >
         <template #actions>
           <Button @click="$router.push('/routes/create')">
             <Plus class="mr-2 h-4 w-4" />
-            Add Route
+            {{ $t('common.createRoute') }}
           </Button>
         </template>
       </PageHeader>
@@ -19,7 +19,7 @@
         <!-- Total Routes Card -->
         <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
           <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
-            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Total Routes</span>
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">{{ $t('routes.totalRoutes') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -27,7 +27,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 12%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Compared to the previous period</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">{{ $t('routes.comparedPrevious') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -35,7 +35,7 @@
         <!-- Avg Duration Card -->
         <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
           <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
-            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Avg Duration</span>
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">{{ $t('routes.avgDuration') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -43,7 +43,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 12%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Days per route</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">{{ $t('routes.daysPerRoute') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -51,7 +51,7 @@
         <!-- Avg Cost Card -->
         <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
           <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
-            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Avg Cost</span>
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">{{ $t('routes.avgCost') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -59,7 +59,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 12%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Per route</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">{{ $t('routes.perRoute') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -67,7 +67,7 @@
         <!-- Total Distance Card -->
         <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
           <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
-            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Total Distance</span>
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">{{ $t('routes.totalDistance') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -75,7 +75,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 12%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Kilometers covered</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">{{ $t('routes.kilometersCovered') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -86,9 +86,9 @@
         <CardHeader>
           <div class="flex items-center justify-between">
             <div>
-              <CardTitle>All Routes</CardTitle>
+              <CardTitle>{{ $t('routes.allRoutes') }}</CardTitle>
               <CardDescription>
-                A comprehensive list of all shipping routes
+                {{ $t('routes.allRoutesDesc') }}
               </CardDescription>
             </div>
             <div class="flex items-center space-x-2">
@@ -98,7 +98,7 @@
                 size="sm"
               >
                 <List class="mr-2 h-4 w-4" />
-                Table
+                {{ $t('routes.table') }}
               </Button>
               <Button 
                 @click="viewMode = 'map'" 
@@ -106,7 +106,7 @@
                 size="sm"
               >
                 <MapIcon class="mr-2 h-4 w-4" />
-                Map
+                {{ $t('routes.map') }}
               </Button>
             </div>
           </div>
@@ -120,7 +120,7 @@
               <Input
                 v-model="searchQuery"
                 type="text"
-                placeholder="Search by route ID, origin, or destination..."
+                :placeholder="$t('routes.searchPlaceholder')"
                 class="pl-10"
               />
             </div>
@@ -131,7 +131,7 @@
                 <SelectValue placeholder="Transport Mode" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Modes</SelectItem>
+                <SelectItem value="all">{{ $t('routes.allModes') }}</SelectItem>
                 <SelectItem value="OCEAN">OCEAN</SelectItem>
                 <SelectItem value="AIR">Air</SelectItem>
                 <SelectItem value="ROAD">Land</SelectItem>
@@ -145,7 +145,7 @@
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="all">{{ $t('common.allStatus') }}</SelectItem>
                 <SelectItem value="Active">Active</SelectItem>
                 <SelectItem value="Delayed">Delayed</SelectItem>
                 <SelectItem value="Closed">Closed</SelectItem>
@@ -191,15 +191,15 @@
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Origin Port</TableHead>
-                  <TableHead>Destination Port</TableHead>
-                  <TableHead>Distance (km)</TableHead>
-                  <TableHead>Duration (days)</TableHead>
-                  <TableHead>Mode</TableHead>
-                  <TableHead>Cost ($)</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead class="text-right">Actions</TableHead>
+                  <TableHead>{{ $t('common.id') }}</TableHead>
+                  <TableHead>{{ $t('routes.originPort') }}</TableHead>
+                  <TableHead>{{ $t('routes.destinationPort') }}</TableHead>
+                  <TableHead>{{ $t('routes.distanceKm') }}</TableHead>
+                  <TableHead>{{ $t('routes.durationDays') }}</TableHead>
+                  <TableHead>{{ $t('routes.mode') }}</TableHead>
+                  <TableHead>{{ $t('routes.costUsd') }}</TableHead>
+                  <TableHead>{{ $t('common.status') }}</TableHead>
+                  <TableHead class="text-right">{{ $t('common.actions') }}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

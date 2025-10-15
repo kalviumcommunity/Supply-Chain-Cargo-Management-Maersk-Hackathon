@@ -2,9 +2,8 @@
   <div class="space-y-5 animate-fade-in">
     <!-- Page Header -->
     <PageHeader
-      title="Dashboard"
-      description="Welcome back! Here's your supply chain overview."
-
+      :title="$t('dashboard.title')"
+      :description="$t('dashboard.subtitle')"
     >
       <template #actions>
         <Button 
@@ -12,7 +11,7 @@
           class="shadow-sm hover:shadow-md"
         >
           <Plus class="w-4 h-4 mr-2" />
-          New Shipment
+          {{ $t('common.newShipment') }}
         </Button>
       </template>
     </PageHeader>
@@ -193,6 +192,7 @@
 <script setup>
 import { reactive, ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { 
   Plus, Clock, Truck, Package, Route, Users, 
   TrendingUp, TrendingDown, ArrowUp, ArrowDown, Minus,
@@ -204,6 +204,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 
+// i18n
+const { t } = useI18n()
+
 // Router
 const router = useRouter()
 
@@ -211,41 +214,49 @@ const router = useRouter()
 const isLoading = ref(false)
 const error = ref(null)
 
-// Reactive data with premium styling
-const metrics = reactive([
+// Metric values (reactive)
+const metricValues = reactive({
+  shipments: 0,
+  cargo: 0,
+  routes: 0,
+  vendors: 0
+})
+
+// Reactive data with premium styling and translations
+const metrics = computed(() => [
   {
     id: 'shipments',
-    label: 'Total Shipments',
-    value: 0,
+    label: t('dashboard.totalShipments'),
+    value: metricValues.shipments,
     change: '↗ 12%',
-    description: 'In transit and delivered',
+    description: t('common.inTransitDelivered'),
     icon: Truck,
     iconColor: 'text-[#3B82F6]'
   },
   {
     id: 'cargo',
-    label: 'Active Cargo',
-    value: 0,
+    label: t('dashboard.activeCargo'),
+    value: metricValues.cargo,
     change: '↗ 8%',
-    description: 'Items being tracked',
+    description: t('common.itemsTracked'),
     icon: Package,
     iconColor: 'text-[#10B981]'
   },
   {
     id: 'routes',
-    label: 'Available Routes',
-    value: 0,
+    label: t('dashboard.availableRoutes'),
+    value: metricValues.routes,
     change: '↗ 5%',
-    description: 'Active shipping routes',
+    description: t('common.activeRoutes'),
     icon: Route,
     iconColor: 'text-[#F59E0B]'
   },
   {
     id: 'vendors',
-    label: 'Partner Vendors',
-    value: 0,
+    label: t('dashboard.partnerVendors'),
+    value: metricValues.vendors,
     change: '↗ 15%',
-    description: 'Verified partners',
+    description: t('common.verifiedPartners'),
     icon: Users,
     iconColor: 'text-[#A855F7]'
   }
@@ -282,10 +293,10 @@ const filteredActivities = computed(() => {
   })
 })
 
-const quickActions = reactive([
-  { id: 'add-cargo', label: 'Add New Cargo', icon: Plus },
-  { id: 'create-route', label: 'Create Route', icon: MapPin },
-  { id: 'add-vendor', label: 'Add Vendor', icon: UserPlus }
+const quickActions = computed(() => [
+  { id: 'add-cargo', label: t('common.addNewCargo'), icon: Plus },
+  { id: 'create-route', label: t('common.createRoute'), icon: MapPin },
+  { id: 'add-vendor', label: t('common.addVendor'), icon: UserPlus }
 ])
 
 const shipmentStatuses = reactive([])
@@ -345,13 +356,11 @@ const updateMetrics = (data) => {
     }
   }
   
-  // Update the reactive metrics array
-  metrics.forEach(metric => {
-    if (metricsUpdate[metric.id]) {
-      metric.value = metricsUpdate[metric.id].value
-      metric.change = metricsUpdate[metric.id].change
-    }
-  })
+  // Update the reactive metric values
+  metricValues.shipments = metricsUpdate.shipments.value
+  metricValues.cargo = metricsUpdate.cargo.value
+  metricValues.routes = metricsUpdate.routes.value
+  metricValues.vendors = metricsUpdate.vendors.value
 }
 
 const updateShipmentStatuses = (statusData) => {
@@ -363,22 +372,22 @@ const updateShipmentStatuses = (statusData) => {
   // Map status names to display information
   const statusMapping = {
     'in transit': {
-      status: 'In Transit',
+      status: t('shipments.inTransit'),
       color: 'bg-[#14B8A6]',
       gradientClass: 'bg-gradient-to-r from-[#14B8A6] to-[#0D9488]'
     },
     'delivered': {
-      status: 'Delivered',
+      status: t('shipments.delivered'),
       color: 'bg-[#10B981]',
       gradientClass: 'bg-gradient-to-r from-[#10B981] to-[#059669]'
     },
     'picked up': {
-      status: 'Picked Up',
+      status: t('shipments.pending'),
       color: 'bg-[#3B82F6]',
       gradientClass: 'bg-gradient-to-r from-[#3B82F6] to-[#2563EB]'
     },
     'created': {
-      status: 'Created',
+      status: t('shipments.pending'),
       color: 'bg-[#6B7280]',
       gradientClass: 'bg-gradient-to-r from-[#6B7280] to-[#4B5563]'
     },

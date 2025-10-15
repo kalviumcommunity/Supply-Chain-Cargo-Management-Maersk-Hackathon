@@ -3,8 +3,8 @@
     <!-- Login Card -->
     <Card v-if="activeTab === 'login'" class="mx-auto w-full max-w-sm bg-zinc-900 border-zinc-800">
       <CardHeader>
-        <CardTitle class="text-2xl text-white">
-          Sign In
+        <CardTitle class="text-2xl text-white dark:text-white">
+          {{ $t('auth.login') }}
         </CardTitle>
         <CardDescription class="text-gray-400">
           Enter your email and password to access your account
@@ -15,7 +15,7 @@
           <div class="grid gap-4">
             <!-- Email Field -->
             <div class="grid gap-2">
-              <Label for="login-email" class="text-gray-200">Email</Label>
+              <Label for="login-email" class="text-gray-200 dark:text-gray-200">{{ $t('auth.email') }}</Label>
               <Input
                 id="login-email"
                 v-model="loginForm.email"
@@ -28,7 +28,7 @@
 
             <!-- Password Field -->
             <div class="grid gap-2">
-              <Label for="login-password" class="text-gray-200">Password</Label>
+              <Label for="login-password" class="text-gray-200 dark:text-gray-200">{{ $t('auth.password') }}</Label>
               <Input
                 id="login-password"
                 v-model="loginForm.password"
@@ -51,13 +51,13 @@
 
             <!-- Submit Button -->
             <Button type="submit" :disabled="loading" class="w-full">
-              <span v-if="!loading">Sign In</span>
+              <span v-if="!loading">{{ $t('auth.login') }}</span>
               <span v-else class="flex items-center justify-center gap-2">
                 <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Signing in...
+                {{ $t('auth.loggingIn') }}
               </span>
             </Button>
 
@@ -74,15 +74,15 @@
                 <path d="M56.281 156.37c-2.756-8.123-4.351-16.827-4.351-25.82 0-8.994 1.595-17.697 4.206-25.82l-.073-1.73L15.26 71.312l-1.335.635C5.077 89.644 0 109.517 0 130.55s5.077 40.905 13.925 58.602l42.356-32.782" fill="#FBBC05"></path>
                 <path d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0 79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251" fill="#EB4335"></path>
               </svg>
-              Sign in with Google
+              {{ $t('auth.continueWithGoogle') }}
             </Button>
           </div>
 
           <!-- Switch to Sign Up -->
-          <div class="mt-4 text-center text-sm text-gray-400">
+          <div class="mt-4 text-center text-sm text-gray-400 dark:text-gray-400">
             Don't have an account?
-            <a href="#" @click.prevent="activeTab = 'signup'" class="underline hover:text-primary text-white">
-              Sign up
+            <a href="#" @click.prevent="activeTab = 'signup'" class="underline hover:text-primary text-white dark:text-white">
+              {{ $t('auth.signup') }}
             </a>
           </div>
         </form>
@@ -90,10 +90,10 @@
     </Card>
 
     <!-- Sign Up Card -->
-    <Card v-if="activeTab === 'signup'" class="mx-auto w-full max-w-sm bg-zinc-900 border-zinc-800">
+    <Card v-if="activeTab === 'signup'" class="mx-auto w-full max-w-sm bg-zinc-900 border-zinc-800 dark:bg-zinc-900 dark:border-zinc-800">
       <CardHeader>
-        <CardTitle class="text-2xl text-white">
-          Sign Up
+        <CardTitle class="text-2xl text-white dark:text-white">
+          {{ $t('auth.signup') }}
         </CardTitle>
         <CardDescription class="text-gray-400">
           Enter your information to create an account
@@ -104,7 +104,7 @@
           <div class="grid gap-4">
             <!-- Full Name Field -->
             <div class="grid gap-2">
-              <Label for="signup-name" class="text-gray-200">Full Name</Label>
+              <Label for="signup-name" class="text-gray-200 dark:text-gray-200">{{ $t('auth.fullName') }}</Label>
               <Input
                 id="signup-name"
                 v-model="signupForm.name"
@@ -117,20 +117,20 @@
 
             <!-- Email Field -->
             <div class="grid gap-2">
-              <Label for="signup-email" class="text-gray-200">Email</Label>
+              <Label for="signup-email" class="text-gray-200 dark:text-gray-200">{{ $t('auth.email') }}</Label>
               <Input
                 id="signup-email"
                 v-model="signupForm.email"
                 type="email"
                 placeholder="m@example.com"
                 required
-                class="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-500"
+                class="bg-zinc-800 border-zinc-700 text-white placeholder:text-gray-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
               />
             </div>
 
             <!-- Password Field -->
             <div class="grid gap-2">
-              <Label for="signup-password" class="text-gray-200">Password</Label>
+              <Label for="signup-password" class="text-gray-200 dark:text-gray-200">{{ $t('auth.password') }}</Label>
               <Input
                 id="signup-password"
                 v-model="signupForm.password"
@@ -155,13 +155,13 @@
 
             <!-- Submit Button -->
             <Button type="submit" :disabled="loading" class="w-full">
-              <span v-if="!loading">Create an account</span>
+              <span v-if="!loading">{{ $t('auth.createAccount') }}</span>
               <span v-else class="flex items-center justify-center gap-2">
                 <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Creating account...
+                {{ $t('auth.creatingAccount') }}
               </span>
             </Button>
 
@@ -178,15 +178,15 @@
                 <path d="M56.281 156.37c-2.756-8.123-4.351-16.827-4.351-25.82 0-8.994 1.595-17.697 4.206-25.82l-.073-1.73L15.26 71.312l-1.335.635C5.077 89.644 0 109.517 0 130.55s5.077 40.905 13.925 58.602l42.356-32.782" fill="#FBBC05"></path>
                 <path d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0 79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251" fill="#EB4335"></path>
               </svg>
-              Sign up with Google
+              {{ $t('auth.continueWithGoogle') }}
             </Button>
           </div>
 
           <!-- Switch to Sign In -->
-          <div class="mt-4 text-center text-sm text-gray-400">
+          <div class="mt-4 text-center text-sm text-gray-400 dark:text-gray-400">
             Already have an account?
-            <a href="#" @click.prevent="activeTab = 'login'" class="underline hover:text-primary text-white">
-              Sign in
+            <a href="#" @click.prevent="activeTab = 'login'" class="underline hover:text-primary text-white dark:text-white">
+              {{ $t('auth.login') }}
             </a>
           </div>
         </form>

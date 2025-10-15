@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/services/auth'
+import { useI18n } from 'vue-i18n'
 
 import { 
   Home, 
@@ -44,22 +45,23 @@ const props = withDefaults(defineProps<Props>(), {
 const route = useRoute()
 const router = useRouter()
 const auth = useAuth()
+const { t } = useI18n()
 
-// Navigation data
-const data = {
+// Navigation data with translations
+const data = computed(() => ({
   navMain: [
     {
-      title: "Dashboard",
+      title: t('nav.dashboard'),
       url: "/dashboard",
       icon: Home,
     },
     {
-      title: "Cargo Management",
+      title: t('nav.cargoManagement'),
       url: "/cargo",
       icon: Package,
     },
     {
-      title: "Shipment Tracking",
+      title: t('nav.shipmentTracking'),
       url: "/shipments",
       icon: Truck,
     },
@@ -69,29 +71,29 @@ const data = {
       icon: PackageCheck,
     },
     {
-      title: "Route Management",
+      title: t('nav.routeManagement'),
       url: "/routes",
       icon: Map,
     },
     {
-      title: "Vendor Coordination",
+      title: t('nav.vendorCoordination'),
       url: "/vendors",
       icon: Users,
     },
   ],
   navTools: [
     {
-      title: "Analytics",
+      title: t('nav.analytics'),
       url: "/analytics",
       icon: BarChart3,
     },
     {
-      title: "Settings",
+      title: t('nav.settings'),
       url: "/settings",
       icon: Settings,
     },
   ]
-}
+}))
 
 const isActive = (url: string) => {
   return route.path === url
@@ -204,7 +206,7 @@ const handleLogout = async () => {
             >
               <DropdownMenuItem @click="handleLogout" class="cursor-pointer">
                 <LogOut class="mr-2 h-4 w-4" />
-                Log out
+                {{ t('auth.logout') }}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

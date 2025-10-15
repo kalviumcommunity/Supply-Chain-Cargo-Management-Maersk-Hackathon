@@ -1,23 +1,26 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useColorMode } from '@vueuse/core'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import Button from '@/components/ui/button/Button.vue'
-
-// import { useDarkMode } from '@/composables/useDarkMode'
+import ModeToggle from '@/components/shared/ModeToggle.vue'
 import { notificationApi } from '@/services/api'
 
-// const { isDark, toggleDarkMode } = useDarkMode()
-import ModeToggle from '@/components/shared/ModeToggle.vue'
+const { locale, t } = useI18n()
 
-// Get color mode
+// Get color mode for dark mode
 const mode = useColorMode()
-// Example settings state (expand as needed)
+
+// Settings state
 const notifications = ref(true)
-const language = ref('en')
+const language = ref(localStorage.getItem('language') || 'en')
 const testEmail = ref('')
 const emailStatus = ref(null)
 const isSendingEmail = ref(false)
+
+// Set initial locale
+locale.value = language.value
 
 // Computed property to show current theme
 const currentTheme = computed(() => {
@@ -27,6 +30,12 @@ const currentTheme = computed(() => {
 function toggleNotifications() {
   notifications.value = !notifications.value
 }
+
+// Watch language changes and update locale
+watch(language, (newLang) => {
+  locale.value = newLang
+  localStorage.setItem('language', newLang)
+})
 
 async function sendTestEmail() {
   if (isSendingEmail.value) return
@@ -69,12 +78,13 @@ async function sendTestEmail() {
   <div class="flex justify-center py-10">
     <Card class="w-full max-w-xl">
       <CardHeader>
-        <CardTitle>Settings</CardTitle>
+        <CardTitle>{{ $t('settings.title') }}</CardTitle>
       </CardHeader>
       <CardContent class="flex flex-col gap-6">
+        <!-- Dark Mode / Theme Toggle -->
         <div class="flex items-center justify-between">
           <div>
-            <span class="font-medium">Theme</span>
+            <span class="font-medium">{{ $t('settings.darkMode') }}</span>
             <p class="text-sm text-muted-foreground mt-1">
               Switch between light, dark, or system theme
             </p>
@@ -84,28 +94,32 @@ async function sendTestEmail() {
             <ModeToggle />
           </div>
         </div>
+
+        <!-- Notifications Toggle -->
         <div class="flex items-center justify-between">
           <div>
-            <span class="font-medium">Notifications</span>
+            <span class="font-medium">{{ $t('settings.notifications') }}</span>
             <p class="text-sm text-muted-foreground mt-1">
               Receive updates and alerts
             </p>
           </div>
           <Button @click="toggleNotifications" :variant="notifications ? 'default' : 'outline'">
-            {{ notifications ? 'Enabled' : 'Disabled' }}
+            {{ notifications ? $t('settings.enabled') : $t('settings.disabled') }}
           </Button>
         </div>
+
+        <!-- Language Selector -->
         <div class="flex items-center justify-between">
           <div>
-            <span class="font-medium">Language</span>
+            <span class="font-medium">{{ $t('settings.language') }}</span>
             <p class="text-sm text-muted-foreground mt-1">
               Select your preferred language
             </p>
           </div>
           <select v-model="language" class="border rounded px-3 py-2 bg-background text-foreground border-input focus:ring-2 focus:ring-ring">
             <option value="en">English</option>
-            <option value="es">Spanish</option>
-            <option value="fr">French</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
           </select>
         </div>
         <div class="flex flex-col gap-2">

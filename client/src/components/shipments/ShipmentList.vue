@@ -4,13 +4,12 @@
       <!-- Header Section -->
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">Shipment Tracking</h1>
-          <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">Monitor and manage your shipments</p>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">{{ $t('shipments.title') }}</h1>
+          <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">{{ $t('shipments.subtitle') }}</p>
         </div>
         <Button @click="$router.push('/shipments/create')">
           <Plus class="mr-2 h-4 w-4" />
-          Create Shipment
-
+          {{ $t('common.newShipment') }}
         </Button>
       </div>
 
@@ -19,7 +18,7 @@
         <!-- Total Shipments Card -->
         <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
           <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
-            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Total Shipments</span>
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">{{ $t('shipments.totalShipments') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -27,7 +26,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 15%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Compared to the previous period</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">{{ $t('common.comparedPrevious') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -35,7 +34,7 @@
         <!-- In Transit Card -->
         <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
           <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
-            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">In Transit</span>
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">{{ $t('shipments.inTransit') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -43,7 +42,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 8%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Currently moving</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">{{ $t('common.currentlyMoving') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -51,7 +50,7 @@
         <!-- Delivered Card -->
         <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
           <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
-            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Delivered</span>
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">{{ $t('shipments.delivered') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -59,7 +58,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 10%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Successfully completed</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">{{ $t('common.successfullyCompleted') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -67,7 +66,7 @@
         <!-- Pending Card -->
         <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
           <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
-            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Pending</span>
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">{{ $t('shipments.pending') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -75,7 +74,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 5%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Awaiting processing</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">{{ $t('common.awaitingProcessing') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -106,17 +105,17 @@
             <!-- Filter by Status -->
             <Select v-model="filterStatus">
               <SelectTrigger class="w-full md:w-[200px]">
-                <SelectValue placeholder="Status" />
+                <SelectValue :placeholder="$t('common.status')" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="Pending">Pending</SelectItem>
-                <SelectItem value="Created">Created</SelectItem>
-                <SelectItem value="Picked Up">Picked Up</SelectItem>
-                <SelectItem value="Shipped">Shipped</SelectItem>
-                <SelectItem value="In Transit">In Transit</SelectItem>
-                <SelectItem value="Delivered">Delivered</SelectItem>
-                <SelectItem value="Cancelled">Cancelled</SelectItem>
+                <SelectItem value="all">{{ $t('common.allStatus') }}</SelectItem>
+                <SelectItem value="Pending">{{ $t('shipments.pending') }}</SelectItem>
+                <SelectItem value="Created">{{ $t('shipments.pending') }}</SelectItem>
+                <SelectItem value="Picked Up">{{ $t('shipments.pending') }}</SelectItem>
+                <SelectItem value="Shipped">{{ $t('shipments.inTransit') }}</SelectItem>
+                <SelectItem value="In Transit">{{ $t('shipments.inTransit') }}</SelectItem>
+                <SelectItem value="Delivered">{{ $t('shipments.delivered') }}</SelectItem>
+                <SelectItem value="Cancelled">{{ $t('shipments.cancelled') }}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -149,13 +148,13 @@
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Origin → Destination</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Est. Delivery</TableHead>
-                  <TableHead>Route</TableHead>
-                  <TableHead>Vendor</TableHead>
-                  <TableHead class="text-right">Actions</TableHead>
+                  <TableHead>{{ $t('common.id') }}</TableHead>
+                  <TableHead>{{ $t('common.origin') }} → {{ $t('common.destination') }}</TableHead>
+                  <TableHead>{{ $t('common.status') }}</TableHead>
+                  <TableHead>{{ $t('common.estDelivery') }}</TableHead>
+                  <TableHead>{{ $t('common.route') }}</TableHead>
+                  <TableHead>{{ $t('common.vendor') }}</TableHead>
+                  <TableHead class="text-right">{{ $t('common.actions') }}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
