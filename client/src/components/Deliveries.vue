@@ -3,8 +3,8 @@
     <!-- Header Section -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">Deliveries</h1>
-        <p class="mt-1 text-sm text-gray-600">Track your delivery status</p>
+        <h1 class="text-2xl font-bold text-gray-900">{{ $t('deliveries.title') }}</h1>
+        <p class="mt-1 text-sm text-gray-600">{{ $t('deliveries.subtitle') }}</p>
       </div>
     </div>
 
@@ -12,7 +12,7 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
         <div class="px-4 pt-2.5 pb-1.5 bg-white">
-          <span class="text-[13px] font-medium text-gray-600">Total Deliveries</span>
+          <span class="text-[13px] font-medium text-gray-600">{{ $t('deliveries.totalDeliveries') }}</span>
         </div>
         <CardContent class="px-4 py-1.5 pb-3">
           <div class="flex items-center gap-2">
@@ -21,7 +21,7 @@
           </div>
           <div class="mt-1 flex items-center gap-1.5">
             <Truck class="w-3.5 h-3.5 text-blue-500" />
-            <span class="text-xs text-gray-500">All deliveries tracked</span>
+            <span class="text-xs text-gray-500">{{ $t('deliveries.allDeliveriesTracked') }}</span>
           </div>
         </CardContent>
       </Card>
@@ -78,22 +78,22 @@
     <!-- Deliveries Table -->
     <Card class="hover:shadow-md transition-shadow">
       <CardHeader>
-        <CardTitle>All Deliveries</CardTitle>
+        <CardTitle>{{ $t('deliveries.allDeliveries') }}</CardTitle>
         <CardDescription>
-          Track the status of all deliveries from delivered shipments
+          {{ $t('deliveries.trackStatus') }}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div v-if="isLoading" class="flex items-center justify-center h-32">
           <Loader2 class="h-6 w-6 animate-spin" />
-          <span class="ml-2">Loading deliveries...</span>
+          <span class="ml-2">{{ $t('deliveries.loadingDeliveries') }}</span>
         </div>
         
         <div v-else-if="error" class="text-center py-8">
           <AlertCircle class="h-12 w-12 text-red-500 mx-auto mb-4" />
           <p class="text-gray-600">{{ error }}</p>
           <Button @click="loadDeliveries" class="mt-4" variant="outline">
-            Try Again
+            {{ $t('deliveries.retry') }}
           </Button>
         </div>
         
@@ -114,7 +114,7 @@
             <TableBody>
               <TableRow v-if="deliveries.length === 0">
                 <TableCell :colspan="8" class="h-24 text-center">
-                  No deliveries found.
+                  {{ $t('deliveries.noDeliveries') }}
                 </TableCell>
               </TableRow>
               <TableRow v-for="delivery in deliveries" :key="delivery.deliveryId" class="hover:bg-gray-50">
