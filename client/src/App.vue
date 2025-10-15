@@ -75,8 +75,8 @@ const auth = useAuth()
 
 // Determine if sidebar should be shown
 const shouldShowSidebar = computed(() => {
-  // Don't show sidebar on landing page, login, or oauth callback
-  const excludedRoutes = ['/', '/login', '/oauth-callback']
+  // Don't show sidebar on landing page, login, oauth callback, or admin panel
+  const excludedRoutes = ['/', '/login', '/oauth-callback', '/admin']
   return !excludedRoutes.includes(route.path) && auth.isAuthenticated.value
 })
 
@@ -219,5 +219,21 @@ button, a, input, select, textarea {
 *:focus-visible {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
+}
+
+/* Toast animation */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
 }
 </style>

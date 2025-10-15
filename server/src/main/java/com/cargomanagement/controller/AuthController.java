@@ -47,7 +47,8 @@ public class AuthController {
             User user = authService.registerUser(email, password, name);
             
             response.put("success", true);
-            response.put("message", "User registered successfully");
+            response.put("message", "Registration successful. Your account is pending admin approval.");
+            response.put("isPending", true);
             response.put("user", createUserResponse(user));
             
             return ResponseEntity.ok(response);
@@ -72,6 +73,16 @@ public class AuthController {
                 response.put("success", false);
                 response.put("message", "Email and password are required");
                 return ResponseEntity.badRequest().body(response);
+            }
+
+            // Check if user exists first
+            Optional<User> checkUser = authService.findByEmail(email);
+            if (checkUser.isPresent() && !checkUser.get().getIsActive()) {
+                // User exists but is not active (pending approval)
+                response.put("success", false);
+                response.put("message", "Account pending approval");
+                response.put("isPending", true);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
 
             Optional<User> userOpt = authService.authenticateUser(email, password);

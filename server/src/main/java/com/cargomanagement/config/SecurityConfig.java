@@ -30,12 +30,15 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configure(http))
             .authorizeHttpRequests(auth -> auth
+                // Allow ALL requests - we'll handle authorization manually in controllers
                 .anyRequest().permitAll()
+            )
+            .sessionManagement(session -> session
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false)
             )
             .oauth2Login(oauth2 -> oauth2
                 .successHandler(oAuth2LoginSuccessHandler)
-                // Note: OAuth2 failure will be handled by the success handler's redirect logic
-                // The frontend will handle the error state
                 .failureUrl("http://localhost:5173/login?error=true")
             );
         return http.build();

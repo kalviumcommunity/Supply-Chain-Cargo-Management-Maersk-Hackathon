@@ -18,6 +18,7 @@ import Deliveries from '../components/Deliveries.vue'
 import Login from '../components/Login.vue'
 import OAuthCallback from '../components/OAuthCallback.vue'
 import Settings from '../components/Settings.vue'
+import AdminPanel from '../components/AdminPanel.vue'
 import { useAuth } from '../services/auth'
 // Create placeholder components for other routes
 const Analytics = { template: '<div class="p-8"><h1 class="text-2xl font-bold mb-4">Analytics</h1><p>View analytics and reports.</p></div>' }
@@ -40,6 +41,16 @@ const routes = [
     meta: {
       title: 'Completing Sign In',
       requiresAuth: false
+    }
+  },
+  {
+    path: '/admin',
+    name: 'AdminPanel',
+    component: AdminPanel,
+    meta: {
+      title: 'Admin Panel',
+      requiresAuth: true,
+      requiresAdmin: true
     }
   },
   {
@@ -276,6 +287,7 @@ router.beforeEach(async (to, from, next) => {
   const auth = useAuth()
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   const hideForAuth = to.matched.some(record => record.meta.hideForAuth)
+  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
   
   // If not authenticated and trying to fetch current user hasn't been done yet
   if (!auth.isAuthenticated.value && !auth.user.value) {
@@ -293,11 +305,24 @@ router.beforeEach(async (to, from, next) => {
     // Redirect to login page
     next('/login')
   } 
+  // Check if route requires admin role
+  else if (requiresAdmin && auth.user.value?.role !== 'ADMIN') {
+    // Non-admin trying to access admin route
+    next('/dashboard')
+  }
   // Check if authenticated user trying to access login page
   else if (hideForAuth && auth.isAuthenticated.value) {
-    // Redirect to dashboard
-    next('/dashboard')
+    // If admin, redirect to admin panel; otherwise dashboard
+    if (auth.user.value?.role === 'ADMIN') {
+      next('/admin')
+    } else {
+      next('/dashboard')
+    }
   } 
+  // Redirect admin to admin panel if they try to access regular routes
+  else if (auth.isAuthenticated.value && auth.user.value?.role === 'ADMIN' && to.path !== '/admin' && to.path !== '/login') {
+    next('/admin')
+  }
   else {
     next()
   }

@@ -255,10 +255,17 @@ const handleLogin = async () => {
     if (response.success) {
       success.value = 'Login successful! Redirecting...'
       
-      // Redirect to dashboard after short delay
+      // Check if user is admin and redirect accordingly
+      const user = response.user
       setTimeout(() => {
-        router.push('/dashboard')
+        if (user?.role === 'ADMIN') {
+          router.push('/admin')
+        } else {
+          router.push('/dashboard')
+        }
       }, 500)
+    } else if (response.isPending) {
+      error.value = 'Your account is pending admin approval. Please wait for approval before logging in.'
     } else {
       error.value = response.message || 'Login failed'
     }
@@ -278,7 +285,11 @@ const handleSignup = async () => {
     const response = await auth.signup(signupForm.value)
     
     if (response.success) {
-      success.value = 'Account created successfully! Please login.'
+      if (response.isPending) {
+        success.value = 'Account created! Your registration is pending admin approval. You will be able to login once approved.'
+      } else {
+        success.value = 'Account created successfully! Please login.'
+      }
       
       // Store email for convenience
       const email = signupForm.value.email
@@ -290,12 +301,12 @@ const handleSignup = async () => {
         password: ''
       }
       
-      // Switch to login tab after 2 seconds
+      // Switch to login tab after 3 seconds
       setTimeout(() => {
         activeTab.value = 'login'
         loginForm.value.email = email
         success.value = ''
-      }, 2000)
+      }, 3000)
     } else {
       error.value = response.message || 'Signup failed'
     }
