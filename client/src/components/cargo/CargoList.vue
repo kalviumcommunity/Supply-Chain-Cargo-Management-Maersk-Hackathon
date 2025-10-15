@@ -4,12 +4,12 @@
       <!-- Header Section -->
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">Cargo Management</h1>
-          <p class="mt-2 text-gray-600">Manage your cargo inventory</p>
+          <h1 class="text-3xl font-bold text-gray-900">{{ $t('cargo.title') }}</h1>
+          <p class="mt-2 text-gray-600">{{ $t('cargo.subtitle') }}</p>
         </div>
         <Button @click="$router.push('/cargo/create')">
           <Plus class="mr-2 h-4 w-4" />
-          Add Cargo
+          {{ $t('common.addNewCargo') }}
         </Button>
       </div>
 
@@ -18,7 +18,7 @@
         <!-- Total Cargo Card -->
         <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
           <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Total Cargo</span>
+            <span class="text-[13px] font-medium text-gray-600">{{ $t('cargo.totalCargo') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -26,7 +26,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 18%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Compared to the previous period</span>
+              <span class="text-xs text-gray-500">{{ $t('common.comparedPrevious') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -34,7 +34,7 @@
         <!-- Total Weight Card -->
         <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
           <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Total Weight</span>
+            <span class="text-[13px] font-medium text-gray-600">{{ $t('cargo.totalWeight') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -42,7 +42,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 12%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Kilograms</span>
+              <span class="text-xs text-gray-500">{{ $t('common.kilograms') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -50,7 +50,7 @@
         <!-- Total Value Card -->
         <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
           <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Total Value</span>
+            <span class="text-[13px] font-medium text-gray-600">{{ $t('cargo.totalValue') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -58,7 +58,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 22%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">USD total value</span>
+              <span class="text-xs text-gray-500">{{ $t('common.usdTotalValue') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -66,7 +66,7 @@
         <!-- Electronics Card -->
         <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
           <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Electronics</span>
+            <span class="text-[13px] font-medium text-gray-600">{{ $t('cargo.electronics') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -74,7 +74,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 15%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">High-value items</span>
+              <span class="text-xs text-gray-500">{{ $t('common.highValueItems') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -105,10 +105,10 @@
             <!-- Filter by Type -->
             <Select v-model="filterType">
               <SelectTrigger class="w-full md:w-[200px]">
-                <SelectValue placeholder="Cargo Type" />
+                <SelectValue :placeholder="$t('cargo.cargoType')" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="all">{{ $t('common.allTypes') }}</SelectItem>
                 <SelectItem value="Electronics">Electronics</SelectItem>
                 <SelectItem value="Clothing">Clothing</SelectItem>
                 <SelectItem value="Food">Food</SelectItem>
@@ -148,14 +148,14 @@
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Weight (kg)</TableHead>
-                  <TableHead>Value ($)</TableHead>
-                  <TableHead>Origin</TableHead>
-                  <TableHead>Destination</TableHead>
-                  <TableHead>Shipment</TableHead>
-                  <TableHead class="text-right">Actions</TableHead>
+                  <TableHead>{{ $t('common.id') }}</TableHead>
+                  <TableHead>{{ $t('common.type') }}</TableHead>
+                  <TableHead>{{ $t('common.weight') }}</TableHead>
+                  <TableHead>{{ $t('common.value') }}</TableHead>
+                  <TableHead>{{ $t('common.origin') }}</TableHead>
+                  <TableHead>{{ $t('common.destination') }}</TableHead>
+                  <TableHead>{{ $t('common.shipment') }}</TableHead>
+                  <TableHead class="text-right">{{ $t('common.actions') }}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
