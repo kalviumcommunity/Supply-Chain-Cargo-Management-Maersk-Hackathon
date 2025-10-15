@@ -6,6 +6,7 @@ import com.cargomanagement.models.Shipment;
 import com.cargomanagement.repository.CargoRepository;
 import com.cargomanagement.repository.ShipmentRepository;
 import com.cargomanagement.service.KafkaProducerService;
+import com.cargomanagement.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +28,17 @@ public class CargoController {
     private final CargoRepository cargoRepository;
     private final ShipmentRepository shipmentRepository;
     private final KafkaProducerService kafkaProducerService;
+    private final NotificationService notificationService;
 
     @Autowired
-    public CargoController(CargoRepository cargoRepository, ShipmentRepository shipmentRepository, KafkaProducerService kafkaProducerService) {
+    public CargoController(CargoRepository cargoRepository,
+                           ShipmentRepository shipmentRepository,
+                           KafkaProducerService kafkaProducerService,
+                           NotificationService notificationService) {
         this.cargoRepository = cargoRepository;
         this.shipmentRepository = shipmentRepository;
         this.kafkaProducerService = kafkaProducerService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping
@@ -67,6 +73,7 @@ public class CargoController {
                            ", Weight=" + savedCargo.getWeight() + "kg" + 
                            ", Value=$" + savedCargo.getValue();
             kafkaProducerService.sendMessage("cargo-events", message);
+            notificationService.notifyCargoCreated(savedCargo);
             return ResponseEntity.ok(savedCargo);
         } catch (Exception e) {
             System.err.println("Error creating cargo: " + e.getMessage());
@@ -108,6 +115,7 @@ public class CargoController {
             final Cargo updatedCargo = cargoRepository.save(cargo);
             String message = "Cargo updated: ID=" + id + ", Type=" + updatedCargo.getType();
             kafkaProducerService.sendMessage("cargo-events", message);
+            notificationService.notifyCargoUpdated(updatedCargo);
             return ResponseEntity.ok(updatedCargo);
         } catch (Exception e) {
             System.err.println("Error updating cargo: " + e.getMessage());
@@ -119,18 +127,20 @@ public class CargoController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteCargo(@PathVariable Long id) {
         try {
-            if (!cargoRepository.existsById(id)) {
+            Cargo cargo = cargoRepository.findById(id).orElse(null);
+            if (cargo == null) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
                 errorResponse.put("message", "Cargo not found with ID: " + id);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
             }
 
-            cargoRepository.deleteById(id);
+            cargoRepository.delete(cargo);
 
             // Publish to Kafka
             String message = "Cargo deleted: ID=" + id;
             kafkaProducerService.sendMessage("cargo-events", message);
+            notificationService.notifyCargoDeleted(cargo);
 
             // Return success response with JSON body
             Map<String, Object> response = new HashMap<>();
