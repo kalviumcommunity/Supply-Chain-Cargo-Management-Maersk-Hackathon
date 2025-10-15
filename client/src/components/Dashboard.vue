@@ -2,9 +2,8 @@
   <div class="space-y-5 animate-fade-in">
     <!-- Page Header -->
     <PageHeader
-      title="Dashboard"
-      description="Welcome back! Here's your supply chain overview."
-
+      :title="$t('dashboard.title')"
+      :description="$t('dashboard.subtitle')"
     >
       <template #actions>
         <Button 
@@ -12,7 +11,7 @@
           class="shadow-sm hover:shadow-md"
         >
           <Plus class="w-4 h-4 mr-2" />
-          New Shipment
+          {{ $t('common.newShipment') }}
         </Button>
       </template>
     </PageHeader>
