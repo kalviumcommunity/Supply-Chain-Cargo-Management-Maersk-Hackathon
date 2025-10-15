@@ -5,6 +5,7 @@ import com.cargomanagement.models.Delivery;
 import com.cargomanagement.repository.ShipmentRepository;
 import com.cargomanagement.repository.DeliveryRepository;
 import com.cargomanagement.service.KafkaProducerService;
+import com.cargomanagement.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,14 +23,17 @@ public class ShipmentController {
     private final ShipmentRepository shipmentRepository;
     private final DeliveryRepository deliveryRepository;
     private final KafkaProducerService kafkaProducerService;
+    private final NotificationService notificationService;
 
     @Autowired
-    public ShipmentController(ShipmentRepository shipmentRepository, 
+    public ShipmentController(ShipmentRepository shipmentRepository,
                             DeliveryRepository deliveryRepository,
-                            KafkaProducerService kafkaProducerService) {
+                            KafkaProducerService kafkaProducerService,
+                            NotificationService notificationService) {
         this.shipmentRepository = shipmentRepository;
         this.deliveryRepository = deliveryRepository;
         this.kafkaProducerService = kafkaProducerService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping
@@ -69,6 +73,7 @@ public class ShipmentController {
                            ", Origin=" + savedShipment.getOrigin() + 
                            ", Destination=" + savedShipment.getDestination();
             kafkaProducerService.sendMessage("shipment-events", message);
+            notificationService.notifyShipmentCreated(savedShipment);
             
             return ResponseEntity.status(HttpStatus.CREATED).body(savedShipment);
         } catch (Exception e) {
@@ -127,6 +132,7 @@ public class ShipmentController {
                 // Publish Kafka event
                 String message = "Shipment updated: ID=" + id + ", Status=" + updatedShipment.getStatus();
                 kafkaProducerService.sendMessage("shipment-events", message);
+                notificationService.notifyShipmentUpdated(updatedShipment, oldStatus);
                 
                 return ResponseEntity.ok(updatedShipment);
             } else {
@@ -142,7 +148,8 @@ public class ShipmentController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteShipment(@PathVariable Long id) {
         try {
-            if (!shipmentRepository.existsById(id)) {
+            Shipment shipment = shipmentRepository.findById(id).orElse(null);
+            if (shipment == null) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
                 errorResponse.put("message", "Shipment not found with ID: " + id);
@@ -165,6 +172,7 @@ public class ShipmentController {
             // Publish Kafka event
             String message = "Shipment deleted: ID=" + id;
             kafkaProducerService.sendMessage("shipment-events", message);
+            notificationService.notifyShipmentDeleted(shipment);
 
             // Return success response
             Map<String, Object> response = new HashMap<>();
