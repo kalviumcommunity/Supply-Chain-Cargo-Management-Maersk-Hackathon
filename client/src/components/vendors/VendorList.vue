@@ -4,12 +4,12 @@
       <!-- Header Section -->
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-gray-900">Vendor Management</h1>
-          <p class="mt-2 text-gray-600">Manage your supply chain vendors</p>
+          <h1 class="text-3xl font-bold text-gray-900">{{ $t('vendors.title') }}</h1>
+          <p class="mt-2 text-gray-600">{{ $t('vendors.subtitle') }}</p>
         </div>
         <Button @click="$router.push('/vendors/create')">
           <Plus class="mr-2 h-4 w-4" />
-          Add Vendor
+          {{ $t('common.addVendor') }}
         </Button>
       </div>
 
@@ -18,7 +18,7 @@
         <!-- Total Vendors Card -->
         <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
           <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Total Vendors</span>
+            <span class="text-[13px] font-medium text-gray-600">{{ $t('vendors.totalVendors') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -26,7 +26,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 12%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Compared to the previous period</span>
+              <span class="text-xs text-gray-500">{{ $t('vendors.comparedPrevious') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -34,7 +34,7 @@
         <!-- Active Vendors Card -->
         <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
           <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Active Vendors</span>
+            <span class="text-[13px] font-medium text-gray-600">{{ $t('vendors.activeVendors') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -42,7 +42,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 8%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Currently operational</span>
+              <span class="text-xs text-gray-500">{{ $t('vendors.currentlyOperational') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -50,7 +50,7 @@
         <!-- Logistics Vendors Card -->
         <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
           <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Logistics</span>
+            <span class="text-[13px] font-medium text-gray-600">{{ $t('vendors.logistics') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -58,7 +58,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 5%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Service providers</span>
+              <span class="text-xs text-gray-500">{{ $t('vendors.serviceProviders') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -66,7 +66,7 @@
         <!-- Transportation Vendors Card -->
         <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
           <div class="px-4 pt-2.5 pb-1.5 bg-white">
-            <span class="text-[13px] font-medium text-gray-600">Transportation</span>
+            <span class="text-[13px] font-medium text-gray-600">{{ $t('vendors.transportation') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
@@ -74,7 +74,7 @@
               <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 3%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500">Service providers</span>
+              <span class="text-xs text-gray-500">{{ $t('vendors.serviceProviders') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -83,9 +83,9 @@
       <!-- Vendors Table -->
       <Card>
         <CardHeader>
-          <CardTitle>All Vendors</CardTitle>
+          <CardTitle>{{ $t('vendors.allVendors') }}</CardTitle>
           <CardDescription>
-            A comprehensive list of all vendors in your supply chain
+            {{ $t('vendors.allVendorsDesc') }}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -97,7 +97,7 @@
               <Input
                 v-model="searchQuery"
                 type="text"
-                placeholder="Search by ID, name, email, phone, or address..."
+                :placeholder="$t('vendors.searchVendors')"
                 class="pl-10"
               />
             </div>
@@ -108,7 +108,7 @@
                 <SelectValue placeholder="Service Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="all">{{ $t('common.allTypes') }}</SelectItem>
                 <SelectItem value="Logistics">Logistics</SelectItem>
                 <SelectItem value="Transportation">Transportation</SelectItem>
                 <SelectItem value="Warehousing">Warehousing</SelectItem>
@@ -145,13 +145,13 @@
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Service Type</TableHead>
-                  <TableHead>Contact Email</TableHead>
-                  <TableHead>Contact Phone</TableHead>
-                  <TableHead>Address</TableHead>
-                  <TableHead class="text-right">Actions</TableHead>
+                  <TableHead>{{ $t('common.id') }}</TableHead>
+                  <TableHead>{{ $t('common.name') }}</TableHead>
+                  <TableHead>{{ $t('vendors.serviceType') }}</TableHead>
+                  <TableHead>{{ $t('vendors.contactEmail') }}</TableHead>
+                  <TableHead>{{ $t('vendors.contactPhone') }}</TableHead>
+                  <TableHead>{{ $t('vendors.address') }}</TableHead>
+                  <TableHead class="text-right">{{ $t('common.actions') }}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
