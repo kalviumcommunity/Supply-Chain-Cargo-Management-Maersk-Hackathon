@@ -27,6 +27,7 @@
     "vue-router": "4"
   },
   "devDependencies": {
+    "@intlify/unplugin-vue-i18n": "^11.0.1",
     "@tailwindcss/vite": "^4.1.14",
     "@tsconfig/node20": "^20.1.6",
     "@types/node": "^24.7.2",
@@ -38,6 +39,7 @@
     "tailwindcss": "^4.1.14",
     "typescript": "^5.9.3",
     "vite": "^7.1.7",
+    "vue-i18n-extract": "^2.0.7",
     "vue-tsc": "^3.1.1"
   }
 }
