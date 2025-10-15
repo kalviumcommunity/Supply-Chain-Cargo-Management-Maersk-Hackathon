@@ -46,7 +46,7 @@ const login = async (credentials) => {
       return { success: true, user: response.user }
     } else {
       error.value = response.message || 'Login failed'
-      return { success: false, message: error.value }
+      return { success: false, message: error.value, isPending: response.isPending }
     }
   } catch (err) {
     error.value = err.message || 'An error occurred during login'
@@ -69,7 +69,7 @@ const signup = async (userData) => {
     const response = await authApi.signup(userData)
     
     if (response.success) {
-      return { success: true, message: response.message }
+      return { success: true, message: response.message, isPending: response.isPending }
     } else {
       error.value = response.message || 'Signup failed'
       return { success: false, message: error.value }

@@ -5,6 +5,7 @@ import com.cargomanagement.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -28,8 +29,8 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(password));
         user.setName(name);
         user.setProvider("local");
-        user.setRole("OPERATOR");
-        user.setIsActive(true);
+        user.setRole("PENDING");  // New users are PENDING
+        user.setIsActive(false);   // Inactive until admin approves
 
         return userRepository.save(user);
     }
@@ -39,7 +40,10 @@ public class AuthService {
         
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            if (user.getProvider().equals("local") && passwordEncoder.matches(password, user.getPassword())) {
+            // Check if user is active and password matches
+            if (user.getProvider().equals("local") && 
+                passwordEncoder.matches(password, user.getPassword()) &&
+                user.getIsActive()) {
                 return Optional.of(user);
             }
         }
@@ -53,6 +57,33 @@ public class AuthService {
 
     public User saveUser(User user) {
         return userRepository.save(user);
+    }
+
+    // Admin methods to manage users
+    public List<User> getPendingUsers() {
+        return userRepository.findByRole("PENDING");
+    }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public User approveUser(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        user.setRole("OPERATOR");
+        user.setIsActive(true);
+        
+        return userRepository.save(user);
+    }
+
+    public void rejectUser(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        // Delete rejected users
+        userRepository.delete(user);
     }
 }
 

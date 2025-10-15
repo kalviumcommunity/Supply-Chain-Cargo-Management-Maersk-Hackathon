@@ -45,8 +45,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 user.setName(name != null ? name : email);
                 user.setPicture(picture);
                 user.setProvider("GOOGLE");
-                user.setRole("OPERATOR");
-                user.setIsActive(true);
+                user.setRole("PENDING");      // New OAuth users are PENDING
+                user.setIsActive(false);      // Inactive until admin approves
                 user = authService.saveUser(user);
             } else {
                 user = existingUser.get();
