@@ -18,7 +18,7 @@
       <!-- Error State -->
       <div v-else-if="error" class="text-center py-8">
         <AlertCircle class="h-12 w-12 text-red-500 mx-auto mb-4" />
-        <p class="text-gray-600 mb-4">{{ error }}</p>
+        <p class="text-gray-600 dark:text-sidebar-foreground/70 mb-4">{{ error }}</p>
         <Button @click="loadShipment" variant="outline">
           Try Again
         </Button>
@@ -29,10 +29,10 @@
         <!-- Header with Actions -->
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">
               Shipment #{{ shipment.shipmentId }}
             </h1>
-            <p class="mt-2 text-gray-600">
+            <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">
               {{ shipment.origin }} → {{ shipment.destination }}
             </p>
           </div>
@@ -51,61 +51,61 @@
         <!-- Stats Cards (RouteList list-stats style) -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <!-- Status -->
-          <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-            <div class="px-4 pt-2.5 pb-1.5 bg-white">
-              <span class="text-[13px] font-medium text-gray-600">Status</span>
+          <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+            <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+              <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Status</span>
             </div>
             <CardContent class="px-4 py-1.5 pb-3">
               <div class="flex items-center gap-2">
-                <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ shipment.status }}</div>
+                <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ shipment.status }}</div>
               </div>
               <div class="mt-1">
-                <span class="text-xs text-gray-500">Current shipment status</span>
+                <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Current shipment status</span>
               </div>
             </CardContent>
           </Card>
 
           <!-- Est. Delivery -->
-          <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-            <div class="px-4 pt-2.5 pb-1.5 bg-white">
-              <span class="text-[13px] font-medium text-gray-600">Est. Delivery</span>
+          <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+            <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+              <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Est. Delivery</span>
             </div>
             <CardContent class="px-4 py-1.5 pb-3">
               <div class="flex items-center gap-2">
-                <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ formatDate(shipment.estimatedDelivery) }}</div>
+                <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ formatDate(shipment.estimatedDelivery) }}</div>
               </div>
               <div class="mt-1">
-                <span class="text-xs text-gray-500">Expected arrival date</span>
+                <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Expected arrival date</span>
               </div>
             </CardContent>
           </Card>
 
           <!-- Cargo Items -->
-          <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-            <div class="px-4 pt-2.5 pb-1.5 bg-white">
-              <span class="text-[13px] font-medium text-gray-600">Cargo Items</span>
+          <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+            <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+              <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Cargo Items</span>
             </div>
             <CardContent class="px-4 py-1.5 pb-3">
               <div class="flex items-center gap-2">
-                <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ shipment.cargoItems?.length || 0 }}</div>
+                <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ shipment.cargoItems?.length || 0 }}</div>
               </div>
               <div class="mt-1">
-                <span class="text-xs text-gray-500">Items in this shipment</span>
+                <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Items in this shipment</span>
               </div>
             </CardContent>
           </Card>
 
           <!-- Route Assignment -->
-          <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-            <div class="px-4 pt-2.5 pb-1.5 bg-white">
-              <span class="text-[13px] font-medium text-gray-600">Route Status</span>
+          <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+            <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+              <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">Route Status</span>
             </div>
             <CardContent class="px-4 py-1.5 pb-3">
               <div class="flex items-center gap-2">
-                <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ shipment.assignedRoute ? 'Assigned' : 'Unassigned' }}</div>
+                <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ shipment.assignedRoute ? 'Assigned' : 'Unassigned' }}</div>
               </div>
               <div class="mt-1">
-                <span class="text-xs text-gray-500">Route assignment</span>
+                <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">Route assignment</span>
               </div>
             </CardContent>
           </Card>
@@ -121,26 +121,26 @@
             </CardHeader>
             <CardContent class="space-y-4">
               <div>
-                <label class="text-sm font-medium text-gray-500">Shipment ID</label>
-                <p class="mt-1 text-base font-medium">#{{ shipment.shipmentId }}</p>
+                <label class="text-sm font-medium text-gray-500 dark:text-sidebar-foreground/70">Shipment ID</label>
+                <p class="mt-1 text-base font-medium dark:text-sidebar-foreground">#{{ shipment.shipmentId }}</p>
               </div>
               <div>
-                <label class="text-sm font-medium text-gray-500">Origin</label>
-                <p class="mt-1 text-base font-medium">{{ shipment.origin }}</p>
+                <label class="text-sm font-medium text-gray-500 dark:text-sidebar-foreground/70">Origin</label>
+                <p class="mt-1 text-base font-medium dark:text-sidebar-foreground">{{ shipment.origin }}</p>
               </div>
               <div>
-                <label class="text-sm font-medium text-gray-500">Destination</label>
-                <p class="mt-1 text-base font-medium">{{ shipment.destination }}</p>
+                <label class="text-sm font-medium text-gray-500 dark:text-sidebar-foreground/70">Destination</label>
+                <p class="mt-1 text-base font-medium dark:text-sidebar-foreground">{{ shipment.destination }}</p>
               </div>
               <div>
-                <label class="text-sm font-medium text-gray-500">Status</label>
+                <label class="text-sm font-medium text-gray-500 dark:text-sidebar-foreground/70">Status</label>
                 <Badge class="mt-1" :variant="getStatusVariant(shipment.status)">
                   {{ shipment.status }}
                 </Badge>
               </div>
               <div>
-                <label class="text-sm font-medium text-gray-500">Estimated Delivery</label>
-                <p class="mt-1 text-base">{{ formatDate(shipment.estimatedDelivery) }}</p>
+                <label class="text-sm font-medium text-gray-500 dark:text-sidebar-foreground/70">Estimated Delivery</label>
+                <p class="mt-1 text-base dark:text-sidebar-foreground">{{ formatDate(shipment.estimatedDelivery) }}</p>
               </div>
             </CardContent>
           </Card>
@@ -153,26 +153,26 @@
             </CardHeader>
             <CardContent class="space-y-4">
               <div>
-                <label class="text-sm font-medium text-gray-500">Assigned Route</label>
+                <label class="text-sm font-medium text-gray-500 dark:text-sidebar-foreground/70">Assigned Route</label>
                 <div v-if="shipment.assignedRoute" class="mt-1">
-                  <p class="text-base font-medium">
+                  <p class="text-base font-medium dark:text-sidebar-foreground">
                     {{ shipment.assignedRoute.originPort }} → {{ shipment.assignedRoute.destinationPort }}
                   </p>
-                  <p class="text-sm text-gray-600">
+                  <p class="text-sm text-gray-600 dark:text-sidebar-foreground/70">
                     Duration: {{ shipment.assignedRoute.duration }} days
                   </p>
                 </div>
-                <p v-else class="mt-1 text-base text-gray-400">Not assigned</p>
+                <p v-else class="mt-1 text-base text-gray-400 dark:text-sidebar-foreground/60">Not assigned</p>
               </div>
               <div>
-                <label class="text-sm font-medium text-gray-500">Assigned Vendor</label>
+                <label class="text-sm font-medium text-gray-500 dark:text-sidebar-foreground/70">Assigned Vendor</label>
                 <div v-if="shipment.assignedVendor" class="mt-1">
-                  <p class="text-base font-medium">{{ shipment.assignedVendor.name }}</p>
+                  <p class="text-base font-medium dark:text-sidebar-foreground">{{ shipment.assignedVendor.name }}</p>
                   <Badge class="mt-1" variant="outline">
                     {{ shipment.assignedVendor.serviceType }}
                   </Badge>
                 </div>
-                <p v-else class="mt-1 text-base text-gray-400">Not assigned</p>
+                <p v-else class="mt-1 text-base text-gray-400 dark:text-sidebar-foreground/60">Not assigned</p>
               </div>
             </CardContent>
           </Card>
@@ -219,7 +219,7 @@
                 </TableBody>
               </Table>
             </div>
-            <div v-else class="text-center py-8 text-gray-500">
+            <div v-else class="text-center py-8 text-gray-500 dark:text-sidebar-foreground/60">
               <Package class="h-12 w-12 mx-auto mb-2 opacity-50" />
               <p>No cargo items assigned to this shipment.</p>
             </div>

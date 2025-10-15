@@ -13,7 +13,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/routes")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
+@CrossOrigin(origins = {
+    "http://localhost:5173", 
+    "http://localhost:5174",
+    "http://cargo-flow.s3-website.ap-south-1.amazonaws.com"
+})
 public class RouteController {
 
     private final RouteRepository routeRepository;
@@ -78,6 +82,17 @@ public class RouteController {
                 errorResponse.put("success", false);
                 errorResponse.put("message", "Route not found with ID: " + id);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+            }
+
+            // Check if route is being used by any shipments
+            long shipmentCount = routeRepository.countShipmentsUsingRoute(id);
+            if (shipmentCount > 0) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Cannot delete route: This route is currently assigned to " + 
+                                           shipmentCount + " shipment(s). Please reassign or delete those shipments first.");
+                errorResponse.put("shipmentCount", shipmentCount);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
             }
 
             routeRepository.deleteById(id);

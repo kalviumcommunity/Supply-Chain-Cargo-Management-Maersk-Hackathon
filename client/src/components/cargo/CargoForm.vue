@@ -7,24 +7,24 @@
           <ArrowLeft class="mr-2 h-4 w-4" />
           Back to Cargo
         </Button>
-        <h1 class="text-3xl font-bold text-gray-900">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">
           {{ isEditMode ? 'Edit Cargo' : 'Create Cargo' }}
         </h1>
-        <p class="mt-2 text-gray-600">
+        <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">
           {{ isEditMode ? 'Update cargo information' : 'Add new cargo to your inventory' }}
         </p>
       </div>
 
       <!-- Loading State -->
       <div v-if="isLoading && isEditMode" class="flex items-center justify-center h-64">
-        <Loader2 class="h-8 w-8 animate-spin" />
-        <span class="ml-2">Loading cargo details...</span>
+        <Loader2 class="h-8 w-8 animate-spin dark:text-sidebar-foreground" />
+        <span class="ml-2 dark:text-sidebar-foreground">Loading cargo details...</span>
       </div>
 
       <!-- Error State -->
       <div v-else-if="loadError" class="text-center py-8">
         <AlertCircle class="h-12 w-12 text-red-500 mx-auto mb-4" />
-        <p class="text-gray-600 mb-4">{{ loadError }}</p>
+        <p class="text-gray-600 dark:text-sidebar-foreground/70 mb-4">{{ loadError }}</p>
         <Button @click="goBack" variant="outline">
           Back to Cargo
         </Button>
@@ -43,7 +43,7 @@
             <!-- Type and Weight -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-2">
-                <label for="type" class="text-sm font-medium">
+                <label for="type" class="text-sm font-medium dark:text-sidebar-foreground">
                   Cargo Type <span class="text-red-500">*</span>
                 </label>
                 <select 
@@ -71,7 +71,7 @@
               </div>
               
               <div class="space-y-2">
-                <label for="weight" class="text-sm font-medium">
+                <label for="weight" class="text-sm font-medium dark:text-sidebar-foreground">
                   Weight (kg) <span class="text-red-500">*</span>
                 </label>
                 <Input
@@ -90,7 +90,7 @@
             <!-- Value and Volume -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="space-y-2">
-                <label for="value" class="text-sm font-medium">
+                <label for="value" class="text-sm font-medium dark:text-sidebar-foreground">
                   Value ($) <span class="text-red-500">*</span>
                 </label>
                 <Input
@@ -106,7 +106,7 @@
               </div>
               
               <div class="space-y-2">
-                <label for="volume" class="text-sm font-medium">
+                <label for="volume" class="text-sm font-medium dark:text-sidebar-foreground">
                   Volume (m³) (Optional)
                 </label>
                 <Input
@@ -123,7 +123,7 @@
 
             <!-- Shipment Assignment -->
             <div class="space-y-2">
-              <label for="shipment" class="text-sm font-medium">
+              <label for="shipment" class="text-sm font-medium dark:text-sidebar-foreground">
                 Assign to Shipment (Optional)
               </label>
               <div class="relative">
@@ -144,16 +144,16 @@
                     #{{ shipment.shipmentId }} - {{ shipment.origin }} → {{ shipment.destination }}
                   </option>
                 </select>
-                <Loader2 v-if="isLoadingShipments" class="absolute right-3 top-3 h-4 w-4 animate-spin text-gray-400" />
+                <Loader2 v-if="isLoadingShipments" class="absolute right-3 top-3 h-4 w-4 animate-spin text-gray-400 dark:text-sidebar-foreground/60" />
               </div>
-              <p v-if="shipments.length === 0 && !isLoadingShipments" class="text-xs text-gray-500">
+              <p v-if="shipments.length === 0 && !isLoadingShipments" class="text-xs text-gray-500 dark:text-sidebar-foreground/60">
                 No shipments available. Create a shipment first.
               </p>
             </div>
 
             <!-- Description -->
             <div class="space-y-2">
-              <label for="description" class="text-sm font-medium">
+              <label for="description" class="text-sm font-medium dark:text-sidebar-foreground">
                 Description (Optional)
               </label>
               <Textarea
@@ -166,10 +166,10 @@
             </div>
 
             <!-- Error Message -->
-            <div v-if="errorMessage" class="p-4 bg-red-50 border border-red-200 rounded-md">
+            <div v-if="errorMessage" class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900 rounded-md">
               <div class="flex">
-                <AlertCircle class="h-5 w-5 text-red-600 mr-2" />
-                <p class="text-sm text-red-600">{{ errorMessage }}</p>
+                <AlertCircle class="h-5 w-5 text-red-600 dark:text-red-400 mr-2" />
+                <p class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</p>
               </div>
             </div>
 

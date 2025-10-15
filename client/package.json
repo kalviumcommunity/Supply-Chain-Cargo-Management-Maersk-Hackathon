@@ -27,6 +27,8 @@
     "vue-router": "4"
   },
   "devDependencies": {
+    "@iconify-json/radix-icons": "^1.2.5",
+    "@iconify/vue": "^5.0.0",
     "@intlify/unplugin-vue-i18n": "^11.0.1",
     "@tailwindcss/vite": "^4.1.14",
     "@tsconfig/node20": "^20.1.6",

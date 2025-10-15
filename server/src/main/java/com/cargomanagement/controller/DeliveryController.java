@@ -3,6 +3,7 @@ package com.cargomanagement.controller;
 import com.cargomanagement.models.Delivery;
 import com.cargomanagement.repository.DeliveryRepository;
 import com.cargomanagement.service.KafkaProducerService;
+import com.cargomanagement.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,16 +16,24 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/deliveries")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
+@CrossOrigin(origins = {
+    "http://localhost:5173", 
+    "http://localhost:5174",
+    "http://cargo-flow.s3-website.ap-south-1.amazonaws.com"
+})
 public class DeliveryController {
 
     private final DeliveryRepository deliveryRepository;
     private final KafkaProducerService kafkaProducerService;
+    private final NotificationService notificationService;
 
     @Autowired
-    public DeliveryController(DeliveryRepository deliveryRepository, KafkaProducerService kafkaProducerService) {
+    public DeliveryController(DeliveryRepository deliveryRepository,
+                              KafkaProducerService kafkaProducerService,
+                              NotificationService notificationService) {
         this.deliveryRepository = deliveryRepository;
         this.kafkaProducerService = kafkaProducerService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping
@@ -55,6 +64,7 @@ public class DeliveryController {
         Delivery savedDelivery = deliveryRepository.save(delivery);
         String message = "Delivery created: ID=" + savedDelivery.getDeliveryId() + ", Recipient=" + savedDelivery.getRecipient();
         kafkaProducerService.sendMessage("delivery-events", message);
+        notificationService.notifyDeliveryEvent(savedDelivery, "Created");
         return savedDelivery;
     }
 
@@ -77,24 +87,27 @@ public class DeliveryController {
         final Delivery updatedDelivery = deliveryRepository.save(delivery);
         String message = "Delivery updated: ID=" + id + ", Recipient=" + updatedDelivery.getRecipient();
         kafkaProducerService.sendMessage("delivery-events", message);
+        notificationService.notifyDeliveryEvent(updatedDelivery, "Updated");
         return ResponseEntity.ok(updatedDelivery);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteDelivery(@PathVariable Long id) {
         try {
-            if (!deliveryRepository.existsById(id)) {
+            Delivery delivery = deliveryRepository.findById(id).orElse(null);
+            if (delivery == null) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
                 errorResponse.put("message", "Delivery not found with ID: " + id);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
             }
 
-            deliveryRepository.deleteById(id);
+            deliveryRepository.delete(delivery);
 
             // Publish to Kafka
             String message = "Delivery deleted: ID=" + id;
             kafkaProducerService.sendMessage("delivery-events", message);
+            notificationService.notifyDeliveryEvent(delivery, "Deleted");
 
             // Return success response
             Map<String, Object> response = new HashMap<>();

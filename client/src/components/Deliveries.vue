@@ -3,73 +3,73 @@
     <!-- Header Section -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900">{{ $t('deliveries.title') }}</h1>
-        <p class="mt-1 text-sm text-gray-600">{{ $t('deliveries.subtitle') }}</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-sidebar-foreground">{{ $t('deliveries.title') }}</h1>
+        <p class="mt-1 text-sm text-gray-600 dark:text-sidebar-foreground/70">{{ $t('deliveries.subtitle') }}</p>
       </div>
     </div>
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-        <div class="px-4 pt-2.5 pb-1.5 bg-white">
-          <span class="text-[13px] font-medium text-gray-600">{{ $t('deliveries.totalDeliveries') }}</span>
+      <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+        <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+          <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">{{ $t('deliveries.totalDeliveries') }}</span>
         </div>
         <CardContent class="px-4 py-1.5 pb-3">
           <div class="flex items-center gap-2">
-            <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ stats.total }}</div>
-            <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 12%</span>
+            <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ stats.total }}</div>
+            <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 12%</span>
           </div>
           <div class="mt-1 flex items-center gap-1.5">
-            <Truck class="w-3.5 h-3.5 text-blue-500" />
-            <span class="text-xs text-gray-500">{{ $t('deliveries.allDeliveriesTracked') }}</span>
+            <Truck class="w-3.5 h-3.5 text-blue-500 dark:text-sidebar-foreground/60" />
+            <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">{{ $t('deliveries.allDeliveriesTracked') }}</span>
           </div>
         </CardContent>
       </Card>
       
-      <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-        <div class="px-4 pt-2.5 pb-1.5 bg-white">
-          <span class="text-[13px] font-medium text-gray-600">{{ $t('deliveries.delivered') }}</span>
+      <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+        <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+          <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">{{ $t('deliveries.delivered') }}</span>
         </div>
         <CardContent class="px-4 py-1.5 pb-3">
           <div class="flex items-center gap-2">
-            <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ stats.delivered }}</div>
-            <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 8%</span>
+            <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ stats.delivered }}</div>
+            <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 8%</span>
           </div>
           <div class="mt-1 flex items-center gap-1.5">
-            <CheckCircle class="w-3.5 h-3.5 text-green-500" />
-            <span class="text-xs text-gray-500">{{ $t('deliveries.successfullyCompleted') }}</span>
+            <CheckCircle class="w-3.5 h-3.5 text-green-500 dark:text-sidebar-foreground/60" />
+            <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">{{ $t('deliveries.successfullyCompleted') }}</span>
           </div>
         </CardContent>
       </Card>
       
-      <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-        <div class="px-4 pt-2.5 pb-1.5 bg-white">
-          <span class="text-[13px] font-medium text-gray-600">{{ $t('deliveries.inTransit') }}</span>
+      <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+        <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+          <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">{{ $t('deliveries.inTransit') }}</span>
         </div>
         <CardContent class="px-4 py-1.5 pb-3">
           <div class="flex items-center gap-2">
-            <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ stats.inTransit }}</div>
-            <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 5%</span>
+            <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ stats.inTransit }}</div>
+            <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 5%</span>
           </div>
           <div class="mt-1 flex items-center gap-1.5">
-            <Clock class="w-3.5 h-3.5 text-yellow-500" />
-            <span class="text-xs text-gray-500">{{ $t('deliveries.currentlyOnWay') }}</span>
+            <Clock class="w-3.5 h-3.5 text-yellow-500 dark:text-sidebar-foreground/60" />
+            <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">{{ $t('deliveries.currentlyOnWay') }}</span>
           </div>
         </CardContent>
       </Card>
       
-      <Card class="rounded-xl border-l border-r border-b border-gray-200/60 shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0 border-t-4 !border-t-[#f4f6f8]">
-        <div class="px-4 pt-2.5 pb-1.5 bg-white">
-          <span class="text-[13px] font-medium text-gray-600">{{ $t('deliveries.pending') }}</span>
+      <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
+        <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
+          <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">{{ $t('deliveries.pending') }}</span>
         </div>
         <CardContent class="px-4 py-1.5 pb-3">
           <div class="flex items-center gap-2">
-            <div class="text-3xl font-semibold tracking-tight text-gray-900">{{ stats.pending }}</div>
-            <span class="inline-flex items-center rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-100">↗ 15%</span>
+            <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">{{ stats.pending }}</div>
+            <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 15%</span>
           </div>
           <div class="mt-1 flex items-center gap-1.5">
-            <Package class="w-3.5 h-3.5 text-purple-500" />
-            <span class="text-xs text-gray-500">{{ $t('deliveries.awaitingPickup') }}</span>
+            <Package class="w-3.5 h-3.5 text-purple-500 dark:text-sidebar-foreground/60" />
+            <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">{{ $t('deliveries.awaitingPickup') }}</span>
           </div>
         </CardContent>
       </Card>

@@ -34,8 +34,13 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth2 -> oauth2
                 .successHandler(oAuth2LoginSuccessHandler)
+                // Note: OAuth2 failure will be handled by the success handler's redirect logic
+                // The frontend will handle the error state
                 .failureUrl("http://localhost:5173/login?error=true")
             );
         return http.build();
     }
 }
+// Note: The failureUrl is less critical as OAuth2 failures are typically handled
+// by the OAuth provider. The successHandler dynamically determines the correct
+// redirect URL based on the request origin (localhost or AWS deployment).

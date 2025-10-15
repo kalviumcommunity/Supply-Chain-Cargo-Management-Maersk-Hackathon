@@ -54,6 +54,17 @@ spring.security.oauth2.client.registration.google.scope=profile,email
 spring.security.oauth2.client.registration.google.redirect-uri=http://localhost:8080/login/oauth2/code/google
 spring.security.oauth2.client.registration.google.client-name=Google
 
+# EMAIL NOTIFICATION CONFIGURATION (sample values)
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=your-email@example.com
+spring.mail.password=your-app-password
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+
+notification.email.from=no-reply@example.com
+notification.email.recipients=ops@example.com,alerts@example.com
+
 # ============================================
 # INSTRUCTIONS TO USE THIS FILE:
 # ============================================
