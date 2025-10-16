@@ -30,12 +30,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configure(http))
             .authorizeHttpRequests(auth -> auth
-                // Allow ALL requests - we'll handle authorization manually in controllers
                 .anyRequest().permitAll()
-            )
-            .sessionManagement(session -> session
-                .maximumSessions(1)
-                .maxSessionsPreventsLogin(false)
             )
             .oauth2Login(oauth2 -> oauth2
                 .successHandler(oAuth2LoginSuccessHandler)
@@ -44,6 +39,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-// Note: The failureUrl is less critical as OAuth2 failures are typically handled
-// by the OAuth provider. The successHandler dynamically determines the correct
-// redirect URL based on the request origin (localhost or AWS deployment).

@@ -203,12 +203,50 @@ const error = ref(null)
 
 const vendorId = route.params.id
 
+// Helper function to parse contactInfo from backend
+const parseContactInfo = (contactInfo) => {
+  if (!contactInfo) return { email: '', phone: '', address: '' }
+  
+  // Split by comma and trim whitespace
+  const parts = contactInfo.split(',').map(part => part.trim())
+  
+  let email = ''
+  let phone = ''
+  let address = ''
+  
+  parts.forEach(part => {
+    // Check if it's an email (contains @)
+    if (part.includes('@')) {
+      email = part
+    }
+    // Check if it's a phone (starts with + or contains numbers and dashes/parentheses)
+    else if (part.match(/^[\+\d\(\)\-\s]+$/)) {
+      phone = part
+    }
+    // Otherwise, treat as address
+    else if (part.length > 0) {
+      address = address ? address + ', ' + part : part
+    }
+  })
+  
+  return { email, phone, address }
+}
+
 const loadVendor = async () => {
   isLoading.value = true
   error.value = null
   try {
     const data = await vendorApi.getById(vendorId)
-    vendor.value = data
+    
+    // Parse contactInfo into separate fields
+    const contactData = parseContactInfo(data.contactInfo)
+    
+    vendor.value = {
+      ...data,
+      contactEmail: contactData.email,
+      contactPhone: contactData.phone,
+      address: contactData.address
+    }
   } catch (err) {
     error.value = err.message || 'Failed to load vendor details'
     console.error('❌ Error loading vendor:', err)
