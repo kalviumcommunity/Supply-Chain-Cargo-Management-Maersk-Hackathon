@@ -128,20 +128,20 @@
               class="w-full md:w-auto"
             >
               <X class="h-4 w-4 mr-2" />
-              Clear
+              {{ $t('common.clear') }}
             </Button>
           </div>
 
           <div v-if="isLoading" class="flex items-center justify-center h-32">
             <Loader2 class="h-6 w-6 animate-spin" />
-            <span class="ml-2">Loading vendors...</span>
+            <span class="ml-2">{{ $t('vendors.loadingVendors') }}</span>
           </div>
           
           <div v-else-if="error" class="text-center py-8">
             <AlertCircle class="h-12 w-12 text-red-500 mx-auto mb-4" />
             <p class="text-gray-600">{{ error }}</p>
             <Button @click="loadVendors" class="mt-4" variant="outline">
-              Try Again
+              {{ $t('common.tryAgain') }}
             </Button>
           </div>
           
@@ -162,12 +162,12 @@
                 <TableRow v-if="filteredVendors.length === 0">
                   <TableCell :colspan="7" class="h-24 text-center">
                     <div v-if="searchQuery || filterServiceType !== 'all'" class="space-y-2">
-                      <p>No vendors match your filters.</p>
+                      <p>{{ $t('vendors.noVendorsMatches') }}</p>
                       <Button @click="clearFilters" variant="outline" size="sm">
-                        Clear Filters
+                        {{ $t('common.clearFilters') }}
                       </Button>
                     </div>
-                    <p v-else>No vendors found. Create your first vendor to get started.</p>
+                    <p v-else>{{ $t('vendors.noVendors') }}</p>
                   </TableCell>
                 </TableRow>
                 <TableRow v-for="vendor in filteredVendors" :key="vendor.vendorId">
