@@ -6,8 +6,11 @@ export default {
     shipmentTracking: 'Shipment Tracking',
     routeManagement: 'Route Management',
     vendorCoordination: 'Vendor Coordination',
+    deliveries: 'Deliveries',
     analytics: 'Analytics',
     settings: 'Settings',
+    navigation: 'Navigation',
+    tools: 'Tools',
   },
 
   // Dashboard
@@ -22,6 +25,8 @@ export default {
     quickActions: 'Quick Actions',
     shipmentStatus: 'Shipment Status',
     viewAll: 'View all',
+    all: 'All',
+    noRecentActivity: 'No recent activity to display.',
   },
 
   // Settings
@@ -35,6 +40,14 @@ export default {
     off: 'Off',
     enabled: 'Enabled',
     disabled: 'Disabled',
+    switchTheme: 'Switch between light, dark, or system theme',
+    receiveUpdates: 'Receive updates and alerts',
+    selectLanguage: 'Select your preferred language',
+    sendTestNotification: 'Send Test Notification',
+    sendEmail: 'Send Email',
+    sending: 'Sending...',
+    emailFieldNote: 'Leave the email field empty to use the default recipients configured on the server.',
+    emailPlaceholder: 'ops@example.com, team@example.com',
   },
 
   // Common
@@ -73,6 +86,14 @@ export default {
     total: 'Total',
     active: 'Active',
     inactive: 'Inactive',
+    from: 'From',
+    to: 'To',
+    deliveryDate: 'Delivery Date',
+    recipient: 'Recipient',
+    clearFilters: 'Clear Filters',
+    clear: 'Clear',
+    tryAgain: 'Try Again',
+    retry: 'Retry',
     // Table columns
     id: 'ID',
     origin: 'Origin',
@@ -130,6 +151,13 @@ export default {
     totalWeight: 'Total Weight',
     totalValue: 'Total Value',
     electronics: 'Electronics',
+    // Table
+    allCargo: 'All Cargo',
+    allCargoDesc: 'A comprehensive list of all cargo in your inventory',
+    searchPlaceholder: 'Search by ID, type, origin, destination, or shipment...',
+    loadingCargo: 'Loading cargo...',
+    noCargo: 'No cargo found.',
+    noCargoMatches: 'No cargo matches your filters',
   },
 
   // Shipments
@@ -158,6 +186,13 @@ export default {
     cancelled: 'Cancelled',
     // Metrics
     totalShipments: 'Total Shipments',
+    // Table
+    allShipments: 'All Shipments',
+    allShipmentsDesc: 'A comprehensive list of all shipments in your supply chain',
+    searchPlaceholder: 'Search by ID, origin, destination, route, or vendor...',
+    loadingShipments: 'Loading shipments...',
+    noShipments: 'No shipments found.',
+    noShipmentsMatches: 'No shipments match your filters',
   },
 
   // Routes
@@ -263,6 +298,13 @@ export default {
     successfullyCompleted: 'Successfully completed',
     currentlyOnWay: 'Currently on the way',
     awaitingPickup: 'Awaiting pickup',
+    // Table headers
+    deliveryId: 'Delivery ID',
+    shipmentId: 'Shipment ID',
+    from: 'From',
+    to: 'To',
+    deliveryDate: 'Delivery Date',
+    recipient: 'Recipient',
   },
 
   // Auth
