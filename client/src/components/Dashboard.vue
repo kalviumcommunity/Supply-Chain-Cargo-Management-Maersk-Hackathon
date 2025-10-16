@@ -62,7 +62,7 @@
               Recent Activity
             </CardTitle>
             <div class="hidden md:flex items-center gap-1">
-              <Button size="sm" :variant="activityFilter === 'all' ? 'default' : 'outline'" @click="activityFilter = 'all'">All</Button>
+              <Button size="sm" :variant="activityFilter === 'all' ? 'default' : 'outline'" @click="activityFilter = 'all'">{{ $t('dashboard.all') }}</Button>
               <Button size="sm" :variant="activityFilter === 'shipments' ? 'default' : 'outline'" @click="activityFilter = 'shipments'">Shipments</Button>
               <Button size="sm" :variant="activityFilter === 'cargo' ? 'default' : 'outline'" @click="activityFilter = 'cargo'">Cargo</Button>
               <Button size="sm" :variant="activityFilter === 'routes' ? 'default' : 'outline'" @click="activityFilter = 'routes'">Routes</Button>
@@ -80,7 +80,7 @@
             <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-sidebar-accent">
               <Clock class="h-5 w-5 text-gray-500 dark:text-sidebar-foreground/70" />
             </div>
-            <p class="text-sm text-gray-600 dark:text-sidebar-foreground/70">No recent activity to display.</p>
+            <p class="text-sm text-gray-600 dark:text-sidebar-foreground/70">{{ $t('dashboard.noRecentActivity') }}</p>
           </div>
 
           <!-- Activity list -->
