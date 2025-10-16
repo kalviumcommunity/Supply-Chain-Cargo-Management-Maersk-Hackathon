@@ -66,7 +66,7 @@ const data = computed(() => ({
       icon: Truck,
     },
     {
-      title: "Deliveries",
+      title: t('nav.deliveries'),
       url: "/deliveries",
       icon: PackageCheck,
     },
@@ -82,11 +82,6 @@ const data = computed(() => ({
     },
   ],
   navTools: [
-    {
-      title: t('nav.analytics'),
-      url: "/analytics",
-      icon: BarChart3,
-    },
     {
       title: t('nav.settings'),
       url: "/settings",
@@ -140,7 +135,7 @@ const handleLogout = async () => {
     <SidebarContent>
       <!-- Navigation Section -->
       <SidebarGroup>
-        <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+        <SidebarGroupLabel>{{ $t('nav.navigation') }}</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem v-for="item in data.navMain" :key="item.title">
@@ -161,7 +156,7 @@ const handleLogout = async () => {
 
       <!-- Tools Section -->
       <SidebarGroup>
-        <SidebarGroupLabel>Tools</SidebarGroupLabel>
+        <SidebarGroupLabel>{{ $t('nav.tools') }}</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem v-for="item in data.navTools" :key="item.title">

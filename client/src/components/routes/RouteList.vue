@@ -5,14 +5,7 @@
       <PageHeader 
         :title="$t('routes.title')"
         :description="$t('routes.subtitle')"
-      >
-        <template #actions>
-          <Button @click="$router.push('/routes/create')">
-            <Plus class="mr-2 h-4 w-4" />
-            {{ $t('common.createRoute') }}
-          </Button>
-        </template>
-      </PageHeader>
+      />
 
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -108,6 +101,10 @@
                 <MapIcon class="mr-2 h-4 w-4" />
                 {{ $t('routes.map') }}
               </Button>
+              <Button @click="$router.push('/routes/create')">
+                <Plus class="mr-2 h-4 w-4" />
+                {{ $t('common.createRoute') }}
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -165,14 +162,14 @@
           </div>
           <div v-if="isLoading" class="flex items-center justify-center h-32">
             <Loader2 class="h-6 w-6 animate-spin" />
-            <span class="ml-2">Loading routes...</span>
+            <span class="ml-2">{{ $t('routes.loadingRoutes') }}</span>
           </div>
           
           <div v-else-if="error" class="text-center py-8">
             <AlertCircle class="h-12 w-12 text-red-500 mx-auto mb-4" />
             <p class="text-gray-600">{{ error }}</p>
             <Button @click="loadRoutes" class="mt-4" variant="outline">
-              Try Again
+              {{ $t('common.tryAgain') }}
             </Button>
           </div>
           
@@ -206,13 +203,13 @@
                 <TableRow v-if="filteredRoutes.length === 0">
                   <TableCell :colspan="9" class="h-24 text-center">
                     <div v-if="searchQuery || filterMode !== 'all' || filterStatus !== 'all'">
-                      <p class="text-gray-600 mb-2">No routes match your filters</p>
+                      <p class="text-gray-600 mb-2">{{ $t('routes.noRoutesMatches') }}</p>
                       <Button @click="clearFilters" variant="outline" size="sm">
-                        Clear Filters
+                        {{ $t('common.clearFilters') }}
                       </Button>
                     </div>
                     <p v-else class="text-gray-600">
-                      No routes found. Create your first route to get started.
+                      {{ $t('routes.noRoutes') }}
                     </p>
                   </TableCell>
                 </TableRow>

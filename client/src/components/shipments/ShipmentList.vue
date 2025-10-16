@@ -7,10 +7,6 @@
           <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">{{ $t('shipments.title') }}</h1>
           <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">{{ $t('shipments.subtitle') }}</p>
         </div>
-        <Button @click="$router.push('/shipments/create')">
-          <Plus class="mr-2 h-4 w-4" />
-          {{ $t('common.newShipment') }}
-        </Button>
       </div>
 
       <!-- Stats Cards -->
@@ -83,10 +79,18 @@
       <!-- Shipments Table -->
       <Card>
         <CardHeader>
-          <CardTitle>All Shipments</CardTitle>
-          <CardDescription>
-            A comprehensive list of all shipments in your supply chain
-          </CardDescription>
+          <div class="flex items-center justify-between">
+            <div>
+              <CardTitle>{{ $t('shipments.allShipments') }}</CardTitle>
+              <CardDescription>
+                {{ $t('shipments.allShipmentsDesc') }}
+              </CardDescription>
+            </div>
+            <Button @click="$router.push('/shipments/create')">
+              <Plus class="mr-2 h-4 w-4" />
+              {{ $t('common.newShipment') }}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <!-- Search and Filter Section -->
@@ -97,7 +101,7 @@
               <Input
                 v-model="searchQuery"
                 type="text"
-                placeholder="Search by ID, origin, destination, route, or vendor..."
+                :placeholder="$t('shipments.searchPlaceholder')"
                 class="pl-10"
               />
             </div>
@@ -127,20 +131,20 @@
               class="w-full md:w-auto"
             >
               <X class="h-4 w-4 mr-2" />
-              Clear
+              {{ $t('common.clear') }}
             </Button>
           </div>
 
           <div v-if="isLoading" class="flex items-center justify-center h-32">
             <Loader2 class="h-6 w-6 animate-spin" />
-            <span class="ml-2">Loading shipments...</span>
+            <span class="ml-2">{{ $t('shipments.loadingShipments') }}</span>
           </div>
           
           <div v-else-if="error" class="text-center py-8">
             <AlertCircle class="h-12 w-12 text-red-500 mx-auto mb-4" />
             <p class="text-gray-600">{{ error }}</p>
             <Button @click="loadShipments" class="mt-4" variant="outline">
-              Try Again
+              {{ $t('common.tryAgain') }}
             </Button>
           </div>
           
@@ -163,14 +167,14 @@
                     <div class="flex flex-col items-center justify-center text-gray-500">
                       <Truck class="h-12 w-12 text-gray-300 mb-2" />
                       <div v-if="searchQuery || filterStatus !== 'all'" class="space-y-2">
-                        <p class="font-medium">No shipments match your filters</p>
+                        <p class="font-medium">{{ $t('shipments.noShipmentsMatches') }}</p>
                         <Button @click="clearFilters" variant="outline" size="sm">
-                          Clear Filters
+                          {{ $t('common.clearFilters') }}
                         </Button>
                       </div>
                       <div v-else>
-                        <p class="font-medium">No shipments found</p>
-                        <p class="text-sm">Create your first shipment to get started.</p>
+                        <p class="font-medium">{{ $t('shipments.noShipments') }}</p>
+                        <p class="text-sm">{{ $t('shipments.addFirstShipment') }}</p>
                       </div>
                     </div>
                   </TableCell>

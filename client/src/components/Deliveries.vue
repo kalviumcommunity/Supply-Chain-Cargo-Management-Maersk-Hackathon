@@ -101,14 +101,14 @@
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Delivery ID</TableHead>
-                <TableHead>Shipment ID</TableHead>
-                <TableHead>From</TableHead>
-                <TableHead>To</TableHead>
-                <TableHead>Delivery Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Recipient</TableHead>
-                <TableHead class="text-right">Actions</TableHead>
+                <TableHead>{{ $t('deliveries.deliveryId') }}</TableHead>
+                <TableHead>{{ $t('deliveries.shipmentId') }}</TableHead>
+                <TableHead>{{ $t('common.from') }}</TableHead>
+                <TableHead>{{ $t('common.to') }}</TableHead>
+                <TableHead>{{ $t('common.deliveryDate') }}</TableHead>
+                <TableHead>{{ $t('common.status') }}</TableHead>
+                <TableHead>{{ $t('common.recipient') }}</TableHead>
+                <TableHead class="text-right">{{ $t('common.actions') }}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

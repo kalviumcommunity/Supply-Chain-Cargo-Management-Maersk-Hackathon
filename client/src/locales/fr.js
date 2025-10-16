@@ -6,8 +6,11 @@ export default {
     shipmentTracking: 'Suivi des Expéditions',
     routeManagement: 'Gestion des Itinéraires',
     vendorCoordination: 'Coordination des Fournisseurs',
+    deliveries: 'Livraisons',
     analytics: 'Analytique',
     settings: 'Paramètres',
+    navigation: 'Navigation',
+    tools: 'Outils',
   },
 
   // Tableau de Bord
@@ -22,6 +25,13 @@ export default {
     quickActions: 'Actions Rapides',
     shipmentStatus: 'État des Expéditions',
     viewAll: 'Voir tout',
+    all: 'Tous',
+    noRecentActivity: 'Aucune activité récente à afficher.',
+    shipments: 'Expéditions',
+    cargo: 'Cargaison',
+    routes: 'Itinéraires',
+    vendors: 'Fournisseurs',
+    deliveries: 'Livraisons',
   },
 
   // Paramètres
@@ -35,6 +45,14 @@ export default {
     off: 'Désactivé',
     enabled: 'Activé',
     disabled: 'Désactivé',
+    switchTheme: 'Basculer entre le thème clair, sombre ou système',
+    receiveUpdates: 'Recevoir des mises à jour et des alertes',
+    selectLanguage: 'Sélectionnez votre langue préférée',
+    sendTestNotification: 'Envoyer une Notification de Test',
+    sendEmail: 'Envoyer un E-mail',
+    sending: 'Envoi en cours...',
+    emailFieldNote: 'Laissez le champ e-mail vide pour utiliser les destinataires par défaut configurés sur le serveur.',
+    emailPlaceholder: 'ops@exemple.com, equipe@exemple.com',
   },
 
   // Commun
@@ -73,6 +91,16 @@ export default {
     total: 'Total',
     active: 'Actif',
     inactive: 'Inactif',
+    from: 'De',
+    to: 'À',
+    deliveryDate: 'Date de Livraison',
+    recipient: 'Destinataire',
+    clearFilters: 'Effacer les Filtres',
+    clear: 'Effacer',
+    tryAgain: 'Réessayer',
+    retry: 'Réessayer',
+    new: 'Nouveau',
+    page: 'Page',
     // Colonnes de table
     id: 'ID',
     origin: 'Origine',
@@ -130,6 +158,14 @@ export default {
     totalWeight: 'Poids Total',
     totalValue: 'Valeur Totale',
     electronics: 'Électronique',
+    // Table
+    allCargo: 'Toutes les Cargaisons',
+    allCargoDesc: 'Une liste complète de toutes les cargaisons dans votre inventaire',
+    searchPlaceholder: 'Rechercher par ID, type, origine, destination ou expédition...',
+    loadingCargo: 'Chargement des cargaisons...',
+    noCargo: 'Aucune cargaison trouvée',
+    noCargoMatches: 'Aucune cargaison ne correspond à vos filtres',
+    addFirstCargo: 'Ajoutez votre première cargaison pour commencer.',
   },
 
   // Expéditions
@@ -158,6 +194,14 @@ export default {
     cancelled: 'Annulé',
     // Métriques
     totalShipments: 'Expéditions Totales',
+    // Table
+    allShipments: 'Toutes les Expéditions',
+    allShipmentsDesc: 'Une liste complète de toutes les expéditions dans votre chaîne d\'approvisionnement',
+    searchPlaceholder: 'Rechercher par ID, origine, destination, itinéraire ou fournisseur...',
+    loadingShipments: 'Chargement des expéditions...',
+    noShipments: 'Aucune expédition trouvée',
+    noShipmentsMatches: 'Aucune expédition ne correspond à vos filtres',
+    addFirstShipment: 'Créez votre première expédition pour commencer.',
   },
 
   // Itinéraires
@@ -203,6 +247,9 @@ export default {
     durationDays: 'Durée (jours)',
     mode: 'Mode',
     costUsd: 'Coût ($)',
+    loadingRoutes: 'Chargement des itinéraires...',
+    noRoutes: 'Aucun itinéraire trouvé. Créez votre premier itinéraire pour commencer.',
+    noRoutesMatches: 'Aucun itinéraire ne correspond à vos filtres',
   },
 
   // Fournisseurs
@@ -243,6 +290,9 @@ export default {
     serviceType: 'Type de Service',
     contactEmail: 'E-mail de Contact',
     contactPhone: 'Téléphone de Contact',
+    loadingVendors: 'Chargement des fournisseurs...',
+    noVendors: 'Aucun fournisseur trouvé. Créez votre premier fournisseur pour commencer.',
+    noVendorsMatches: 'Aucun fournisseur ne correspond à vos filtres.',
   },
 
   // Livraisons
@@ -263,6 +313,13 @@ export default {
     successfullyCompleted: 'Terminé avec succès',
     currentlyOnWay: 'Actuellement en route',
     awaitingPickup: 'En attente de collecte',
+    // En-têtes de table
+    deliveryId: 'ID de Livraison',
+    shipmentId: 'ID d\'Expédition',
+    from: 'De',
+    to: 'À',
+    deliveryDate: 'Date de Livraison',
+    recipient: 'Destinataire',
   },
 
   // Authentification

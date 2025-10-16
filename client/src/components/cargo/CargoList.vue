@@ -7,10 +7,6 @@
           <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">{{ $t('cargo.title') }}</h1>
           <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">{{ $t('cargo.subtitle') }}</p>
         </div>
-        <Button @click="$router.push('/cargo/create')">
-          <Plus class="mr-2 h-4 w-4" />
-          {{ $t('common.addNewCargo') }}
-        </Button>
       </div>
 
       <!-- Stats Cards -->
@@ -83,10 +79,18 @@
       <!-- Cargo Table -->
       <Card>
         <CardHeader>
-          <CardTitle>All Cargo</CardTitle>
-          <CardDescription>
-            A comprehensive list of all cargo in your inventory
-          </CardDescription>
+          <div class="flex items-center justify-between">
+            <div>
+              <CardTitle>{{ $t('cargo.allCargo') }}</CardTitle>
+              <CardDescription>
+                {{ $t('cargo.allCargoDesc') }}
+              </CardDescription>
+            </div>
+            <Button @click="$router.push('/cargo/create')">
+              <Plus class="mr-2 h-4 w-4" />
+              {{ $t('common.addNewCargo') }}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <!-- Search and Filter Section -->
@@ -97,7 +101,7 @@
               <Input
                 v-model="searchQuery"
                 type="text"
-                placeholder="Search by ID, type, origin, destination, or shipment..."
+                :placeholder="$t('cargo.searchPlaceholder')"
                 class="pl-10"
               />
             </div>
@@ -127,20 +131,20 @@
               class="w-full md:w-auto"
             >
               <X class="h-4 w-4 mr-2" />
-              Clear
+              {{ $t('common.clear') }}
             </Button>
           </div>
 
           <div v-if="isLoading" class="flex items-center justify-center h-32">
             <Loader2 class="h-6 w-6 animate-spin" />
-            <span class="ml-2">Loading cargo...</span>
+            <span class="ml-2">{{ $t('cargo.loadingCargo') }}</span>
           </div>
           
           <div v-else-if="error" class="text-center py-8">
             <AlertCircle class="h-12 w-12 text-red-500 mx-auto mb-4" />
             <p class="text-gray-600">{{ error }}</p>
             <Button @click="loadCargo" class="mt-4" variant="outline">
-              Try Again
+              {{ $t('common.tryAgain') }}
             </Button>
           </div>
           
@@ -164,14 +168,14 @@
                     <div class="flex flex-col items-center justify-center text-gray-500">
                       <Package class="h-12 w-12 text-gray-300 mb-2" />
                       <div v-if="searchQuery || filterType !== 'all'" class="space-y-2">
-                        <p class="font-medium">No cargo matches your filters</p>
+                        <p class="font-medium">{{ $t('cargo.noCargoMatches') }}</p>
                         <Button @click="clearFilters" variant="outline" size="sm">
-                          Clear Filters
+                          {{ $t('common.clearFilters') }}
                         </Button>
                       </div>
                       <div v-else>
-                        <p class="font-medium">No cargo found</p>
-                        <p class="text-sm">Add your first cargo to get started.</p>
+                        <p class="font-medium">{{ $t('cargo.noCargo') }}</p>
+                        <p class="text-sm">{{ $t('cargo.addFirstCargo') }}</p>
                       </div>
                     </div>
                   </TableCell>

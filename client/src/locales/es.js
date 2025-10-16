@@ -6,14 +6,17 @@ export default {
     shipmentTracking: 'Seguimiento de Envíos',
     routeManagement: 'Gestión de Rutas',
     vendorCoordination: 'Coordinación de Proveedores',
+    deliveries: 'Entregas',
     analytics: 'Analítica',
     settings: 'Configuración',
+    navigation: 'Navegación',
+    tools: 'Herramientas',
   },
 
   // Panel de Control
   dashboard: {
     title: 'Panel de Control',
-    subtitle: '¡Bienvenido de nuevo! Aquí está tu resumen de la cadena de suministro.',
+    subtitle: 'Bienvenido de nuevo! Aquí está tu resumen de la cadena de suministro.',
     totalShipments: 'Envíos Totales',
     activeCargo: 'Carga Activa',
     availableRoutes: 'Rutas Disponibles',
@@ -22,6 +25,13 @@ export default {
     quickActions: 'Acciones Rápidas',
     shipmentStatus: 'Estado de Envíos',
     viewAll: 'Ver todo',
+    all: 'Todos',
+    noRecentActivity: 'No hay actividad reciente para mostrar.',
+    shipments: 'Envíos',
+    cargo: 'Carga',
+    routes: 'Rutas',
+    vendors: 'Proveedores',
+    deliveries: 'Entregas',
   },
 
   // Configuración
@@ -35,6 +45,14 @@ export default {
     off: 'Desactivado',
     enabled: 'Habilitado',
     disabled: 'Deshabilitado',
+    switchTheme: 'Cambiar entre tema claro, oscuro o del sistema',
+    receiveUpdates: 'Recibir actualizaciones y alertas',
+    selectLanguage: 'Seleccione su idioma preferido',
+    sendTestNotification: 'Enviar Notificación de Prueba',
+    sendEmail: 'Enviar Correo',
+    sending: 'Enviando...',
+    emailFieldNote: 'Deje el campo de correo vacío para usar los destinatarios predeterminados configurados en el servidor.',
+    emailPlaceholder: 'ops@ejemplo.com, equipo@ejemplo.com',
   },
 
   // Común
@@ -73,6 +91,16 @@ export default {
     total: 'Total',
     active: 'Activo',
     inactive: 'Inactivo',
+    from: 'Desde',
+    to: 'Hasta',
+    deliveryDate: 'Fecha de Entrega',
+    recipient: 'Destinatario',
+    clearFilters: 'Limpiar Filtros',
+    clear: 'Limpiar',
+    tryAgain: 'Intentar de Nuevo',
+    retry: 'Reintentar',
+    new: 'Nuevo',
+    page: 'Página',
     // Columnas de tabla
     id: 'ID',
     origin: 'Origen',
@@ -130,6 +158,14 @@ export default {
     totalWeight: 'Peso Total',
     totalValue: 'Valor Total',
     electronics: 'Electrónica',
+    // Tabla
+    allCargo: 'Toda la Carga',
+    allCargoDesc: 'Una lista completa de toda la carga en su inventario',
+    searchPlaceholder: 'Buscar por ID, tipo, origen, destino o envío...',
+    loadingCargo: 'Cargando carga...',
+    noCargo: 'No se encontró carga',
+    noCargoMatches: 'Ninguna carga coincide con sus filtros',
+    addFirstCargo: 'Agregue su primera carga para comenzar.',
   },
 
   // Envíos
@@ -158,6 +194,14 @@ export default {
     cancelled: 'Cancelado',
     // Métricas
     totalShipments: 'Envíos Totales',
+    // Tabla
+    allShipments: 'Todos los Envíos',
+    allShipmentsDesc: 'Una lista completa de todos los envíos en su cadena de suministro',
+    searchPlaceholder: 'Buscar por ID, origen, destino, ruta o proveedor...',
+    loadingShipments: 'Cargando envíos...',
+    noShipments: 'No se encontraron envíos',
+    noShipmentsMatches: 'Ningún envío coincide con sus filtros',
+    addFirstShipment: 'Cree su primer envío para comenzar.',
   },
 
   // Rutas
@@ -203,6 +247,9 @@ export default {
     durationDays: 'Duración (días)',
     mode: 'Modo',
     costUsd: 'Costo ($)',
+    loadingRoutes: 'Cargando rutas...',
+    noRoutes: 'No se encontraron rutas. Cree su primera ruta para comenzar.',
+    noRoutesMatches: 'Ninguna ruta coincide con sus filtros',
   },
 
   // Proveedores
@@ -243,6 +290,9 @@ export default {
     serviceType: 'Tipo de Servicio',
     contactEmail: 'Correo de Contacto',
     contactPhone: 'Teléfono de Contacto',
+    loadingVendors: 'Cargando proveedores...',
+    noVendors: 'No se encontraron proveedores. Cree su primer proveedor para comenzar.',
+    noVendorsMatches: 'Ningún proveedor coincide con sus filtros.',
   },
 
   // Entregas
@@ -263,6 +313,13 @@ export default {
     successfullyCompleted: 'Completado exitosamente',
     currentlyOnWay: 'Actualmente en camino',
     awaitingPickup: 'Esperando recolección',
+    // Encabezados de tabla
+    deliveryId: 'ID de Entrega',
+    shipmentId: 'ID de Envío',
+    from: 'Desde',
+    to: 'Hasta',
+    deliveryDate: 'Fecha de Entrega',
+    recipient: 'Destinatario',
   },
 
   // Autenticación

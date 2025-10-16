@@ -24,7 +24,7 @@
               <BreadcrumbList>
                 <BreadcrumbItem class="hidden md:block">
                   <BreadcrumbLink :href="currentBreadcrumb.parent?.url || '/dashboard'">
-                    {{ currentBreadcrumb.parent?.title || 'Dashboard' }}
+                    {{ currentBreadcrumb.parent?.title || $t('nav.dashboard') }}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator v-if="currentBreadcrumb.current" class="hidden md:block" />
@@ -57,6 +57,7 @@
 <script setup>
 import { computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { SidebarProvider, SidebarInset, SidebarTrigger } from './components/ui/sidebar'
 import { 
   Breadcrumb, 
@@ -72,6 +73,7 @@ import { useAuth } from './services/auth'
 
 const route = useRoute()
 const auth = useAuth()
+const { t } = useI18n()
 
 // Determine if sidebar should be shown
 const shouldShowSidebar = computed(() => {
@@ -86,13 +88,14 @@ const currentBreadcrumb = computed(() => {
   const segments = path.split('/').filter(Boolean)
   
   const breadcrumbMap = {
-    '/dashboard': { current: 'Dashboard' },
-    '/cargo': { current: 'Cargo Management' },
-    '/shipments': { current: 'Shipment Tracking' },
-    '/routes': { current: 'Route Management' },
-    '/vendors': { current: 'Vendor Coordination' },
-    '/analytics': { current: 'Analytics' },
-    '/settings': { current: 'Settings' },
+    '/dashboard': { current: t('nav.dashboard') },
+    '/cargo': { current: t('nav.cargoManagement') },
+    '/shipments': { current: t('nav.shipmentTracking') },
+    '/routes': { current: t('nav.routeManagement') },
+    '/vendors': { current: t('nav.vendorCoordination') },
+    '/deliveries': { current: t('nav.deliveries') },
+    '/analytics': { current: t('nav.analytics') },
+    '/settings': { current: t('nav.settings') },
   }
 
   // Handle nested routes
@@ -101,11 +104,11 @@ const currentBreadcrumb = computed(() => {
     const parentTitle = breadcrumbMap[parentPath]?.current || segments[0]
     return {
       parent: { title: parentTitle, url: parentPath },
-      current: segments[1] === 'create' ? 'Create New' : 'Details'
+      current: segments[1] === 'create' ? t('common.create') + ' ' + t('common.new') : t('common.details')
     }
   }
 
-  return breadcrumbMap[path] || { current: 'Page' }
+  return breadcrumbMap[path] || { current: t('common.page') || 'Page' }
 })
 
 // Watch for route changes and scroll to top

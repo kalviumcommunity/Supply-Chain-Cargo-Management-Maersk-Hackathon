@@ -86,7 +86,7 @@ async function sendTestEmail() {
           <div>
             <span class="font-medium">{{ $t('settings.darkMode') }}</span>
             <p class="text-sm text-muted-foreground mt-1">
-              Switch between light, dark, or system theme
+              {{ $t('settings.switchTheme') }}
             </p>
           </div>
           <div class="flex items-center gap-3">
@@ -100,7 +100,7 @@ async function sendTestEmail() {
           <div>
             <span class="font-medium">{{ $t('settings.notifications') }}</span>
             <p class="text-sm text-muted-foreground mt-1">
-              Receive updates and alerts
+              {{ $t('settings.receiveUpdates') }}
             </p>
           </div>
           <Button @click="toggleNotifications" :variant="notifications ? 'default' : 'outline'">
@@ -113,7 +113,7 @@ async function sendTestEmail() {
           <div>
             <span class="font-medium">{{ $t('settings.language') }}</span>
             <p class="text-sm text-muted-foreground mt-1">
-              Select your preferred language
+              {{ $t('settings.selectLanguage') }}
             </p>
           </div>
           <select v-model="language" class="border rounded px-3 py-2 bg-background text-foreground border-input focus:ring-2 focus:ring-ring">
@@ -124,22 +124,22 @@ async function sendTestEmail() {
         </div>
         <div class="flex flex-col gap-2">
           <div class="flex items-center justify-between">
-            <span class="font-medium">Send Test Notification</span>
+            <span class="font-medium">{{ $t('settings.sendTestNotification') }}</span>
             <Button
               @click="sendTestEmail"
               :variant="isSendingEmail ? 'outline' : 'default'"
               :disabled="isSendingEmail"
             >
-              {{ isSendingEmail ? 'Sending...' : 'Send Email' }}
+              {{ isSendingEmail ? $t('settings.sending') : $t('settings.sendEmail') }}
             </Button>
           </div>
           <p class="text-sm text-muted-foreground">
-            Leave the email field empty to use the default recipients configured on the server.
+            {{ $t('settings.emailFieldNote') }}
           </p>
           <input
             v-model="testEmail"
             type="text"
-            placeholder="ops@example.com, team@example.com"
+            :placeholder="$t('settings.emailPlaceholder')"
             class="border rounded px-3 py-2 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <p
