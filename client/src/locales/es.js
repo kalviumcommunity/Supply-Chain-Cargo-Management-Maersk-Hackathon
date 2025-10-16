@@ -16,7 +16,7 @@ export default {
   // Panel de Control
   dashboard: {
     title: 'Panel de Control',
-    subtitle: '¡Bienvenido de nuevo! Aquí está tu resumen de la cadena de suministro.',
+    subtitle: 'Bienvenido de nuevo! Aquí está tu resumen de la cadena de suministro.',
     totalShipments: 'Envíos Totales',
     activeCargo: 'Carga Activa',
     availableRoutes: 'Rutas Disponibles',
@@ -27,6 +27,11 @@ export default {
     viewAll: 'Ver todo',
     all: 'Todos',
     noRecentActivity: 'No hay actividad reciente para mostrar.',
+    shipments: 'Envíos',
+    cargo: 'Carga',
+    routes: 'Rutas',
+    vendors: 'Proveedores',
+    deliveries: 'Entregas',
   },
 
   // Configuración
@@ -94,6 +99,8 @@ export default {
     clear: 'Limpiar',
     tryAgain: 'Intentar de Nuevo',
     retry: 'Reintentar',
+    new: 'Nuevo',
+    page: 'Página',
     // Columnas de tabla
     id: 'ID',
     origin: 'Origen',
