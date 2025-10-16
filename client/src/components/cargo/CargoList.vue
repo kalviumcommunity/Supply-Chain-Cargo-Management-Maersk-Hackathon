@@ -7,10 +7,6 @@
           <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">{{ $t('cargo.title') }}</h1>
           <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">{{ $t('cargo.subtitle') }}</p>
         </div>
-        <Button @click="$router.push('/cargo/create')">
-          <Plus class="mr-2 h-4 w-4" />
-          {{ $t('common.addNewCargo') }}
-        </Button>
       </div>
 
       <!-- Stats Cards -->
@@ -83,10 +79,18 @@
       <!-- Cargo Table -->
       <Card>
         <CardHeader>
-          <CardTitle>All Cargo</CardTitle>
-          <CardDescription>
-            A comprehensive list of all cargo in your inventory
-          </CardDescription>
+          <div class="flex items-center justify-between">
+            <div>
+              <CardTitle>All Cargo</CardTitle>
+              <CardDescription>
+                A comprehensive list of all cargo in your inventory
+              </CardDescription>
+            </div>
+            <Button @click="$router.push('/cargo/create')">
+              <Plus class="mr-2 h-4 w-4" />
+              {{ $t('common.addNewCargo') }}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <!-- Search and Filter Section -->
