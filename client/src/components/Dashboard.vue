@@ -4,17 +4,8 @@
     <PageHeader
       :title="$t('dashboard.title')"
       :description="$t('dashboard.subtitle')"
-    >
-      <template #actions>
-        <Button 
-          @click="router.push('/shipments/create')"
-          class="shadow-sm hover:shadow-md"
-        >
-          <Plus class="w-4 h-4 mr-2" />
-          {{ $t('common.newShipment') }}
-        </Button>
-      </template>
-    </PageHeader>
+    />
+
 
     <!-- Error State -->
     <div v-if="error" class="bg-red-50 dark:bg-destructive/10 border-l-4 border-red-500 dark:border-destructive p-6 rounded-xl mb-8">
@@ -141,7 +132,7 @@
             <Button 
               v-for="action in quickActions" 
               :key="action.id"
-              @click="$emit('action-click', action.id)"
+              @click="handleQuickAction(action.id)"
               variant="outline"
               size="sm"
               class="w-full justify-start gap-2 h-9 hover:bg-sidebar-accent dark:hover:bg-sidebar-accent transition-all duration-200"
@@ -294,6 +285,7 @@ const filteredActivities = computed(() => {
 })
 
 const quickActions = computed(() => [
+  { id: 'new-shipment', label: t('common.newShipment'), icon: Plus },
   { id: 'add-cargo', label: t('common.addNewCargo'), icon: Plus },
   { id: 'create-route', label: t('common.createRoute'), icon: MapPin },
   { id: 'add-vendor', label: t('common.addVendor'), icon: UserPlus }
@@ -422,6 +414,26 @@ const updateShipmentStatuses = (statusData) => {
         percentage: 0
       })
     })
+  }
+}
+
+// Handle Quick Actions
+const handleQuickAction = (actionId) => {
+  switch (actionId) {
+    case 'new-shipment':
+      router.push('/shipments/create')
+      break
+    case 'add-cargo':
+      router.push('/cargo/create')
+      break
+    case 'create-route':
+      router.push('/routes/create')
+      break
+    case 'add-vendor':
+      router.push('/vendors/create')
+      break
+    default:
+      console.warn('Unknown action:', actionId)
   }
 }
 
