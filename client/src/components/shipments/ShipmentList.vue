@@ -7,10 +7,6 @@
           <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">{{ $t('shipments.title') }}</h1>
           <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">{{ $t('shipments.subtitle') }}</p>
         </div>
-        <Button @click="$router.push('/shipments/create')">
-          <Plus class="mr-2 h-4 w-4" />
-          {{ $t('common.newShipment') }}
-        </Button>
       </div>
 
       <!-- Stats Cards -->
@@ -83,10 +79,18 @@
       <!-- Shipments Table -->
       <Card>
         <CardHeader>
-          <CardTitle>All Shipments</CardTitle>
-          <CardDescription>
-            A comprehensive list of all shipments in your supply chain
-          </CardDescription>
+          <div class="flex items-center justify-between">
+            <div>
+              <CardTitle>All Shipments</CardTitle>
+              <CardDescription>
+                A comprehensive list of all shipments in your supply chain
+              </CardDescription>
+            </div>
+            <Button @click="$router.push('/shipments/create')">
+              <Plus class="mr-2 h-4 w-4" />
+              {{ $t('common.newShipment') }}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <!-- Search and Filter Section -->
