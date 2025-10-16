@@ -88,7 +88,18 @@
                   type="date"
                   required
                   :disabled="isSubmitting"
+                  @input="handleEstimatedDeliveryInput"
+                  @change="handleEstimatedDeliveryInput"
                 />
+                <p v-if="autoDeliveryState.isCalculating" class="text-xs text-gray-500">
+                  Calculating estimated delivery…
+                </p>
+                <p v-else-if="autoDeliveryState.error" class="text-xs text-red-500">
+                  {{ autoDeliveryState.error }}
+                </p>
+                <p v-else-if="autoDeliveryState.message" class="text-xs text-gray-500">
+                  {{ autoDeliveryState.message }}
+                </p>
               </div>
             </div>
 
@@ -195,13 +206,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch, onUnmounted, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from 'lucide-vue-next'
 import { shipmentApi, routeApi, vendorApi } from '@/services/api'
+import { estimateShipmentDelivery } from '@/services/logisticsEstimator'
 
 const router = useRouter()
 const route = useRoute()
@@ -224,6 +236,13 @@ const isSubmitting = ref(false)
 const isLoadingData = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
+const isEstimatedDeliveryTouched = ref(false)
+const autoDeliveryState = reactive({
+  isCalculating: false,
+  error: null,
+  message: ''
+})
+let deliveryEstimationTimer = null
 
 const isFormValid = computed(() => {
   return formData.value.origin.trim() !== '' && 
@@ -265,9 +284,112 @@ const loadShipment = async () => {
       assignedRouteId: shipment.assignedRoute?.routeId?.toString() || '',
       assignedVendorId: shipment.assignedVendor?.vendorId?.toString() || ''
     }
+    if (formData.value.estimatedDelivery) {
+      isEstimatedDeliveryTouched.value = true
+    }
   } catch (error) {
     console.error('Error loading shipment:', error)
     errorMessage.value = 'Failed to load shipment details. Please try again.'
+  }
+}
+
+const clearDeliveryTimer = () => {
+  if (deliveryEstimationTimer) {
+    clearTimeout(deliveryEstimationTimer)
+    deliveryEstimationTimer = null
+  }
+}
+
+const applyDeliveryEstimation = () => {
+  const origin = formData.value.origin.trim()
+  const destination = formData.value.destination.trim()
+
+  if (!origin || !destination) {
+    autoDeliveryState.error = null
+    autoDeliveryState.message = ''
+    return
+  }
+
+  const selectedRoute = routes.value.find(r => r.routeId?.toString() === formData.value.assignedRouteId)
+
+  autoDeliveryState.isCalculating = true
+  autoDeliveryState.error = null
+  autoDeliveryState.message = ''
+
+  try {
+    if (selectedRoute && Number(selectedRoute.duration) > 0) {
+      const estimateDate = new Date()
+      estimateDate.setUTCDate(estimateDate.getUTCDate() + Number(selectedRoute.duration))
+      formData.value.estimatedDelivery = estimateDate.toISOString().slice(0, 10)
+      autoDeliveryState.message = `Auto-set using assigned route duration (${selectedRoute.duration} day${Number(selectedRoute.duration) === 1 ? '' : 's'})`
+      return
+    }
+
+    const mode = selectedRoute?.transportationMode || 'OCEAN'
+    const distance = selectedRoute?.distance && Number(selectedRoute.distance) > 0 
+      ? Number(selectedRoute.distance)
+      : undefined
+
+    const estimation = estimateShipmentDelivery({
+      origin,
+      destination,
+      transportationMode: mode,
+      distance_km: distance
+    })
+
+    formData.value.estimatedDelivery = estimation.estimatedDeliveryDate
+    autoDeliveryState.message = `Auto-estimated using ${mode.toLowerCase()} transit`
+  } catch (estimationError) {
+    console.warn('Shipment auto-estimation failed:', estimationError)
+    autoDeliveryState.error = estimationError.message || 'Unable to auto-estimate delivery date'
+    if (!isEstimatedDeliveryTouched.value) {
+      formData.value.estimatedDelivery = ''
+    }
+  } finally {
+    autoDeliveryState.isCalculating = false
+  }
+}
+
+const scheduleDeliveryEstimation = () => {
+  if (isEstimatedDeliveryTouched.value && formData.value.estimatedDelivery) {
+    return
+  }
+
+  clearDeliveryTimer()
+  deliveryEstimationTimer = setTimeout(() => {
+    applyDeliveryEstimation()
+  }, 300)
+}
+
+watch(
+  () => [formData.value.origin, formData.value.destination],
+  () => scheduleDeliveryEstimation()
+)
+
+watch(
+  () => formData.value.assignedRouteId,
+  () => {
+    isEstimatedDeliveryTouched.value = false
+    scheduleDeliveryEstimation()
+  }
+)
+
+watch(
+  () => routes.value,
+  () => {
+    if (formData.value.assignedRouteId) {
+      scheduleDeliveryEstimation()
+    }
+  },
+  { deep: true }
+)
+
+const handleEstimatedDeliveryInput = () => {
+  isEstimatedDeliveryTouched.value = !!formData.value.estimatedDelivery
+  if (!formData.value.estimatedDelivery) {
+    autoDeliveryState.message = ''
+    autoDeliveryState.error = null
+    scheduleDeliveryEstimation()
   }
 }
 
@@ -285,14 +407,14 @@ const handleSubmit = async () => {
   errorMessage.value = ''
   successMessage.value = ''
 
+  const payload = {
+    origin: formData.value.origin.trim(),
+    destination: formData.value.destination.trim(),
+    status: formData.value.status,
+    estimatedDelivery: formData.value.estimatedDelivery
+  }
+
   try {
-    // Prepare payload
-    const payload = {
-      origin: formData.value.origin.trim(),
-      destination: formData.value.destination.trim(),
-      status: formData.value.status,
-      estimatedDelivery: formData.value.estimatedDelivery
-    }
 
     // Add route if selected and valid
     if (formData.value.assignedRouteId && formData.value.assignedRouteId !== '') {
@@ -389,5 +511,10 @@ const goBack = () => {
 onMounted(async () => {
   await loadData()
   await loadShipment()
+  scheduleDeliveryEstimation()
+})
+
+onUnmounted(() => {
+  clearDeliveryTimer()
 })
 </script>

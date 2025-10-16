@@ -74,6 +74,15 @@
                   placeholder="0"
                   required
                 />
+                <p v-if="autoEstimationState.isCalculating" class="text-xs text-gray-500">
+                  Calculating optimal duration…
+                </p>
+                <p v-else-if="autoEstimationState.error" class="text-xs text-red-500">
+                  {{ autoEstimationState.error }}
+                </p>
+                <p v-else-if="autoEstimationSummary" class="text-xs text-gray-500">
+                  {{ autoEstimationSummary }}
+                </p>
               </div>
 
               <div class="space-y-2">
@@ -177,13 +186,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch, reactive, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from 'lucide-vue-next'
 import { routeApi } from '@/services/api'
+import { calculateDurationDetails } from '@/services/logisticsEstimator'
 
 const router = useRouter()
 const route = useRoute()
@@ -193,6 +203,38 @@ const isLoading = ref(false)
 const isSubmitting = ref(false)
 const errorMessage = ref(null)
 const successMessage = ref(null)
+
+const autoEstimationState = reactive({
+  isCalculating: false,
+  error: null,
+  distanceSource: null,
+  totalDistance: null,
+  durationDays: null,
+  lastUpdated: null
+})
+
+const autoEstimationSummary = computed(() => {
+  if (autoEstimationState.error || !autoEstimationState.lastUpdated) {
+    return ''
+  }
+
+  const sourceLabel = autoEstimationState.distanceSource === 'provided'
+    ? 'provided distance'
+    : 'coordinate lookup'
+
+  const distanceLabel = typeof autoEstimationState.totalDistance === 'number'
+    ? `${Math.round(autoEstimationState.totalDistance).toLocaleString()} km`
+    : ''
+
+  const durationLabel = typeof autoEstimationState.durationDays === 'number'
+    ? `${autoEstimationState.durationDays} day${autoEstimationState.durationDays === 1 ? '' : 's'}`
+    : ''
+
+  const parts = [`Auto-estimated via ${sourceLabel}`]
+  if (distanceLabel) parts.push(distanceLabel)
+  if (durationLabel) parts.push(durationLabel)
+  return parts.join(' · ')
+})
 
 const form = ref({
   originPort: '',
@@ -222,6 +264,7 @@ const loadRoute = async () => {
       status: data.status || 'Active',
       cost: data.cost || null
     }
+    scheduleRouteEstimation()
   } catch (err) {
     errorMessage.value = err.message || 'Failed to load route'
     console.error('Error loading route:', err)
@@ -259,6 +302,23 @@ const handleSubmit = async () => {
     }
 
     console.log('Sending route data:', routeData)
+
+    if (!isEditMode.value) {
+      try {
+        const existingRoutes = await routeApi.getAll()
+        const duplicate = existingRoutes?.find(r =>
+          r.originPort?.toLowerCase() === routeData.originPort.toLowerCase() &&
+          r.destinationPort?.toLowerCase() === routeData.destinationPort.toLowerCase()
+        )
+
+        if (duplicate) {
+          errorMessage.value = `A route from ${routeData.originPort} to ${routeData.destinationPort} already exists.`
+          return
+        }
+      } catch (checkError) {
+        console.warn('Duplicate check failed, proceeding with create:', checkError)
+      }
+    }
 
     let savedRoute
     try {
@@ -331,7 +391,11 @@ const handleSubmit = async () => {
 
   } catch (err) {
     console.error('Error saving route:', err)
-    errorMessage.value = err.message || 'Failed to save route. Please try again.'
+    if (err.message?.includes('duplicate key value')) {
+      errorMessage.value = `A route from ${form.value.originPort} to ${form.value.destinationPort} already exists.`
+    } else {
+      errorMessage.value = err.message || 'Failed to save route. Please try again.'
+    }
   } finally {
     isSubmitting.value = false
   }
@@ -348,5 +412,71 @@ onMounted(() => {
   if (isEditMode.value) {
     loadRoute()
   }
+  scheduleRouteEstimation()
 })
+
+onUnmounted(() => {
+  if (routeEstimationTimer) {
+    clearTimeout(routeEstimationTimer)
+  }
+})
+
+const applyAutoEstimation = () => {
+  const origin = form.value.originPort?.trim()
+  const destination = form.value.destinationPort?.trim()
+  const mode = form.value.transportationMode
+
+  if (!origin || !destination || !mode) {
+    autoEstimationState.error = null
+    autoEstimationState.distanceSource = null
+    autoEstimationState.totalDistance = null
+    autoEstimationState.durationDays = null
+    return
+  }
+
+  try {
+    autoEstimationState.isCalculating = true
+    autoEstimationState.error = null
+    const estimation = calculateDurationDetails({
+      origin,
+      destination,
+      transportationMode: mode
+    })
+
+    if (typeof estimation.durationDays === 'number') {
+      form.value.duration = estimation.durationDays
+    }
+
+    if (typeof estimation.totalDistance === 'number') {
+      form.value.distance = Math.round(estimation.totalDistance)
+    }
+
+    autoEstimationState.distanceSource = estimation.distanceSource
+    autoEstimationState.totalDistance = estimation.totalDistance
+    autoEstimationState.durationDays = estimation.durationDays
+    autoEstimationState.lastUpdated = Date.now()
+  } catch (estimationError) {
+    console.warn('Route auto-estimation failed:', estimationError)
+    autoEstimationState.error = estimationError.message || 'Unable to auto-estimate route details'
+  } finally {
+    autoEstimationState.isCalculating = false
+  }
+}
+
+let routeEstimationTimer = null
+
+const scheduleRouteEstimation = () => {
+  if (routeEstimationTimer) {
+    clearTimeout(routeEstimationTimer)
+  }
+
+  routeEstimationTimer = setTimeout(() => {
+    applyAutoEstimation()
+  }, 300)
+}
+
+watch(
+  () => [form.value.originPort, form.value.destinationPort, form.value.transportationMode],
+  () => scheduleRouteEstimation()
+)
 </script>
