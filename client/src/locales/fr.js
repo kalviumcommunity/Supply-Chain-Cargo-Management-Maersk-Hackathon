@@ -27,6 +27,11 @@ export default {
     viewAll: 'Voir tout',
     all: 'Tous',
     noRecentActivity: 'Aucune activité récente à afficher.',
+    shipments: 'Expéditions',
+    cargo: 'Cargaison',
+    routes: 'Itinéraires',
+    vendors: 'Fournisseurs',
+    deliveries: 'Livraisons',
   },
 
   // Paramètres
@@ -94,6 +99,8 @@ export default {
     clear: 'Effacer',
     tryAgain: 'Réessayer',
     retry: 'Réessayer',
+    new: 'Nouveau',
+    page: 'Page',
     // Colonnes de table
     id: 'ID',
     origin: 'Origine',
