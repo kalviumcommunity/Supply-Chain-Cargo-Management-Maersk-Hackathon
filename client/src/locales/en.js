@@ -156,8 +156,9 @@ export default {
     allCargoDesc: 'A comprehensive list of all cargo in your inventory',
     searchPlaceholder: 'Search by ID, type, origin, destination, or shipment...',
     loadingCargo: 'Loading cargo...',
-    noCargo: 'No cargo found.',
+    noCargo: 'No cargo found',
     noCargoMatches: 'No cargo matches your filters',
+    addFirstCargo: 'Add your first cargo to get started.',
   },
 
   // Shipments
@@ -191,8 +192,9 @@ export default {
     allShipmentsDesc: 'A comprehensive list of all shipments in your supply chain',
     searchPlaceholder: 'Search by ID, origin, destination, route, or vendor...',
     loadingShipments: 'Loading shipments...',
-    noShipments: 'No shipments found.',
+    noShipments: 'No shipments found',
     noShipmentsMatches: 'No shipments match your filters',
+    addFirstShipment: 'Create your first shipment to get started.',
   },
 
   // Routes
@@ -238,6 +240,9 @@ export default {
     durationDays: 'Duration (days)',
     mode: 'Mode',
     costUsd: 'Cost ($)',
+    loadingRoutes: 'Loading routes...',
+    noRoutes: 'No routes found. Create your first route to get started.',
+    noRoutesMatches: 'No routes match your filters',
   },
 
   // Vendors
@@ -278,6 +283,9 @@ export default {
     serviceType: 'Service Type',
     contactEmail: 'Contact Email',
     contactPhone: 'Contact Phone',
+    loadingVendors: 'Loading vendors...',
+    noVendors: 'No vendors found. Create your first vendor to get started.',
+    noVendorsMatches: 'No vendors match your filters.',
   },
 
   // Deliveries
