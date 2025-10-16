@@ -27,6 +27,11 @@ export default {
     viewAll: 'View all',
     all: 'All',
     noRecentActivity: 'No recent activity to display.',
+    shipments: 'Shipments',
+    cargo: 'Cargo',
+    routes: 'Routes',
+    vendors: 'Vendors',
+    deliveries: 'Deliveries',
   },
 
   // Settings
@@ -94,6 +99,8 @@ export default {
     clear: 'Clear',
     tryAgain: 'Try Again',
     retry: 'Retry',
+    new: 'New',
+    page: 'Page',
     // Table columns
     id: 'ID',
     origin: 'Origin',
