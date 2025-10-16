@@ -283,6 +283,9 @@ export default {
     serviceType: 'Type de Service',
     contactEmail: 'E-mail de Contact',
     contactPhone: 'Téléphone de Contact',
+    loadingVendors: 'Chargement des fournisseurs...',
+    noVendors: 'Aucun fournisseur trouvé. Créez votre premier fournisseur pour commencer.',
+    noVendorsMatches: 'Aucun fournisseur ne correspond à vos filtres.',
   },
 
   // Livraisons
