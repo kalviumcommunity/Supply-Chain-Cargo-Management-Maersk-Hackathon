@@ -235,17 +235,17 @@ const isFormValid = computed(() => {
 const loadData = async () => {
   isLoadingData.value = true
   try {
-    console.log('🔄 Loading routes and vendors...')
+    console.log('Loading routes and vendors...')
     const [routesData, vendorsData] = await Promise.all([
       routeApi.getAll(),
       vendorApi.getAll()
     ])
     routes.value = routesData || []
     vendors.value = vendorsData || []
-    console.log('✅ Routes loaded:', routes.value.length)
-    console.log('✅ Vendors loaded:', vendors.value.length)
+    console.log('Routes loaded:', routes.value.length)
+    console.log('Vendors loaded:', vendors.value.length)
   } catch (error) {
-    console.error('❌ Error loading data:', error)
+    console.error('Error loading data:', error)
     errorMessage.value = 'Failed to load routes and vendors. Please refresh the page.'
   } finally {
     isLoadingData.value = false
@@ -272,12 +272,12 @@ const loadShipment = async () => {
 }
 
 const handleSubmit = async () => {
-  console.log('🚀 Form submitted')
-  console.log('📋 Form data:', formData.value)
+  console.log('Form submitted')
+  console.log('Form data:', formData.value)
   
   if (!isFormValid.value) {
     errorMessage.value = 'Please fill in all required fields'
-    console.log('❌ Form validation failed')
+    console.log('Form validation failed')
     return
   }
 
@@ -297,38 +297,40 @@ const handleSubmit = async () => {
     // Add route if selected and valid
     if (formData.value.assignedRouteId && formData.value.assignedRouteId !== '') {
       const routeId = Number(formData.value.assignedRouteId)
-      console.log('🛣️ Assigning route ID:', routeId)
+      console.log('Assigning route ID:', routeId)
       payload.assignedRoute = {
         routeId: routeId
       }
     } else {
-      console.log('⚠️ No route selected')
+      console.log('No route selected')
     }
 
     // Add vendor if selected and valid
     if (formData.value.assignedVendorId && formData.value.assignedVendorId !== '') {
       const vendorId = Number(formData.value.assignedVendorId)
-      console.log('🏢 Assigning vendor ID:', vendorId)
+      console.log('Assigning vendor ID:', vendorId)
       payload.assignedVendor = {
         vendorId: vendorId
       }
     } else {
-      console.log('⚠️ No vendor selected')
+      console.log('No vendor selected')
     }
 
-    console.log('📦 Final payload to send:', JSON.stringify(payload, null, 2))
+    console.log('Final payload to send:', JSON.stringify(payload, null, 2))
 
+    let result // Declare result outside the if/else block
+    
     if (isEditMode.value) {
       // Update existing shipment
-      console.log('🔄 Updating shipment...')
-      const result = await shipmentApi.update(shipmentId.value, payload)
-      console.log('✅ Shipment updated:', result)
+      console.log('Updating shipment...')
+      result = await shipmentApi.update(shipmentId.value, payload)
+      console.log('Shipment updated:', result)
       successMessage.value = 'Shipment updated successfully!'
     } else {
       // Create new shipment
-      console.log('➕ Creating new shipment...')
-      const result = await shipmentApi.create(payload)
-      console.log('✅ Shipment created:', result)
+      console.log('Creating new shipment...')
+      result = await shipmentApi.create(payload)
+      console.log('Shipment created:', result)
       successMessage.value = 'Shipment created successfully!'
     }
 
