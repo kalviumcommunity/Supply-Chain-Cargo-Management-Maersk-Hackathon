@@ -20,7 +20,7 @@
           @click="loadDashboardData" 
           class="ml-auto px-3 py-1 bg-red-100 dark:bg-sidebar-accent text-red-700 dark:text-sidebar-foreground rounded-md hover:bg-red-200 dark:hover:bg-sidebar-border transition-colors text-sm font-medium"
         >
-          Retry
+          {{ $t('common.retry') }}
         </button>
       </div>
     </div>
@@ -59,18 +59,18 @@
           <div class="flex items-center justify-between gap-3">
             <CardTitle class="flex items-center gap-2 text-base">
               <Clock class="w-4 h-4 text-gray-600 dark:text-sidebar-foreground/70" />
-              Recent Activity
+              {{ $t('dashboard.recentActivity') }}
             </CardTitle>
             <div class="hidden md:flex items-center gap-1">
               <Button size="sm" :variant="activityFilter === 'all' ? 'default' : 'outline'" @click="activityFilter = 'all'">{{ $t('dashboard.all') }}</Button>
-              <Button size="sm" :variant="activityFilter === 'shipments' ? 'default' : 'outline'" @click="activityFilter = 'shipments'">Shipments</Button>
-              <Button size="sm" :variant="activityFilter === 'cargo' ? 'default' : 'outline'" @click="activityFilter = 'cargo'">Cargo</Button>
-              <Button size="sm" :variant="activityFilter === 'routes' ? 'default' : 'outline'" @click="activityFilter = 'routes'">Routes</Button>
-              <Button size="sm" :variant="activityFilter === 'vendors' ? 'default' : 'outline'" @click="activityFilter = 'vendors'">Vendors</Button>
-              <Button size="sm" :variant="activityFilter === 'deliveries' ? 'default' : 'outline'" @click="activityFilter = 'deliveries'">Deliveries</Button>
+              <Button size="sm" :variant="activityFilter === 'shipments' ? 'default' : 'outline'" @click="activityFilter = 'shipments'">{{ $t('dashboard.shipments') }}</Button>
+              <Button size="sm" :variant="activityFilter === 'cargo' ? 'default' : 'outline'" @click="activityFilter = 'cargo'">{{ $t('dashboard.cargo') }}</Button>
+              <Button size="sm" :variant="activityFilter === 'routes' ? 'default' : 'outline'" @click="activityFilter = 'routes'">{{ $t('dashboard.routes') }}</Button>
+              <Button size="sm" :variant="activityFilter === 'vendors' ? 'default' : 'outline'" @click="activityFilter = 'vendors'">{{ $t('dashboard.vendors') }}</Button>
+              <Button size="sm" :variant="activityFilter === 'deliveries' ? 'default' : 'outline'" @click="activityFilter = 'deliveries'">{{ $t('dashboard.deliveries') }}</Button>
             </div>
             <Button variant="link" size="sm" class="text-xs h-auto p-0" @click="router.push('/shipments')">
-              View all
+              {{ $t('dashboard.viewAll') }}
             </Button>
           </div>
         </CardHeader>
@@ -126,7 +126,7 @@
         <!-- Quick Actions -->
         <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow">
           <CardHeader class="pb-3">
-            <CardTitle class="text-base">Quick Actions</CardTitle>
+            <CardTitle class="text-base">{{ $t('dashboard.quickActions') }}</CardTitle>
           </CardHeader>
           <CardContent class="space-y-2 pt-0">
             <Button 
@@ -146,7 +146,7 @@
         <!-- Shipment Status -->
         <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow">
           <CardHeader class="pb-3">
-            <CardTitle class="text-base">Shipment Status</CardTitle>
+            <CardTitle class="text-base">{{ $t('dashboard.shipmentStatus') }}</CardTitle>
           </CardHeader>
           <CardContent class="pt-0">
             <!-- Status Bar with gaps -->
