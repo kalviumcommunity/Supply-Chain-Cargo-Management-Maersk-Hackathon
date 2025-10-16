@@ -83,11 +83,6 @@ const data = computed(() => ({
   ],
   navTools: [
     {
-      title: t('nav.analytics'),
-      url: "/analytics",
-      icon: BarChart3,
-    },
-    {
       title: t('nav.settings'),
       url: "/settings",
       icon: Settings,
