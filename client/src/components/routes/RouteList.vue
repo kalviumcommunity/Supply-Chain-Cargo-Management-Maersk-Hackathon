@@ -5,14 +5,7 @@
       <PageHeader 
         :title="$t('routes.title')"
         :description="$t('routes.subtitle')"
-      >
-        <template #actions>
-          <Button @click="$router.push('/routes/create')">
-            <Plus class="mr-2 h-4 w-4" />
-            {{ $t('common.createRoute') }}
-          </Button>
-        </template>
-      </PageHeader>
+      />
 
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -107,6 +100,10 @@
               >
                 <MapIcon class="mr-2 h-4 w-4" />
                 {{ $t('routes.map') }}
+              </Button>
+              <Button @click="$router.push('/routes/create')">
+                <Plus class="mr-2 h-4 w-4" />
+                {{ $t('common.createRoute') }}
               </Button>
             </div>
           </div>
