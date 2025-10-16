@@ -152,8 +152,8 @@
                   <TableHead>{{ $t('common.id') }}</TableHead>
                   <TableHead>{{ $t('common.name') }}</TableHead>
                   <TableHead>{{ $t('vendors.serviceType') }}</TableHead>
-                  <TableHead>{{ $t('vendors.contactEmail') }}</TableHead>
-                  <TableHead>{{ $t('vendors.contactPhone') }}</TableHead>
+                  <TableHead>{{ $t('vendors.contact_email') }}</TableHead>
+                  <TableHead>{{ $t('vendors.contact_phone') }}</TableHead>
                   <TableHead>{{ $t('vendors.address') }}</TableHead>
                   <TableHead class="text-right">{{ $t('common.actions') }}</TableHead>
                 </TableRow>
@@ -180,8 +180,8 @@
                       {{ vendor.serviceType }}
                     </Badge>
                   </TableCell>
-                  <TableCell>{{ vendor.contactEmail || 'N/A' }}</TableCell>
-                  <TableCell>{{ vendor.contactPhone || 'N/A' }}</TableCell>
+                  <TableCell>{{ vendor.contact_email || 'N/A' }}</TableCell>
+                  <TableCell>{{ vendor.contact_phone || 'N/A' }}</TableCell>
                   <TableCell>
                     <div class="max-w-xs truncate">{{ vendor.address || 'N/A' }}</div>
                   </TableCell>
@@ -235,6 +235,35 @@ const vendors = ref([])
 const isLoading = ref(false)
 const error = ref(null)
 
+// Helper function to parse contactInfo from backend
+const parseContactInfo = (contactInfo) => {
+  if (!contactInfo) return { email: '', phone: '', address: '' }
+  
+  // Split by comma and trim whitespace
+  const parts = contactInfo.split(',').map(part => part.trim())
+  
+  let email = ''
+  let phone = ''
+  let address = ''
+  
+  parts.forEach(part => {
+    // Check if it's an email (contains @)
+    if (part.includes('@')) {
+      email = part
+    }
+    // Check if it's a phone (starts with + or contains numbers and dashes/parentheses)
+    else if (part.match(/^[\+\d\(\)\-\s]+$/)) {
+      phone = part
+    }
+    // Otherwise, treat as address
+    else if (part.length > 0) {
+      address = address ? address + ', ' + part : part
+    }
+  })
+  
+  return { email, phone, address }
+}
+
 // Search and filter state
 const searchQuery = ref('')
 const debouncedSearchQuery = ref('')
@@ -261,8 +290,8 @@ const filteredVendors = computed(() => {
     filtered = filtered.filter(vendor => 
       vendor.vendorId?.toString().toLowerCase().includes(query) ||
       vendor.name?.toLowerCase().includes(query) ||
-      vendor.contactEmail?.toLowerCase().includes(query) ||
-      vendor.contactPhone?.toLowerCase().includes(query) ||
+      vendor.contact_email?.toLowerCase().includes(query) ||
+      vendor.contact_phone?.toLowerCase().includes(query) ||
       vendor.address?.toLowerCase().includes(query)
     )
   }
@@ -297,7 +326,17 @@ const loadVendors = async () => {
   error.value = null
   try {
     const data = await vendorApi.getAll()
-    vendors.value = data || []
+    
+    // Parse contactInfo for each vendor
+    vendors.value = (data || []).map(vendor => {
+      const contactData = parseContactInfo(vendor.contactInfo)
+      return {
+        ...vendor,
+        contact_email: contactData.email,
+        contact_phone: contactData.phone,
+        address: contactData.address
+      }
+    })
   } catch (err) {
     error.value = err.message || 'Failed to load vendors'
     console.error('Error loading vendors:', err)

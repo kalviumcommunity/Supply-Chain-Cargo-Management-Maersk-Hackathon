@@ -631,18 +631,53 @@ const getMetricBorderColor = (id) => {
 // Utilities
 const formatRelativeTime = (ts) => {
   try {
-    const d = typeof ts === 'string' || typeof ts === 'number' ? new Date(ts) : ts
+    // Handle missing or invalid timestamp
+    if (!ts) return 'Just now'
+    
+    // Parse timestamp
+    let d
+    if (typeof ts === 'string' || typeof ts === 'number') {
+      d = new Date(ts)
+    } else if (ts instanceof Date) {
+      d = ts
+    } else {
+      return 'Just now'
+    }
+    
+    // Validate the date
+    if (isNaN(d.getTime())) {
+      return 'Just now'
+    }
+    
+    // Calculate time difference
     const diff = Date.now() - d.getTime()
+    
+    // Handle future dates (shouldn't happen, but just in case)
+    if (diff < 0) return 'Just now'
+    
     const sec = Math.round(diff / 1000)
+    
+    // Return formatted time
+    if (sec < 5) return 'Just now'
     if (sec < 60) return `${sec}s ago`
+    
     const min = Math.round(sec / 60)
     if (min < 60) return `${min}m ago`
+    
     const hr = Math.round(min / 60)
     if (hr < 24) return `${hr}h ago`
+    
     const day = Math.round(hr / 24)
-    return `${day}d ago`
+    if (day < 7) return `${day}d ago`
+    
+    const week = Math.round(day / 7)
+    if (week < 4) return `${week}w ago`
+    
+    const month = Math.round(day / 30)
+    return `${month}mo ago`
   } catch (e) {
-    return ts || ''
+    console.error('Error formatting time:', e, 'timestamp:', ts)
+    return 'Just now'
   }
 }
 

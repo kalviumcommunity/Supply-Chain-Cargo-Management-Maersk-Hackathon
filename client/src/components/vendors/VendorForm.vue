@@ -172,17 +172,59 @@ const isFormValid = computed(() => {
   return formData.value.name.trim() !== '' && formData.value.serviceType !== ''
 })
 
+// Helper function to parse contactInfo from backend
+const parseContactInfo = (contactInfo) => {
+  if (!contactInfo) return { email: '', phone: '', address: '' }
+  
+  // Split by comma and trim whitespace
+  const parts = contactInfo.split(',').map(part => part.trim())
+  
+  let email = ''
+  let phone = ''
+  let address = ''
+  
+  parts.forEach(part => {
+    // Check if it's an email (contains @)
+    if (part.includes('@')) {
+      email = part
+    }
+    // Check if it's a phone (starts with + or contains numbers and dashes/parentheses)
+    else if (part.match(/^[\+\d\(\)\-\s]+$/)) {
+      phone = part
+    }
+    // Otherwise, treat as address
+    else if (part.length > 0) {
+      address = address ? address + ', ' + part : part
+    }
+  })
+  
+  return { email, phone, address }
+}
+
+// Helper function to combine fields into contactInfo for backend
+const combineContactInfo = (email, phone, address) => {
+  const parts = []
+  if (email) parts.push(email)
+  if (phone) parts.push(phone)
+  if (address) parts.push(address)
+  return parts.join(', ')
+}
+
 const loadVendor = async () => {
   if (!isEditMode.value) return
   
   try {
     const vendor = await vendorApi.getById(vendorId.value)
+    
+    // Parse contactInfo into separate fields
+    const contactData = parseContactInfo(vendor.contactInfo)
+    
     formData.value = {
       name: vendor.name || '',
       serviceType: vendor.serviceType || '',
-      contactEmail: vendor.contactEmail || '',
-      contactPhone: vendor.contactPhone || '',
-      address: vendor.address || ''
+      contactEmail: contactData.email,
+      contactPhone: contactData.phone,
+      address: contactData.address
     }
   } catch (error) {
     console.error('Error loading vendor:', error)
@@ -201,13 +243,19 @@ const handleSubmit = async () => {
   successMessage.value = ''
 
   try {
+    // Combine contact fields into contactInfo for backend
+    const contactInfo = combineContactInfo(
+      formData.value.contactEmail.trim(),
+      formData.value.contactPhone.trim(),
+      formData.value.address.trim()
+    )
+    
     // Prepare payload
     const payload = {
       name: formData.value.name.trim(),
       serviceType: formData.value.serviceType,
-      contactEmail: formData.value.contactEmail.trim() || null,
-      contactPhone: formData.value.contactPhone.trim() || null,
-      address: formData.value.address.trim() || null
+      contactInfo: contactInfo || null,
+      isActive: true
     }
 
     if (isEditMode.value) {

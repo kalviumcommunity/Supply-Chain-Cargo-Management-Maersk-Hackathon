@@ -117,7 +117,7 @@
                   {{ $t('deliveries.noDeliveries') }}
                 </TableCell>
               </TableRow>
-              <TableRow v-for="delivery in deliveries" :key="delivery.deliveryId" class="hover:bg-gray-50">
+              <TableRow v-for="delivery in deliveries" :key="delivery.deliveryId" class="hover:bg-gray-50 dark:hover:bg-sidebar-accent/50 transition-colors">
                 <TableCell class="font-medium">{{ delivery.deliveryId }}</TableCell>
                 <TableCell>
                   <span class="text-blue-600">#{{ delivery.shipment?.shipmentId || 'N/A' }}</span>
