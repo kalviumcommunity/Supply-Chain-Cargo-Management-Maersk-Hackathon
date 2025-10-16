@@ -156,8 +156,9 @@ export default {
     allCargoDesc: 'Una lista completa de toda la carga en su inventario',
     searchPlaceholder: 'Buscar por ID, tipo, origen, destino o envío...',
     loadingCargo: 'Cargando carga...',
-    noCargo: 'No se encontró carga.',
+    noCargo: 'No se encontró carga',
     noCargoMatches: 'Ninguna carga coincide con sus filtros',
+    addFirstCargo: 'Agregue su primera carga para comenzar.',
   },
 
   // Envíos
@@ -191,8 +192,9 @@ export default {
     allShipmentsDesc: 'Una lista completa de todos los envíos en su cadena de suministro',
     searchPlaceholder: 'Buscar por ID, origen, destino, ruta o proveedor...',
     loadingShipments: 'Cargando envíos...',
-    noShipments: 'No se encontraron envíos.',
+    noShipments: 'No se encontraron envíos',
     noShipmentsMatches: 'Ningún envío coincide con sus filtros',
+    addFirstShipment: 'Cree su primer envío para comenzar.',
   },
 
   // Rutas
@@ -238,6 +240,9 @@ export default {
     durationDays: 'Duración (días)',
     mode: 'Modo',
     costUsd: 'Costo ($)',
+    loadingRoutes: 'Cargando rutas...',
+    noRoutes: 'No se encontraron rutas. Cree su primera ruta para comenzar.',
+    noRoutesMatches: 'Ninguna ruta coincide con sus filtros',
   },
 
   // Proveedores
@@ -278,6 +283,9 @@ export default {
     serviceType: 'Tipo de Servicio',
     contactEmail: 'Correo de Contacto',
     contactPhone: 'Teléfono de Contacto',
+    loadingVendors: 'Cargando proveedores...',
+    noVendors: 'No se encontraron proveedores. Cree su primer proveedor para comenzar.',
+    noVendorsMatches: 'Ningún proveedor coincide con sus filtros.',
   },
 
   // Entregas
