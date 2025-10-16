@@ -7,10 +7,6 @@
           <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">{{ $t('vendors.title') }}</h1>
           <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">{{ $t('vendors.subtitle') }}</p>
         </div>
-        <Button @click="$router.push('/vendors/create')">
-          <Plus class="mr-2 h-4 w-4" />
-          {{ $t('common.addVendor') }}
-        </Button>
       </div>
 
       <!-- Stats Cards -->
@@ -83,10 +79,18 @@
       <!-- Vendors Table -->
       <Card>
         <CardHeader>
-          <CardTitle>{{ $t('vendors.allVendors') }}</CardTitle>
-          <CardDescription>
-            {{ $t('vendors.allVendorsDesc') }}
-          </CardDescription>
+          <div class="flex items-center justify-between">
+            <div>
+              <CardTitle>{{ $t('vendors.allVendors') }}</CardTitle>
+              <CardDescription>
+                {{ $t('vendors.allVendorsDesc') }}
+              </CardDescription>
+            </div>
+            <Button @click="$router.push('/vendors/create')">
+              <Plus class="mr-2 h-4 w-4" />
+              {{ $t('common.addVendor') }}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <!-- Search and Filter Section -->
