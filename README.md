@@ -63,7 +63,6 @@ For more details, see [ARCHITECTURE.md](https://github.com/kalviumcommunity/Supp
 | Backend   | Java 17+, Spring Boot               |
 | Database  | PostgreSQL                          |
 | Event Bus | Apache Kafka                        |
-| DevOps    | Docker, Kubernetes (for production) |
 | Cloud     | AWS or Azure                        |
 
 ---
