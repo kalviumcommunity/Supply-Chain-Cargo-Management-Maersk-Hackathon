@@ -110,7 +110,7 @@
         </CardHeader>
         <CardContent>
           <!-- Search and Filter Section -->
-          <div class="flex flex-col md:flex-row gap-4 mb-6">
+          <div class="flex flex-col md:flex-row gap-4 mb-6 relative z-10">
             <!-- Search Input -->
             <div class="relative flex-1">
               <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -599,3 +599,21 @@ onUnmounted(() => {
   window.removeEventListener('routes-updated', loadRoutes)
 })
 </script>
+
+<style scoped>
+/* Ensure dropdowns appear above map */
+:deep(.select-content) {
+  z-index: 1000 !important;
+}
+
+/* Fix for shadcn-vue Select component dropdowns */
+:deep([role="listbox"]) {
+  z-index: 1000 !important;
+}
+
+/* Ensure the map container has lower z-index */
+.h-\[600px\] {
+  position: relative;
+  z-index: 1;
+}
+</style>
