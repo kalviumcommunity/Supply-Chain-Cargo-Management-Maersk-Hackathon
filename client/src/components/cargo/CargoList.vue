@@ -217,6 +217,89 @@
         </CardContent>
       </Card>
     </div>
+
+    <!-- Delete Confirmation Dialog -->
+    <Dialog v-model:open="deleteDialog.isOpen">
+      <DialogContent class="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>
+            <div class="flex items-center gap-2">
+              <AlertCircle class="h-5 w-5 text-red-500" />
+              {{ deleteDialog.title }}
+            </div>
+          </DialogTitle>
+          <DialogDescription>
+            {{ deleteDialog.message }}
+          </DialogDescription>
+        </DialogHeader>
+        
+        <!-- Cargo Details -->
+        <div v-if="deleteDialog.cargo" class="bg-gray-50 dark:bg-sidebar-accent rounded-lg p-4 my-4">
+          <div class="space-y-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600 dark:text-sidebar-foreground/70">Cargo ID:</span>
+              <span class="font-medium dark:text-sidebar-foreground">#{{ deleteDialog.cargo.cargoId }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600 dark:text-sidebar-foreground/70">Type:</span>
+              <Badge :variant="getTypeBadgeVariant(deleteDialog.cargo.type)">
+                {{ deleteDialog.cargo.type }}
+              </Badge>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600 dark:text-sidebar-foreground/70">Weight:</span>
+              <span class="font-medium dark:text-sidebar-foreground">{{ formatNumber(deleteDialog.cargo.weight) }} kg</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600 dark:text-sidebar-foreground/70">Value:</span>
+              <span class="font-medium dark:text-sidebar-foreground">${{ formatNumber(deleteDialog.cargo.value) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div v-if="deleteDialog.hasError" class="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+          <div class="flex gap-3">
+            <AlertCircle class="h-5 w-5 text-amber-600 dark:text-amber-500 flex-shrink-0 mt-0.5" />
+            <div class="flex-1">
+              <p class="text-sm font-medium text-amber-800 dark:text-amber-400 mb-1">
+                Cannot Delete Cargo
+              </p>
+              <p class="text-sm text-amber-700 dark:text-amber-300">
+                {{ deleteDialog.errorDetails }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button 
+            v-if="deleteDialog.hasError"
+            @click="closeDeleteDialog" 
+            variant="default"
+            class="w-full sm:w-auto"
+          >
+            Got it
+          </Button>
+          <template v-else>
+            <Button 
+              @click="closeDeleteDialog" 
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Button 
+              @click="handleDelete" 
+              variant="destructive"
+              :disabled="deleteDialog.isDeleting"
+            >
+              <Loader2 v-if="deleteDialog.isDeleting" class="mr-2 h-4 w-4 animate-spin" />
+              Delete Cargo
+            </Button>
+          </template>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
 
@@ -229,6 +312,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle 
+} from '@/components/ui/dialog'
 import { 
   Plus, 
   Loader2, 
@@ -247,6 +338,17 @@ const router = useRouter()
 const cargo = ref([])
 const isLoading = ref(false)
 const error = ref(null)
+
+// Delete Dialog State
+const deleteDialog = ref({
+  isOpen: false,
+  isDeleting: false,
+  cargo: null,
+  title: '',
+  message: '',
+  hasError: false,
+  errorDetails: ''
+})
 
 // Search and filter state
 const searchQuery = ref('')
@@ -345,18 +447,69 @@ const editCargo = (item) => {
   router.push(`/cargo/${item.cargoId}/edit`)
 }
 
-const confirmDelete = async (item) => {
-  if (!confirm(`Are you sure you want to delete cargo "${item.type}" (ID: ${item.cargoId})?`)) {
-    return
+const openDeleteDialog = (item) => {
+  deleteDialog.value = {
+    isOpen: true,
+    isDeleting: false,
+    cargo: item,
+    title: 'Delete Cargo',
+    message: `Are you sure you want to delete cargo "${item.type}" (ID: #${item.cargoId})? This action cannot be undone.`,
+    hasError: false,
+    errorDetails: ''
   }
+}
+
+const closeDeleteDialog = () => {
+  deleteDialog.value = {
+    isOpen: false,
+    isDeleting: false,
+    cargo: null,
+    title: '',
+    message: '',
+    hasError: false,
+    errorDetails: ''
+  }
+}
+
+const handleDelete = async () => {
+  if (!deleteDialog.value.cargo) return
+  
+  deleteDialog.value.isDeleting = true
   
   try {
-    await cargoApi.remove(item.cargoId)
-    await loadCargo() // Reload cargo after deletion
+    await cargoApi.remove(deleteDialog.value.cargo.cargoId)
+    
+    // Success - close dialog and reload cargo
+    closeDeleteDialog()
+    await loadCargo()
+    
+    // Optional: Show success toast/notification
+    console.log('✅ Cargo deleted successfully')
+    
   } catch (error) {
     console.error('❌ Error deleting cargo:', error)
-    alert('Failed to delete cargo. Please try again.')
+    
+    // Check if error is about dependencies
+    const errorMessage = error.message || ''
+    
+    if (errorMessage.includes('shipment') || errorMessage.includes('assigned') || errorMessage.includes('dependency')) {
+      // Update dialog to show error state
+      deleteDialog.value.title = 'Unable to Delete Cargo'
+      deleteDialog.value.hasError = true
+      deleteDialog.value.errorDetails = errorMessage
+    } else {
+      // Generic error - close dialog and show alert
+      closeDeleteDialog()
+      alert(`Failed to delete cargo: ${errorMessage}`)
+    }
+  } finally {
+    deleteDialog.value.isDeleting = false
   }
+}
+
+// Keep old function name for backward compatibility but use new dialog
+const confirmDelete = (item) => {
+  openDeleteDialog(item)
 }
 
 onMounted(() => {

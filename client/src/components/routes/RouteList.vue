@@ -110,7 +110,7 @@
         </CardHeader>
         <CardContent>
           <!-- Search and Filter Section -->
-          <div class="flex flex-col md:flex-row gap-4 mb-6">
+          <div class="flex flex-col md:flex-row gap-4 mb-6 relative z-10">
             <!-- Search Input -->
             <div class="relative flex-1">
               <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -273,32 +273,32 @@
         </DialogHeader>
         
         <!-- Route Details -->
-        <div v-if="deleteDialog.route" class="bg-gray-50 rounded-lg p-4 my-4">
+        <div v-if="deleteDialog.route" class="bg-gray-50 dark:bg-sidebar-accent rounded-lg p-4 my-4">
           <div class="space-y-2">
             <div class="flex justify-between text-sm">
-              <span class="text-gray-600">Route ID:</span>
-              <span class="font-medium">{{ deleteDialog.route.routeId }}</span>
+              <span class="text-gray-600 dark:text-sidebar-foreground/70">Route ID:</span>
+              <span class="font-medium dark:text-sidebar-foreground">{{ deleteDialog.route.routeId }}</span>
             </div>
             <div class="flex justify-between text-sm">
-              <span class="text-gray-600">From:</span>
-              <span class="font-medium">{{ deleteDialog.route.originPort }}</span>
+              <span class="text-gray-600 dark:text-sidebar-foreground/70">From:</span>
+              <span class="font-medium dark:text-sidebar-foreground">{{ deleteDialog.route.originPort }}</span>
             </div>
             <div class="flex justify-between text-sm">
-              <span class="text-gray-600">To:</span>
-              <span class="font-medium">{{ deleteDialog.route.destinationPort }}</span>
+              <span class="text-gray-600 dark:text-sidebar-foreground/70">To:</span>
+              <span class="font-medium dark:text-sidebar-foreground">{{ deleteDialog.route.destinationPort }}</span>
             </div>
           </div>
         </div>
 
         <!-- Error Message with Shipment Count -->
-        <div v-if="deleteDialog.shipmentCount > 0" class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+        <div v-if="deleteDialog.shipmentCount > 0" class="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
           <div class="flex gap-3">
-            <AlertCircle class="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle class="h-5 w-5 text-amber-600 dark:text-amber-500 flex-shrink-0 mt-0.5" />
             <div class="flex-1">
-              <p class="text-sm font-medium text-amber-800 mb-1">
+              <p class="text-sm font-medium text-amber-800 dark:text-amber-400 mb-1">
                 Cannot Delete Route
               </p>
-              <p class="text-sm text-amber-700">
+              <p class="text-sm text-amber-700 dark:text-amber-300">
                 This route is currently assigned to <strong>{{ deleteDialog.shipmentCount }} shipment(s)</strong>. 
                 Please reassign or delete those shipments before deleting this route.
               </p>
@@ -599,3 +599,21 @@ onUnmounted(() => {
   window.removeEventListener('routes-updated', loadRoutes)
 })
 </script>
+
+<style scoped>
+/* Ensure dropdowns appear above map */
+:deep(.select-content) {
+  z-index: 1000 !important;
+}
+
+/* Fix for shadcn-vue Select component dropdowns */
+:deep([role="listbox"]) {
+  z-index: 1000 !important;
+}
+
+/* Ensure the map container has lower z-index */
+.h-\[600px\] {
+  position: relative;
+  z-index: 1;
+}
+</style>

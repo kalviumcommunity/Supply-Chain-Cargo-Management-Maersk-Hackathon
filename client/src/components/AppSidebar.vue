@@ -119,8 +119,8 @@ const handleLogout = async () => {
         <SidebarMenuItem>
           <SidebarMenuButton size="lg" as-child>
             <router-link to="/dashboard">
-              <div class="flex aspect-square size-8 items-center justify-center rounded-lg bg-gradient-to-br from-gray-700 to-gray-900 dark:from-sidebar-accent dark:to-sidebar-border text-white dark:text-sidebar-foreground shadow-md">
-                <span class="font-bold text-sm">CF</span>
+              <div class="flex aspect-square size-8 items-center justify-center rounded-lg bg-white dark:bg-sidebar p-1">
+                <img src="@/assets/cargoflow.svg" alt="CargoFlow Logo" class="w-full h-full object-contain" />
               </div>
               <div class="flex flex-col gap-0.5 leading-none">
                 <span class="font-semibold">CargoFlow</span>

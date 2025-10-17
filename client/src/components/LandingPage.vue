@@ -15,10 +15,8 @@
             <!-- Logo and Mobile Toggle -->
             <div class="flex w-full items-center justify-between gap-12 lg:w-auto">
               <a href="/" class="flex items-center space-x-2">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                  <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                  </svg>
+                <div class="w-8 h-8 rounded-lg bg-white dark:bg-gray-800 flex items-center justify-center p-1">
+                  <img src="@/assets/cargoflow.svg" alt="CargoFlow Logo" class="w-full h-full object-contain" />
                 </div>
                 <span class="text-lg font-semibold text-gray-900 dark:text-gray-100">CargoFlow</span>
               </a>
