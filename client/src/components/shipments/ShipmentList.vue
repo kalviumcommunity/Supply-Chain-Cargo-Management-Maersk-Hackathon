@@ -227,6 +227,85 @@
         </CardContent>
       </Card>
     </div>
+
+    <!-- Delete Confirmation Dialog -->
+    <Dialog v-model:open="deleteDialog.isOpen">
+      <DialogContent class="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>
+            <div class="flex items-center gap-2">
+              <AlertCircle class="h-5 w-5 text-red-500" />
+              {{ deleteDialog.title }}
+            </div>
+          </DialogTitle>
+          <DialogDescription>
+            {{ deleteDialog.message }}
+          </DialogDescription>
+        </DialogHeader>
+        
+        <!-- Shipment Details -->
+        <div v-if="deleteDialog.shipment" class="bg-gray-50 dark:bg-sidebar-accent rounded-lg p-4 my-4">
+          <div class="space-y-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600 dark:text-sidebar-foreground/70">Shipment ID:</span>
+              <span class="font-medium dark:text-sidebar-foreground">#{{ deleteDialog.shipment.shipmentId }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600 dark:text-sidebar-foreground/70">Route:</span>
+              <span class="font-medium dark:text-sidebar-foreground">{{ deleteDialog.shipment.origin }} → {{ deleteDialog.shipment.destination }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600 dark:text-sidebar-foreground/70">Status:</span>
+              <Badge :variant="getStatusVariant(deleteDialog.shipment.status)">
+                {{ deleteDialog.shipment.status }}
+              </Badge>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Message with Cargo Count -->
+        <div v-if="deleteDialog.assignmentCount > 0" class="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+          <div class="flex gap-3">
+            <AlertCircle class="h-5 w-5 text-amber-600 dark:text-amber-500 flex-shrink-0 mt-0.5" />
+            <div class="flex-1">
+              <p class="text-sm font-medium text-amber-800 dark:text-amber-400 mb-1">
+                Cannot Delete Shipment
+              </p>
+              <p class="text-sm text-amber-700 dark:text-amber-300">
+                {{ deleteDialog.errorDetails }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button 
+            v-if="deleteDialog.assignmentCount > 0"
+            @click="closeDeleteDialog" 
+            variant="default"
+            class="w-full sm:w-auto"
+          >
+            Got it
+          </Button>
+          <template v-else>
+            <Button 
+              @click="closeDeleteDialog" 
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Button 
+              @click="handleDelete" 
+              variant="destructive"
+              :disabled="deleteDialog.isDeleting"
+            >
+              <Loader2 v-if="deleteDialog.isDeleting" class="mr-2 h-4 w-4 animate-spin" />
+              Delete Shipment
+            </Button>
+          </template>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
 
@@ -239,6 +318,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle 
+} from '@/components/ui/dialog'
 import { 
   Plus, 
   Loader2, 
@@ -257,6 +344,17 @@ const router = useRouter()
 const shipments = ref([])
 const isLoading = ref(false)
 const error = ref(null)
+
+// Delete Dialog State
+const deleteDialog = ref({
+  isOpen: false,
+  isDeleting: false,
+  shipment: null,
+  title: '',
+  message: '',
+  assignmentCount: 0,
+  errorDetails: ''
+})
 
 // Search and filter state
 const searchQuery = ref('')
@@ -369,18 +467,73 @@ const editShipment = (shipment) => {
   router.push(`/shipments/${shipment.shipmentId}/edit`)
 }
 
-const confirmDelete = async (shipment) => {
-  if (!confirm(`Are you sure you want to delete shipment #${shipment.shipmentId}?`)) {
-    return
+const openDeleteDialog = (shipment) => {
+  deleteDialog.value = {
+    isOpen: true,
+    isDeleting: false,
+    shipment: shipment,
+    title: 'Delete Shipment',
+    message: `Are you sure you want to delete shipment #${shipment.shipmentId} (${shipment.origin} → ${shipment.destination})? This action cannot be undone.`,
+    assignmentCount: 0,
+    errorDetails: ''
   }
+}
+
+const closeDeleteDialog = () => {
+  deleteDialog.value = {
+    isOpen: false,
+    isDeleting: false,
+    shipment: null,
+    title: '',
+    message: '',
+    assignmentCount: 0,
+    errorDetails: ''
+  }
+}
+
+const handleDelete = async () => {
+  if (!deleteDialog.value.shipment) return
+  
+  deleteDialog.value.isDeleting = true
   
   try {
-    await shipmentApi.delete(shipment.shipmentId)
-    await loadShipments() // Reload shipments after deletion
+    await shipmentApi.delete(deleteDialog.value.shipment.shipmentId)
+    
+    // Success - close dialog and reload shipments
+    closeDeleteDialog()
+    await loadShipments()
+    
+    // Optional: Show success toast/notification
+    console.log('✅ Shipment deleted successfully')
+    
   } catch (error) {
     console.error('❌ Error deleting shipment:', error)
-    alert('Failed to delete shipment. Please try again.')
+    
+    // Check if error is about cargo assignments
+    const errorMessage = error.message || ''
+    
+    if (errorMessage.includes('cargo') || errorMessage.includes('assigned') || errorMessage.includes('items')) {
+      // Extract count if available from backend response
+      const countMatch = errorMessage.match(/(\d+)\s+cargo/i)
+      const assignmentCount = countMatch ? parseInt(countMatch[1]) : 1
+      
+      // Update dialog to show error state
+      deleteDialog.value.title = 'Unable to Delete Shipment'
+      deleteDialog.value.assignmentCount = assignmentCount
+      deleteDialog.value.errorDetails = errorMessage
+    } else {
+      // Generic error - close dialog and show alert
+      closeDeleteDialog()
+      alert(`Failed to delete shipment: ${errorMessage}`)
+    }
+  } finally {
+    deleteDialog.value.isDeleting = false
   }
+}
+
+// Keep old function name for backward compatibility but use new dialog
+const confirmDelete = (shipment) => {
+  openDeleteDialog(shipment)
 }
 
 onMounted(() => {
