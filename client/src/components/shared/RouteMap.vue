@@ -10,6 +10,142 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import globalCoordinates from '@/data/globalCoordinates'
 
+const isDev = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV
+
+const memoryGeometryCache = new Map()
+const roadGeometryCache = new Map()
+const storageNamespace = 'route-geometry-cache'
+
+const storageSupported = (() => {
+  if (typeof window === 'undefined' || !window.localStorage) {
+    return false
+  }
+  try {
+    const testKey = `${storageNamespace}__test`
+    window.localStorage.setItem(testKey, '1')
+    window.localStorage.removeItem(testKey)
+    return true
+  } catch (error) {
+    console.warn('RouteMap: localStorage unavailable, falling back to memory cache only', error)
+    return false
+  }
+})()
+
+const sanitizeCoordinates = (coords) => {
+  if (!Array.isArray(coords)) return []
+  return coords
+    .map((pair) => {
+      if (!Array.isArray(pair) || pair.length < 2) return null
+      const lat = Number(pair[0])
+      const lng = Number(pair[1])
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+      return [Number(lat.toFixed(6)), Number(lng.toFixed(6))]
+    })
+    .filter(Boolean)
+}
+
+const readCachedGeometry = (key) => {
+  if (memoryGeometryCache.has(key)) {
+    return memoryGeometryCache.get(key)
+  }
+  if (!storageSupported) return null
+  try {
+    const stored = window.localStorage.getItem(`${storageNamespace}:${key}`)
+    if (!stored) return null
+    const parsed = JSON.parse(stored)
+    if (Array.isArray(parsed)) {
+      memoryGeometryCache.set(key, parsed)
+      return parsed
+    }
+  } catch (error) {
+    console.warn('RouteMap: Failed to parse cached geometry', error)
+  }
+  return null
+}
+
+const writeCachedGeometry = (key, geometry) => {
+  memoryGeometryCache.set(key, geometry)
+  if (!storageSupported) return
+  try {
+    window.localStorage.setItem(`${storageNamespace}:${key}`, JSON.stringify(geometry))
+  } catch (error) {
+    console.warn('RouteMap: Unable to persist geometry cache', error)
+  }
+}
+
+const decodePolyline = (encoded, precision = 5) => {
+  if (!encoded || typeof encoded !== 'string') return []
+  const coordinates = []
+  let index = 0
+  let lat = 0
+  let lng = 0
+  const factor = 10 ** precision
+
+  while (index < encoded.length) {
+    let result = 0
+    let shift = 0
+    let byte
+
+    do {
+      byte = encoded.charCodeAt(index++) - 63
+      result |= (byte & 0x1f) << shift
+      shift += 5
+    } while (byte >= 0x20)
+
+    const deltaLat = result & 1 ? ~(result >> 1) : result >> 1
+    lat += deltaLat
+
+    result = 0
+    shift = 0
+
+    do {
+      byte = encoded.charCodeAt(index++) - 63
+      result |= (byte & 0x1f) << shift
+      shift += 5
+    } while (byte >= 0x20)
+
+    const deltaLng = result & 1 ? ~(result >> 1) : result >> 1
+    lng += deltaLng
+
+    coordinates.push([lat / factor, lng / factor])
+  }
+
+  return sanitizeCoordinates(coordinates)
+}
+
+const buildGeometryCacheKey = (route, originCoords, destCoords) => {
+  const parts = [
+    route?.routeId ?? 'new',
+    route?.originPort ?? '',
+    route?.destinationPort ?? '',
+    route?.transportationMode ?? '',
+    route?.status ?? '',
+    route?.updatedAt ?? route?.lastUpdated ?? '',
+    route?.distance ?? '',
+    route?.duration ?? '',
+    originCoords?.join(',') ?? '',
+    destCoords?.join(',') ?? ''
+  ]
+
+  return parts.join('|').toLowerCase()
+}
+
+const getEncodedGeometry = (route) => {
+  if (!route || typeof route !== 'object') return null
+  const encoded = route.encodedGeometry || route.encodedPath || route.polyline || route.compressedPath
+  if (typeof encoded === 'string' && encoded.length > 4) {
+    try {
+      const decoded = decodePolyline(encoded)
+      if (decoded.length > 1) {
+        return decoded
+      }
+    } catch (error) {
+      console.warn('RouteMap: Failed to decode encoded geometry', error)
+    }
+  }
+  return null
+}
+
 
 // Props
 const props = defineProps({
@@ -92,6 +228,11 @@ const transportModeStyles = {
   }
 }
 
+const resolveTransportModeStyle = (mode) => {
+  if (!mode) return transportModeStyles['standard']
+  return transportModeStyles[mode] || transportModeStyles[mode.toLowerCase()] || transportModeStyles['standard']
+}
+
 // Status colors
 const statusColors = {
   'Active': '#10b981', // emerald-500
@@ -106,7 +247,7 @@ const toDeg = (rad) => (rad * 180) / Math.PI
 
 // Generate great-circle points between two lat/lng pairs
 // Returns an array of [lat, lng]
-const greatCircleSegment = (start, end, segments = 128) => {
+const greatCircleSegment = (start, end, segments = 64) => {
   const [lat1, lon1] = start.map(toRad)
   const [lat2, lon2] = end.map(toRad)
 
@@ -173,23 +314,69 @@ const inferOceanWaypoints = (origin, destination) => {
 // Fetch turn-by-turn road geometry between ordered coordinates via OSRM
 // coordinates: array of [lat, lng]
 const fetchRoadGeometry = async (coordinates) => {
+  let requestUrl = ''
   try {
     if (!coordinates || coordinates.length < 2) return null
     const coordParam = coordinates
       .map(([lat, lng]) => `${lng},${lat}`) // OSRM expects lon,lat
       .join(';')
 
-    const url = `https://router.project-osrm.org/route/v1/driving/${coordParam}?overview=full&geometries=geojson&steps=false&alternatives=false`
-    const res = await fetch(url)
+    requestUrl = `https://router.project-osrm.org/route/v1/driving/${coordParam}?overview=full&geometries=geojson&steps=false&alternatives=false`
+    if (roadGeometryCache.has(requestUrl)) {
+      return roadGeometryCache.get(requestUrl)
+    }
+    const res = await fetch(requestUrl)
     if (!res.ok) throw new Error(`OSRM error ${res.status}`)
     const data = await res.json()
     if (!data?.routes?.[0]?.geometry?.coordinates) return null
     const coords = data.routes[0].geometry.coordinates.map(([lon, lat]) => [lat, lon])
-    return coords
+    const sanitized = sanitizeCoordinates(coords)
+    roadGeometryCache.set(requestUrl, sanitized)
+    return sanitized
   } catch (e) {
     console.warn('OSRM routing failed, falling back to great-circle/straight:', e)
+    if (requestUrl) {
+      roadGeometryCache.set(requestUrl, null)
+    }
     return null
   }
+}
+
+const computeRouteGeometry = async (route, originCoords, destCoords, transportMode) => {
+  const cacheKey = buildGeometryCacheKey(route, originCoords, destCoords)
+  const cachedGeometry = readCachedGeometry(cacheKey)
+  if (cachedGeometry) {
+    return cachedGeometry
+  }
+
+  const encodedGeometry = getEncodedGeometry(route)
+  if (encodedGeometry && encodedGeometry.length > 1) {
+    writeCachedGeometry(cacheKey, encodedGeometry)
+    return encodedGeometry
+  }
+
+  let geometry = null
+
+  if (transportMode === 'ROAD' || transportMode === 'RAIL') {
+    geometry = await fetchRoadGeometry([originCoords, destCoords])
+    if (!geometry || geometry.length < 2) {
+      geometry = greatCirclePath([originCoords, destCoords], 48)
+    }
+  } else if (transportMode === 'OCEAN') {
+    const oceanCoords = [originCoords]
+    const inferred = inferOceanWaypoints(originCoords, destCoords)
+    if (Array.isArray(inferred) && inferred.length > 0) {
+      oceanCoords.push(...inferred)
+    }
+    oceanCoords.push(destCoords)
+    geometry = greatCirclePath(oceanCoords, 48)
+  } else {
+    geometry = greatCirclePath([originCoords, destCoords], 48)
+  }
+
+  const sanitized = sanitizeCoordinates(geometry && geometry.length > 1 ? geometry : [originCoords, destCoords])
+  writeCachedGeometry(cacheKey, sanitized)
+  return sanitized
 }
 
 // Initialize map
@@ -232,7 +419,7 @@ const initMap = () => {
   console.log('RouteMap: Global map initialized successfully')
 
   // Initial render
-  renderRoutes()
+  scheduleRenderRoutes()
 }
 
 // Get coordinates for a location with global fallback
@@ -268,8 +455,8 @@ const createMarkerIcon = (type, status, transportMode = null) => {
   const statusColor = statusColors[status] || '#6b7280'
   
   // Get transport mode icon if available
-  const modeStyle = transportMode ? transportModeStyles[transportMode] : null
-  const modeIcon = modeStyle?.icon || ''
+  const modeStyle = resolveTransportModeStyle(transportMode)
+  const modeIcon = modeStyle.icon || ''
   
   return L.divIcon({
     className: 'custom-marker',
@@ -289,8 +476,8 @@ const createMarkerIcon = (type, status, transportMode = null) => {
 // Create route popup content with enhanced transport mode information
 const createRoutePopup = (route) => {
   // Get transport mode details
-  const transportMode = route.transportationMode || route.routeType || 'standard'
-  const modeStyle = transportModeStyles[transportMode] || transportModeStyles['standard']
+  const transportMode = (route.transportationMode || route.routeType || 'standard').toString()
+  const modeStyle = resolveTransportModeStyle(transportMode)
   const modeIcon = modeStyle.icon
   const modeLabel = transportMode.charAt(0).toUpperCase() + transportMode.slice(1).toLowerCase()
   
@@ -347,201 +534,222 @@ const createRoutePopup = (route) => {
   `
 }
 
-let routeLayers = {};
+let routeLayers = {}
+let renderFrame = null
+let isRendering = false
+let pendingRender = false
 
 // Render routes on map
 const renderRoutes = async () => {
   if (!map || !markersLayer || !routesLayer) {
-    console.warn('RouteMap: Map or layers not ready for rendering')
+    if (isDev) {
+      console.warn('RouteMap: Map or layers not ready for rendering')
+    }
     return
   }
 
-  // Use filtered routes for rendering
-  const routesToRender =
-    props.filteredRoutes && props.filteredRoutes.length > 0
-      ? props.filteredRoutes
-      : props.routes;
-
-  console.log('RouteMap: Rendering routes:', {
-    filteredRoutesCount: props.filteredRoutes?.length || 0,
-    totalRoutesCount: props.routes?.length || 0,
-    routesToRenderCount: routesToRender?.length || 0,
-  })
-
-  // Clear existing layers
-  markersLayer.clearLayers()
-  routesLayer.clearLayers()
-  routeLayers = {}
-
-  if (!routesToRender || routesToRender.length === 0) {
-    console.log('RouteMap: No routes to render')
+  if (isRendering) {
+    pendingRender = true
     return
   }
 
-  const processedLocations = new Set()
+  isRendering = true
 
-  for (let index = 0; index < routesToRender.length; index++) {
-    const route = routesToRender[index]
-    try {
-      // Validate route structure
-      if (!route || typeof route !== 'object') {
-        console.warn(`RouteMap: Invalid route at index ${index}:`, route)
-        continue
-      }
+  try {
+    const routesToRender =
+      props.filteredRoutes && props.filteredRoutes.length > 0
+        ? props.filteredRoutes
+        : props.routes
 
-      if (!route.originPort || !route.destinationPort) {
-        console.warn(`RouteMap: Route ${route.routeId || index} missing origin or destination port`)
-        continue
-      }
-      
-      const originCoords = getCoordinates(route.originPort)
-      const destCoords = getCoordinates(route.destinationPort)
-      
-      if (!originCoords || !destCoords) {
-        console.warn(`RouteMap: Could not get coordinates for route ${route.routeId}`)
-        continue
-      }
-      
-      const transportMode = route.transportationMode || 'STANDARD'
-
-    // Add markers for origin and destination (avoid duplicates)
-      const originKey = `${route.originPort}-origin`
-      const destKey = `${route.destinationPort}-destination`
-
-      if (!processedLocations.has(originKey)) {
-        const originMarker = L.marker(originCoords, {
-          icon: createMarkerIcon('origin', route.status, transportMode)
-        })
-          .bindPopup(`
-        <div class="p-3">
-          <h4 class="font-bold text-blue-600 mb-2">${route.originPort}</h4>
-          <p class="text-xs text-gray-500">Origin for ${transportMode.toUpperCase()} routes</p>
-        </div>
-      `)
-          .on('click', () => emit('marker-clicked', { type: 'origin', location: route.originPort, transportMode }))
-
-        markersLayer.addLayer(originMarker)
-        processedLocations.add(originKey)
-      }
-
-      if (!processedLocations.has(destKey)) {
-        const destMarker = L.marker(destCoords, {
-          icon: createMarkerIcon('destination', route.status, transportMode)
-        })
-          .bindPopup(`
-        <div class="p-3">
-          <h4 class="font-bold text-green-600 mb-2">${route.destinationPort}</h4>
-          <p class="text-xs text-gray-500">Destination for ${transportMode.toUpperCase()} routes</p>
-        </div>
-      `)
-          .on('click', () => emit('marker-clicked', { type: 'destination', location: route.destinationPort, transportMode }))
-
-        markersLayer.addLayer(destMarker)
-        processedLocations.add(destKey)
-      }
-
-    // Get transport mode styling
-    const modeStyle = transportModeStyles[transportMode] || transportModeStyles['standard']
-    
-    // Create route polyline with transport mode specific styling
-    const routeLineOptions = {
-      color: modeStyle.color,
-      weight: route.status === 'Active' ? modeStyle.weight : Math.max(2, modeStyle.weight - 1),
-      opacity: route.status === 'Closed' ? 0.4 : modeStyle.opacity,
-      smoothFactor: 1,
-      lineCap: 'round',
-      lineJoin: 'round'
-    }
-    
-    // Add dash pattern if specified for the transport mode
-    if (modeStyle.dashArray) {
-      routeLineOptions.dashArray = modeStyle.dashArray
+    if (isDev) {
+      console.log('RouteMap: Rendering routes', {
+        filteredRoutesCount: props.filteredRoutes?.length || 0,
+        totalRoutesCount: props.routes?.length || 0,
+        routesToRenderCount: routesToRender?.length || 0
+      })
     }
 
-      // Build geometry based on transport mode
-      let geometry = null
-      if (transportMode === 'ROAD' || transportMode === 'RAIL') {
-        const roadCoords = [originCoords, destCoords]
-        geometry = await fetchRoadGeometry(roadCoords)
-        if (!geometry) {
-          // Fallback to great-circle
-          geometry = greatCirclePath([originCoords, destCoords], 128)
+    markersLayer.clearLayers()
+    routesLayer.clearLayers()
+    routeLayers = {}
+
+    if (!routesToRender || routesToRender.length === 0) {
+      if (isDev) {
+        console.log('RouteMap: No routes to render')
+      }
+      return
+    }
+
+    const processedLocations = new Set()
+
+    for (let index = 0; index < routesToRender.length; index++) {
+      const route = routesToRender[index]
+
+      try {
+        if (!route || typeof route !== 'object') {
+          if (isDev) {
+            console.warn(`RouteMap: Invalid route at index ${index}`, route)
+          }
+          continue
         }
-      } else if (transportMode === 'OCEAN') {
-        const oceanCoords = [originCoords]
-        const inferred = inferOceanWaypoints(originCoords, destCoords)
-        oceanCoords.push(...inferred)
-        oceanCoords.push(destCoords)
-        geometry = greatCirclePath(oceanCoords, 96)
-      } else { // AIR or other
-        geometry = greatCirclePath([originCoords, destCoords], 128)
+
+        if (!route.originPort || !route.destinationPort) {
+          if (isDev) {
+            console.warn(`RouteMap: Route ${route.routeId || index} missing origin or destination port`)
+          }
+          continue
+        }
+
+        const originCoords = getCoordinates(route.originPort)
+        const destCoords = getCoordinates(route.destinationPort)
+
+        if (!originCoords || !destCoords) {
+          if (isDev) {
+            console.warn(`RouteMap: Coordinates unavailable for route ${route.routeId || index}`)
+          }
+          continue
+        }
+
+        const transportMode = (route.transportationMode || 'STANDARD').toUpperCase()
+
+        const originKey = `${route.originPort}-origin`
+        const destKey = `${route.destinationPort}-destination`
+
+        if (!processedLocations.has(originKey)) {
+          const originMarker = L.marker(originCoords, {
+            icon: createMarkerIcon('origin', route.status, transportMode)
+          })
+            .bindPopup(`
+          <div class="p-3">
+            <h4 class="font-bold text-blue-600 mb-2">${route.originPort}</h4>
+            <p class="text-xs text-gray-500">Origin for ${transportMode} routes</p>
+          </div>
+        `)
+            .on('click', () => emit('marker-clicked', { type: 'origin', location: route.originPort, transportMode }))
+
+          markersLayer.addLayer(originMarker)
+          processedLocations.add(originKey)
+        }
+
+        if (!processedLocations.has(destKey)) {
+          const destMarker = L.marker(destCoords, {
+            icon: createMarkerIcon('destination', route.status, transportMode)
+          })
+            .bindPopup(`
+          <div class="p-3">
+            <h4 class="font-bold text-green-600 mb-2">${route.destinationPort}</h4>
+            <p class="text-xs text-gray-500">Destination for ${transportMode} routes</p>
+          </div>
+        `)
+            .on('click', () => emit('marker-clicked', { type: 'destination', location: route.destinationPort, transportMode }))
+
+          markersLayer.addLayer(destMarker)
+          processedLocations.add(destKey)
+        }
+
+  const modeStyle = resolveTransportModeStyle(transportMode)
+
+        const routeLineOptions = {
+          color: modeStyle.color,
+          weight: route.status === 'Active' ? modeStyle.weight : Math.max(2, modeStyle.weight - 1),
+          opacity: route.status === 'Closed' ? 0.4 : modeStyle.opacity,
+          smoothFactor: 1,
+          lineCap: 'round',
+          lineJoin: 'round'
+        }
+
+        if (modeStyle.dashArray) {
+          routeLineOptions.dashArray = modeStyle.dashArray
+        }
+
+        const geometry = await computeRouteGeometry(route, originCoords, destCoords, transportMode)
+        const renderGeometry = geometry && geometry.length > 1 ? geometry : sanitizeCoordinates([originCoords, destCoords])
+
+  const routeLine = L.polyline(renderGeometry, routeLineOptions).bindPopup(createRoutePopup(route))
+
+  routesLayer.addLayer(routeLine)
+  const layerKey = route.routeId != null ? String(route.routeId) : `route-${index}`
+        routeLayers[layerKey] = { line: routeLine, options: routeLineOptions }
+
+        if (transportMode === 'ROAD') {
+          routeLine.bringToFront()
+        }
+      } catch (routeError) {
+        console.error(`RouteMap: Error processing route ${route.routeId || index}:`, routeError)
       }
+    }
 
-      const routeLine = L.polyline(geometry && geometry.length > 1 ? geometry : [originCoords, destCoords], routeLineOptions)
-        .bindPopup(createRoutePopup(route))
+    if (routesToRender.length > 0) {
+      try {
+        const allLayers = []
+        markersLayer.eachLayer((layer) => { allLayers.push(layer) })
+        routesLayer.eachLayer((layer) => { allLayers.push(layer) })
 
-      routesLayer.addLayer(routeLine)
-      routeLayers[route.routeId] = { line: routeLine, options: routeLineOptions };
-
-      // Emphasize road visibility when overlapping with others
-      if (transportMode === 'ROAD') {
-        routeLine.bringToFront()
+        if (allLayers.length > 0) {
+          const group = new L.featureGroup(allLayers)
+          map.fitBounds(group.getBounds().pad(0.1))
+        }
+      } catch (error) {
+        console.error('RouteMap: Error fitting bounds:', error)
       }
-    } catch (routeError) {
-      console.error(`RouteMap: Error processing route ${route.routeId || index}:`, routeError)
+    }
+
+    if (isDev) {
+      console.log('RouteMap: Route rendering completed')
+    }
+  } finally {
+    isRendering = false
+    if (pendingRender) {
+      pendingRender = false
+      scheduleRenderRoutes()
     }
   }
+}
 
-  // Fit map to show all routes if there are any
-  if (routesToRender.length > 0) {
-    try {
-      const allLayers = []
-      markersLayer.eachLayer((layer) => { allLayers.push(layer) })
-      routesLayer.eachLayer((layer) => { allLayers.push(layer) })
-      
-      if (allLayers.length > 0) {
-        const group = new L.featureGroup(allLayers)
-        map.fitBounds(group.getBounds().pad(0.1))
-      }
-    } catch (error) {
-      console.error('RouteMap: Error fitting bounds:', error)
-    }
-  }
-
-  console.log('RouteMap: Route rendering completed')
+const scheduleRenderRoutes = () => {
+  if (renderFrame) return
+  renderFrame = requestAnimationFrame(() => {
+    renderFrame = null
+    renderRoutes()
+  })
 }
 
 // Watch for route changes
 watch(() => props.filteredRoutes, (newRoutes, oldRoutes) => {
-  console.log('RouteMap: filteredRoutes changed:', {
-    newCount: newRoutes?.length || 0,
-    oldCount: oldRoutes?.length || 0,
-    newRoutes: newRoutes
-  })
-  renderRoutes()
+  if (isDev) {
+    console.log('RouteMap: filteredRoutes changed', {
+      newCount: newRoutes?.length || 0,
+      oldCount: oldRoutes?.length || 0
+    })
+  }
+  scheduleRenderRoutes()
 }, { deep: true })
 
 watch(() => props.routes, (newRoutes, oldRoutes) => {
-  console.log('RouteMap: routes changed:', {
-    newCount: newRoutes?.length || 0,
-    oldCount: oldRoutes?.length || 0
-  })
-  renderRoutes()
+  if (isDev) {
+    console.log('RouteMap: routes changed', {
+      newCount: newRoutes?.length || 0,
+      oldCount: oldRoutes?.length || 0
+    })
+  }
+  scheduleRenderRoutes()
 }, { deep: true })
 
 watch(
     () => props.highlightedRouteId,
     (newId, oldId) => {
-      if (oldId && routeLayers[oldId]) {
-        routeLayers[oldId].line.setStyle(routeLayers[oldId].options);
+      const previousKey = oldId != null ? String(oldId) : null
+      const nextKey = newId != null ? String(newId) : null
+      if (previousKey && routeLayers[previousKey]) {
+        routeLayers[previousKey].line.setStyle(routeLayers[previousKey].options);
       }
-      if (newId && routeLayers[newId]) {
-        routeLayers[newId].line.setStyle({
+      if (nextKey && routeLayers[nextKey]) {
+        routeLayers[nextKey].line.setStyle({
           color: '#ffc107',
-          weight: routeLayers[newId].options.weight + 3,
+          weight: routeLayers[nextKey].options.weight + 3,
           opacity: 1
         });
-        routeLayers[newId].line.bringToFront();
+        routeLayers[nextKey].line.bringToFront();
       }
     }
   );
@@ -552,6 +760,10 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (renderFrame) {
+    cancelAnimationFrame(renderFrame)
+    renderFrame = null
+  }
   if (map) {
     map.remove()
     map = null
