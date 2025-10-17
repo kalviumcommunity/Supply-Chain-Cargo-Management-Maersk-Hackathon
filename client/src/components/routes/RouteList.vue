@@ -175,12 +175,21 @@
           
           <!-- Map View -->
           <div v-else-if="viewMode === 'map'" class="h-[600px]">
-            <RouteMap 
-              :routes="routes" 
-              :filteredRoutes="filteredRoutes"
-              :highlightedRouteId="highlightedRouteId"
-              class="h-full rounded-lg" 
-            />
+            <Suspense>
+              <template #default>
+                <RouteMap 
+                  :routes="routes" 
+                  :filteredRoutes="filteredRoutes"
+                  :highlightedRouteId="highlightedRouteId"
+                  class="h-full rounded-lg" 
+                />
+              </template>
+              <template #fallback>
+                <div class="flex h-full items-center justify-center text-sm text-muted-foreground">
+                  Loading map...
+                </div>
+              </template>
+            </Suspense>
           </div>
           
           <!-- Table View -->
@@ -338,10 +347,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, defineAsyncComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import PageHeader from '@/components/shared/PageHeader.vue'
-import RouteMap from '@/components/shared/RouteMap.vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -375,6 +383,7 @@ import {
 import { routeApi } from '@/services/api'
 
 const router = useRouter()
+const RouteMap = defineAsyncComponent(() => import('@/components/shared/RouteMap.vue'))
 
 const routes = ref([])
 const isLoading = ref(false)

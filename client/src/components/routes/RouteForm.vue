@@ -39,8 +39,8 @@
                 <label class="text-sm font-medium dark:text-sidebar-foreground" for="originPort">
                   Origin Port <span class="text-red-500">*</span>
                 </label>
-                <Input
-                  id="originPort"
+                <LocationAutocomplete
+                  input-id="originPort"
                   v-model="form.originPort"
                   placeholder="e.g., Jawaharlal Nehru Port"
                   required
@@ -51,8 +51,8 @@
                 <label class="text-sm font-medium dark:text-sidebar-foreground" for="destinationPort">
                   Destination Port <span class="text-red-500">*</span>
                 </label>
-                <Input
-                  id="destinationPort"
+                <LocationAutocomplete
+                  input-id="destinationPort"
                   v-model="form.destinationPort"
                   placeholder="e.g., Chennai Port"
                   required
@@ -190,6 +190,7 @@ import { ref, onMounted, onUnmounted, watch, reactive, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import LocationAutocomplete from '@/components/shared/LocationAutocomplete.vue'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from 'lucide-vue-next'
 import { routeApi } from '@/services/api'

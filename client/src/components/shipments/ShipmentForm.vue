@@ -31,8 +31,8 @@
                 <label for="origin" class="text-sm font-medium dark:text-sidebar-foreground">
                   Origin <span class="text-red-500">*</span>
                 </label>
-                <Input
-                  id="origin"
+                <LocationAutocomplete
+                  input-id="origin"
                   v-model="formData.origin"
                   placeholder="Enter origin location"
                   required
@@ -44,8 +44,8 @@
                 <label for="destination" class="text-sm font-medium dark:text-sidebar-foreground">
                   Destination <span class="text-red-500">*</span>
                 </label>
-                <Input
-                  id="destination"
+                <LocationAutocomplete
+                  input-id="destination"
                   v-model="formData.destination"
                   placeholder="Enter destination location"
                   required
@@ -211,6 +211,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import LocationAutocomplete from '@/components/shared/LocationAutocomplete.vue'
 import { ArrowLeft, Loader2, AlertCircle, CheckCircle } from 'lucide-vue-next'
 import { shipmentApi, routeApi, vendorApi } from '@/services/api'
 import { estimateShipmentDelivery } from '@/services/logisticsEstimator'
