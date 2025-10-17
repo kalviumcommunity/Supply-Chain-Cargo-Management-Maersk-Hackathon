@@ -172,9 +172,7 @@
                 </TableRow>
                 <TableRow v-for="vendor in filteredVendors" :key="vendor.vendorId">
                   <TableCell class="font-medium">{{ vendor.vendorId }}</TableCell>
-                  <TableCell>
-                    <div class="font-medium">{{ vendor.name }}</div>
-                  </TableCell>
+                  <TableCell>{{ vendor.name }}</TableCell>
                   <TableCell>
                     <Badge :variant="getServiceTypeBadgeVariant(vendor.serviceType)">
                       {{ vendor.serviceType }}
@@ -182,9 +180,7 @@
                   </TableCell>
                   <TableCell>{{ vendor.contact_email || 'N/A' }}</TableCell>
                   <TableCell>{{ vendor.contact_phone || 'N/A' }}</TableCell>
-                  <TableCell>
-                    <div class="max-w-xs truncate">{{ vendor.address || 'N/A' }}</div>
-                  </TableCell>
+                  <TableCell>{{ vendor.address || 'N/A' }}</TableCell>
                   <TableCell class="text-right">
                     <div class="flex items-center justify-end space-x-2">
                       <Button @click="viewVendor(vendor)" size="sm" variant="outline">
@@ -193,7 +189,7 @@
                       <Button @click="editVendor(vendor)" size="sm" variant="outline">
                         <Edit class="h-4 w-4" />
                       </Button>
-                      <Button @click="confirmDelete(vendor)" size="sm" variant="outline" class="text-red-600 hover:text-red-700">
+                      <Button @click="openDeleteDialog(vendor)" size="sm" variant="outline" class="text-red-600 hover:text-red-700">
                         <Trash2 class="h-4 w-4" />
                       </Button>
                     </div>
@@ -205,6 +201,83 @@
         </CardContent>
       </Card>
     </div>
+
+    <!-- Delete Confirmation Dialog -->
+    <Dialog v-model:open="deleteDialog.isOpen">
+      <DialogContent class="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>
+            <div class="flex items-center gap-2">
+              <AlertCircle class="h-5 w-5 text-red-500" />
+              {{ deleteDialog.title }}
+            </div>
+          </DialogTitle>
+          <DialogDescription>
+            {{ deleteDialog.message }}
+          </DialogDescription>
+        </DialogHeader>
+        
+        <!-- Vendor Details -->
+        <div v-if="deleteDialog.vendor" class="bg-gray-50 dark:bg-sidebar-accent rounded-lg p-4 my-4">
+          <div class="space-y-2">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600 dark:text-sidebar-foreground/70">Vendor ID:</span>
+              <span class="font-medium dark:text-sidebar-foreground">{{ deleteDialog.vendor.vendorId }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600 dark:text-sidebar-foreground/70">Name:</span>
+              <span class="font-medium dark:text-sidebar-foreground">{{ deleteDialog.vendor.name }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600 dark:text-sidebar-foreground/70">Service Type:</span>
+              <span class="font-medium dark:text-sidebar-foreground">{{ deleteDialog.vendor.serviceType }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error Message with Shipment/Route Count -->
+        <div v-if="deleteDialog.assignmentCount > 0" class="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+          <div class="flex gap-3">
+            <AlertCircle class="h-5 w-5 text-amber-600 dark:text-amber-500 flex-shrink-0 mt-0.5" />
+            <div class="flex-1">
+              <p class="text-sm font-medium text-amber-800 dark:text-amber-400 mb-1">
+                Cannot Delete Vendor
+              </p>
+              <p class="text-sm text-amber-700 dark:text-amber-300">
+                {{ deleteDialog.errorDetails }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button 
+            v-if="deleteDialog.assignmentCount > 0"
+            @click="closeDeleteDialog" 
+            variant="default"
+            class="w-full sm:w-auto"
+          >
+            Got it
+          </Button>
+          <template v-else>
+            <Button 
+              @click="closeDeleteDialog" 
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Button 
+              @click="handleDelete" 
+              variant="destructive"
+              :disabled="deleteDialog.isDeleting"
+            >
+              <Loader2 v-if="deleteDialog.isDeleting" class="mr-2 h-4 w-4 animate-spin" />
+              Delete Vendor
+            </Button>
+          </template>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
 
@@ -217,6 +290,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle 
+} from '@/components/ui/dialog'
 import { 
   Plus, 
   Loader2, 
@@ -234,6 +315,17 @@ const router = useRouter()
 const vendors = ref([])
 const isLoading = ref(false)
 const error = ref(null)
+
+// Delete Dialog State
+const deleteDialog = ref({
+  isOpen: false,
+  isDeleting: false,
+  vendor: null,
+  title: '',
+  message: '',
+  assignmentCount: 0,
+  errorDetails: ''
+})
 
 // Helper function to parse contactInfo from backend
 const parseContactInfo = (contactInfo) => {
@@ -373,18 +465,73 @@ const editVendor = (vendor) => {
   router.push(`/vendors/${vendor.vendorId}/edit`)
 }
 
-const confirmDelete = async (vendor) => {
-  if (!confirm(`Are you sure you want to delete vendor "${vendor.name}"?`)) {
-    return
+const openDeleteDialog = (vendor) => {
+  deleteDialog.value = {
+    isOpen: true,
+    isDeleting: false,
+    vendor: vendor,
+    title: 'Delete Vendor',
+    message: `Are you sure you want to delete vendor "${vendor.name}"? This action cannot be undone.`,
+    assignmentCount: 0,
+    errorDetails: ''
   }
+}
+
+const closeDeleteDialog = () => {
+  deleteDialog.value = {
+    isOpen: false,
+    isDeleting: false,
+    vendor: null,
+    title: '',
+    message: '',
+    assignmentCount: 0,
+    errorDetails: ''
+  }
+}
+
+const handleDelete = async () => {
+  if (!deleteDialog.value.vendor) return
+  
+  deleteDialog.value.isDeleting = true
   
   try {
-    await vendorApi.delete(vendor.vendorId)
-    await loadVendors() // Reload vendors after deletion
+    await vendorApi.delete(deleteDialog.value.vendor.vendorId)
+    
+    // Success - close dialog and reload vendors
+    closeDeleteDialog()
+    await loadVendors()
+    
+    // Optional: Show success toast/notification
+    console.log('✅ Vendor deleted successfully')
+    
   } catch (error) {
-    console.error('Error deleting vendor:', error)
-    alert('Failed to delete vendor. Please try again.')
+    console.error('❌ Error deleting vendor:', error)
+    
+    // Check if error is about shipment/route assignments
+    const errorMessage = error.message || ''
+    
+    if (errorMessage.includes('shipment') || errorMessage.includes('route') || errorMessage.includes('assigned')) {
+      // Extract count if available from backend response
+      const countMatch = errorMessage.match(/(\d+)\s+(shipment|route)/i)
+      const assignmentCount = countMatch ? parseInt(countMatch[1]) : 1
+      
+      // Update dialog to show error state
+      deleteDialog.value.title = 'Unable to Delete Vendor'
+      deleteDialog.value.assignmentCount = assignmentCount
+      deleteDialog.value.errorDetails = errorMessage
+    } else {
+      // Generic error - close dialog and show alert
+      closeDeleteDialog()
+      alert(`Failed to delete vendor: ${errorMessage}`)
+    }
+  } finally {
+    deleteDialog.value.isDeleting = false
   }
+}
+
+// Keep old function name for backward compatibility but use new dialog
+const confirmDelete = (vendor) => {
+  openDeleteDialog(vendor)
 }
 
 onMounted(() => {
