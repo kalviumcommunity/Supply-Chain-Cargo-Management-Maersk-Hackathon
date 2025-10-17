@@ -102,6 +102,7 @@ psql -U <user> -d cargo_db -f server/basic-schema.sql
 
 ```bash
 cd server
+mvn clean install
 mvn spring-boot:run
 ```
 
