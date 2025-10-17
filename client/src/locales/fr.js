@@ -52,7 +52,7 @@ export default {
     sendEmail: 'Envoyer un E-mail',
     sending: 'Envoi en cours...',
     emailFieldNote: 'Laissez le champ e-mail vide pour utiliser les destinataires par défaut configurés sur le serveur.',
-    emailPlaceholder: 'ops@exemple.com, equipe@exemple.com',
+    emailPlaceholder: "{'ops@example.com, team@example.com'}",
   },
 
   // Commun
