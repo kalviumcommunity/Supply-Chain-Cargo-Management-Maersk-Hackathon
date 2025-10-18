@@ -101,6 +101,7 @@
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>{{ $t('common.serialNumber') }}</TableHead>
                 <TableHead>{{ $t('deliveries.deliveryId') }}</TableHead>
                 <TableHead>{{ $t('deliveries.shipmentId') }}</TableHead>
                 <TableHead>{{ $t('common.from') }}</TableHead>
@@ -113,11 +114,12 @@
             </TableHeader>
             <TableBody>
               <TableRow v-if="deliveries.length === 0">
-                <TableCell :colspan="8" class="h-24 text-center">
+                <TableCell :colspan="9" class="h-24 text-center">
                   {{ $t('deliveries.noDeliveries') }}
                 </TableCell>
               </TableRow>
-              <TableRow v-for="delivery in deliveries" :key="delivery.deliveryId" class="hover:bg-gray-50 dark:hover:bg-sidebar-accent/50 transition-colors">
+              <TableRow v-for="(delivery, index) in deliveries" :key="delivery.deliveryId" class="hover:bg-gray-50 dark:hover:bg-sidebar-accent/50 transition-colors">
+                <TableCell class="font-medium">{{ index + 1 }}</TableCell>
                 <TableCell class="font-medium">{{ delivery.deliveryId }}</TableCell>
                 <TableCell>
                   <span class="text-blue-600">#{{ delivery.shipment?.shipmentId || 'N/A' }}</span>
