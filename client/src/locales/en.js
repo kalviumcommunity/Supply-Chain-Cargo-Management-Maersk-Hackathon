@@ -288,8 +288,8 @@ export default {
     searchVendors: 'Search by ID, name, email, phone, or address...',
     // Table headers
     serviceType: 'Service Type',
-    contactEmail: 'Contact Email',
-    contactPhone: 'Contact Phone',
+    contact_email: 'Vendor Email',
+    contact_phone: 'Vendor Contact',
     loadingVendors: 'Loading vendors...',
     noVendors: 'No vendors found. Create your first vendor to get started.',
     noVendorsMatches: 'No vendors match your filters.',

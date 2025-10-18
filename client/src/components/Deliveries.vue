@@ -132,12 +132,9 @@
                 </TableCell>
                 <TableCell>{{ delivery.recipient || 'N/A' }}</TableCell>
                 <TableCell class="text-right">
-                  <div class="flex items-center justify-end space-x-2">
-                    <Button @click="viewDelivery(delivery)" size="sm" variant="outline">
+                  <div class="flex items-center justify-end">
+                    <Button @click="viewShipment(delivery)" size="sm" variant="outline">
                       <Eye class="h-4 w-4" />
-                    </Button>
-                    <Button @click="updateDelivery(delivery)" size="sm" variant="outline">
-                      <Edit class="h-4 w-4" />
                     </Button>
                   </div>
                 </TableCell>
@@ -152,6 +149,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, onActivated } from 'vue'
+import { useRouter } from 'vue-router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -163,11 +161,11 @@ import {
   Package, 
   Loader2, 
   AlertCircle, 
-  Eye,
-  Edit 
+  Eye
 } from 'lucide-vue-next'
 import { deliveryApi } from '@/services/api'
 
+const router = useRouter()
 const deliveries = ref([])
 const isLoading = ref(false)
 const error = ref(null)
@@ -221,14 +219,13 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString()
 }
 
-const viewDelivery = (delivery) => {
-  // Navigate to delivery details page (when implemented)
-  console.log('View delivery:', delivery)
-}
-
-const updateDelivery = (delivery) => {
-  // Navigate to update delivery page (when implemented)
-  console.log('Update delivery:', delivery)
+const viewShipment = (delivery) => {
+  // Navigate to the shipment details page
+  if (delivery.shipment?.shipmentId) {
+    router.push(`/shipments/${delivery.shipment.shipmentId}`)
+  } else {
+    console.warn('No shipment ID available for this delivery')
+  }
 }
 
 onMounted(() => {
