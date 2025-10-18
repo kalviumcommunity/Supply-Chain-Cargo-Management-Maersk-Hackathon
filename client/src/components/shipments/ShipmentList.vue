@@ -152,6 +152,7 @@
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>{{ $t('common.serialNumber') }}</TableHead>
                   <TableHead>{{ $t('common.id') }}</TableHead>
                   <TableHead>{{ $t('common.origin') }} → {{ $t('common.destination') }}</TableHead>
                   <TableHead>{{ $t('common.status') }}</TableHead>
@@ -163,7 +164,7 @@
               </TableHeader>
               <TableBody>
                 <TableRow v-if="filteredShipments.length === 0">
-                  <TableCell :colspan="7" class="h-24 text-center">
+                  <TableCell :colspan="8" class="h-24 text-center">
                     <div class="flex flex-col items-center justify-center text-gray-500">
                       <Truck class="h-12 w-12 text-gray-300 mb-2" />
                       <div v-if="searchQuery || filterStatus !== 'all'" class="space-y-2">
@@ -179,7 +180,8 @@
                     </div>
                   </TableCell>
                 </TableRow>
-                <TableRow v-for="shipment in filteredShipments" :key="shipment.shipmentId">
+                <TableRow v-for="(shipment, index) in filteredShipments" :key="shipment.shipmentId">
+                  <TableCell class="font-medium">{{ index + 1 }}</TableCell>
                   <TableCell class="font-medium">#{{ shipment.shipmentId }}</TableCell>
                   <TableCell>
                     <div class="flex flex-col">

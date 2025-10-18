@@ -152,7 +152,7 @@
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{{ $t('common.id') }}</TableHead>
+                  <TableHead>{{ $t('common.serialNumber') }}</TableHead>
                   <TableHead>{{ $t('common.type') }}</TableHead>
                   <TableHead>{{ $t('common.weight') }}</TableHead>
                   <TableHead>{{ $t('common.value') }}</TableHead>
@@ -180,8 +180,8 @@
                     </div>
                   </TableCell>
                 </TableRow>
-                <TableRow v-for="item in filteredCargo" :key="item.cargoId">
-                  <TableCell class="font-medium">#{{ item.cargoId }}</TableCell>
+                <TableRow v-for="(item, index) in filteredCargo" :key="item.cargoId">
+                  <TableCell class="font-medium">{{ index + 1 }}</TableCell>
                   <TableCell>
                     <Badge :variant="getTypeBadgeVariant(item.type)">
                       {{ item.type }}

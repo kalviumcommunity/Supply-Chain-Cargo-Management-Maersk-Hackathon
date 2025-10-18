@@ -102,6 +102,7 @@ export default {
     new: 'Nuevo',
     page: 'Página',
     // Columnas de tabla
+    serialNumber: 'N.º',
     id: 'ID',
     origin: 'Origen',
     destination: 'Destino',
@@ -228,6 +229,7 @@ export default {
     totalRoutes: 'Rutas Totales',
     avgDuration: 'Duración Promedio',
     avgCost: 'Costo Promedio',
+    totalCost: 'Costo Total',
     totalDistance: 'Distancia Total',
     comparedPrevious: 'Comparado con el período anterior',
     daysPerRoute: 'Días por ruta',
