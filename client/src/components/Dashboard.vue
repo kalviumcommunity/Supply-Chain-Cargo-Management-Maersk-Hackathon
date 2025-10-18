@@ -61,14 +61,15 @@
               <Clock class="w-4 h-4 text-gray-600 dark:text-sidebar-foreground/70" />
               {{ $t('dashboard.recentActivity') }}
             </CardTitle>
-            <div class="hidden md:flex items-center gap-1">
+
+             <!-- <div class="hidden md:flex items-center gap-1">
               <Button size="sm" :variant="activityFilter === 'all' ? 'default' : 'outline'" @click="activityFilter = 'all'">{{ $t('dashboard.all') }}</Button>
               <Button size="sm" :variant="activityFilter === 'shipments' ? 'default' : 'outline'" @click="activityFilter = 'shipments'">{{ $t('dashboard.shipments') }}</Button>
               <Button size="sm" :variant="activityFilter === 'cargo' ? 'default' : 'outline'" @click="activityFilter = 'cargo'">{{ $t('dashboard.cargo') }}</Button>
               <Button size="sm" :variant="activityFilter === 'routes' ? 'default' : 'outline'" @click="activityFilter = 'routes'">{{ $t('dashboard.routes') }}</Button>
               <Button size="sm" :variant="activityFilter === 'vendors' ? 'default' : 'outline'" @click="activityFilter = 'vendors'">{{ $t('dashboard.vendors') }}</Button>
               <Button size="sm" :variant="activityFilter === 'deliveries' ? 'default' : 'outline'" @click="activityFilter = 'deliveries'">{{ $t('dashboard.deliveries') }}</Button>
-            </div>
+            </div> -->
             <Button variant="link" size="sm" class="text-xs h-auto p-0" @click="router.push('/shipments')">
               {{ $t('dashboard.viewAll') }}
             </Button>
