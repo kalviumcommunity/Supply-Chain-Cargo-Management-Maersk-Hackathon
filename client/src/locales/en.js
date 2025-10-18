@@ -229,6 +229,7 @@ export default {
     totalRoutes: 'Total Routes',
     avgDuration: 'Avg Duration',
     avgCost: 'Avg Cost',
+    totalCost: 'Total Cost',
     totalDistance: 'Total Distance',
     comparedPrevious: 'Compared to the previous period',
     daysPerRoute: 'Days per route',
