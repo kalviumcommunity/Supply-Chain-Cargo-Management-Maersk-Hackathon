@@ -48,7 +48,7 @@
 <script setup>
 import { computed, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 import { Input } from '@/components/ui/input'
-import globalCoordinates from '@/data/globalCoordinates'
+import { getAllLocationNames } from '@/services/coordinateProvider'
 
 const props = defineProps({
   modelValue: {
@@ -108,9 +108,9 @@ const activeDescendantId = computed(() => {
   return optionId(highlightedIndex.value)
 })
 
-const allLocations = computed(() => {
-  return Object.keys(globalCoordinates).sort((a, b) => a.localeCompare(b))
-})
+const locationOptions = getAllLocationNames()
+
+const allLocations = computed(() => locationOptions)
 
 const filteredSuggestions = computed(() => {
   const term = inputValue.value.trim().toLowerCase()

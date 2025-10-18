@@ -1,4 +1,6 @@
-import globalCoordinates from '../data/globalCoordinates.js'
+import { ensureCoordinateDatasetReady, ensureLocationCoordinate, getExactCoordinate } from './coordinateProvider'
+
+ensureCoordinateDatasetReady()
 
 const EARTH_RADIUS_KM = 6371
 
@@ -40,33 +42,7 @@ const haversineDistance = (start, end) => {
   return EARTH_RADIUS_KM * c
 }
 
-const resolveCoordinates = (location) => {
-  if (!location || typeof location !== 'string') {
-    throw new Error('Location must be a non-empty string when distance_km is not provided.')
-  }
-
-  if (globalCoordinates[location]) {
-    return globalCoordinates[location]
-  }
-
-  const trimmed = location.trim()
-  const lowerLocation = trimmed.toLowerCase()
-
-  for (const [name, coords] of Object.entries(globalCoordinates)) {
-    if (name.toLowerCase() === lowerLocation) {
-      return coords
-    }
-  }
-
-  for (const [name, coords] of Object.entries(globalCoordinates)) {
-    const lowerName = name.toLowerCase()
-    if (lowerLocation.includes(lowerName) || lowerName.includes(lowerLocation)) {
-      return coords
-    }
-  }
-
-  throw new Error(`Coordinates not found for location: ${location}`)
-}
+const resolveCoordinates = (location) => ensureLocationCoordinate(location)
 
 const inferOceanWaypoints = (origin, destination) => {
   const [olat, olon] = origin
@@ -74,15 +50,21 @@ const inferOceanWaypoints = (origin, destination) => {
   const waypoints = []
 
   if (olon > 100 && dlon < -40) {
-    waypoints.push(globalCoordinates['Panama Canal'])
+    const panama = getExactCoordinate('Panama Canal')
+    if (panama) {
+      waypoints.push(panama)
+    }
   }
 
   if (olon >= -15 && olon <= 30 && dlon >= 40 && dlon <= 120) {
-    waypoints.push(globalCoordinates['Suez Canal'])
+    const suez = getExactCoordinate('Suez Canal')
+    if (suez) {
+      waypoints.push(suez)
+    }
   }
 
   if ((olat < 0 || dlat < 0) && Math.abs(olon - dlon) > 60) {
-    const cape = globalCoordinates['Cape of Good Hope']
+    const cape = getExactCoordinate('Cape of Good Hope')
     if (cape && !waypoints.includes(cape)) {
       waypoints.push(cape)
     }
