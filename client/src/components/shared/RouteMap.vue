@@ -8,7 +8,9 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import globalCoordinates from '@/data/globalCoordinates'
+import { ensureCoordinateDatasetReady, getExactCoordinate, resolveLocationCoordinate } from '@/services/coordinateProvider'
+
+ensureCoordinateDatasetReady()
 
 const isDev = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV
 
@@ -295,17 +297,24 @@ const inferOceanWaypoints = (origin, destination) => {
   const wps = []
   // East Asia to US East/Europe -> Panama
   if (olon > 100 && dlon < -40) {
-    wps.push(globalCoordinates['Panama Canal'])
+    const panama = getExactCoordinate('Panama Canal')
+    if (panama) {
+      wps.push(panama)
+    }
   }
   // Europe/North Atlantic to Indian Ocean/Asia -> Suez
   if (olon >= -15 && olon <= 30 && dlon >= 40 && dlon <= 120) {
-    wps.push(globalCoordinates['Suez Canal'])
+    const suez = getExactCoordinate('Suez Canal')
+    if (suez) {
+      wps.push(suez)
+    }
   }
   // Southern routing option around Africa (fallback if both are in Atlantic/Indian and far south)
   if ((olat < 0 || dlat < 0) && Math.abs(olon - dlon) > 60) {
     // include Cape of Good Hope as scenic fallback
-    if (!wps.includes(globalCoordinates['Cape of Good Hope'])) {
-      wps.push(globalCoordinates['Cape of Good Hope'])
+    const cape = getExactCoordinate('Cape of Good Hope')
+    if (cape && !wps.includes(cape)) {
+      wps.push(cape)
     }
   }
   return wps
@@ -425,28 +434,13 @@ const initMap = () => {
 // Get coordinates for a location with global fallback
 const getCoordinates = (location) => {
   // First try exact match
-  if (globalCoordinates[location]) {
-    return globalCoordinates[location]
+  const resolved = resolveLocationCoordinate(location)
+  if (resolved) {
+    return resolved
   }
-  
-  // Try case-insensitive match
-  const lowerLocation = location.toLowerCase()
-  for (const [key, coords] of Object.entries(globalCoordinates)) {
-    if (key.toLowerCase() === lowerLocation) {
-      return coords
-    }
-  }
-  
-  // Try partial match (for cases like "Port of Hamburg" matching "Hamburg")
-  for (const [key, coords] of Object.entries(globalCoordinates)) {
-    if (location.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(lowerLocation)) {
-      return coords
-    }
-  }
-  
-  // Default to center of world map if location not found
-  console.warn(`RouteMap: Location "${location}" not found in coordinate mapping, using default coordinates`)
-  return [20, 0] // Global center
+
+  console.warn(`RouteMap: Location "${location}" not found in JSON coordinate datasets, using default coordinates`)
+  return [20, 0]
 }
 
 // Create custom marker icon with transport mode support
