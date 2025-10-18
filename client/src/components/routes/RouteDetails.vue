@@ -287,7 +287,7 @@ const getModeBadgeVariant = (mode) => {
       return 'default'
     case 'AIR':
       return 'secondary'
-    case 'LAND':
+    case 'ROAD':
     case 'ROAD':
       return 'outline'
     case 'RAIL':

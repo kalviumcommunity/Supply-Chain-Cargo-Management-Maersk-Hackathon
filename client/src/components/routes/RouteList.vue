@@ -129,9 +129,9 @@
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{{ $t('routes.allModes') }}</SelectItem>
-                <SelectItem value="OCEAN">OCEAN</SelectItem>
+                <SelectItem value="OCEAN">Ocean</SelectItem>
                 <SelectItem value="AIR">Air</SelectItem>
-                <SelectItem value="ROAD">Land</SelectItem>
+                <SelectItem value="ROAD">Road</SelectItem>
                 <SelectItem value="RAIL">Rail</SelectItem>
               </SelectContent>
             </Select>
@@ -496,7 +496,7 @@ const getModeBadgeVariant = (mode) => {
       return 'default'
     case 'AIR':
       return 'secondary'
-    case 'LAND':
+    case 'ROAD':
     case 'ROAD':
       return 'outline'
     case 'RAIL':
