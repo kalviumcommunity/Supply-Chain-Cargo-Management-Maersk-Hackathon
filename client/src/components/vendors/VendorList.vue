@@ -149,7 +149,7 @@
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{{ $t('common.id') }}</TableHead>
+                  <TableHead>{{ $t('common.serialNumber') }}</TableHead>
                   <TableHead>{{ $t('common.name') }}</TableHead>
                   <TableHead>{{ $t('vendors.serviceType') }}</TableHead>
                   <TableHead>{{ $t('vendors.contact_email') }}</TableHead>
@@ -170,8 +170,8 @@
                     <p v-else>{{ $t('vendors.noVendors') }}</p>
                   </TableCell>
                 </TableRow>
-                <TableRow v-for="vendor in filteredVendors" :key="vendor.vendorId">
-                  <TableCell class="font-medium">{{ vendor.vendorId }}</TableCell>
+                <TableRow v-for="(vendor, index) in filteredVendors" :key="vendor.vendorId">
+                  <TableCell class="font-medium">{{ index + 1 }}</TableCell>
                   <TableCell>{{ vendor.name }}</TableCell>
                   <TableCell>
                     <Badge :variant="getServiceTypeBadgeVariant(vendor.serviceType)">
