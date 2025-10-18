@@ -102,6 +102,7 @@ export default {
     new: 'New',
     page: 'Page',
     // Table columns
+    serialNumber: 'S.No',
     id: 'ID',
     origin: 'Origin',
     destination: 'Destination',
