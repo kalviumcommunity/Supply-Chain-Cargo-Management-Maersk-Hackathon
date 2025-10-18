@@ -41,18 +41,18 @@
           </CardContent>
         </Card>
 
-        <!-- Avg Cost Card -->
+        <!-- Total Cost Card -->
         <Card class="rounded-xl border shadow-sm hover:shadow-md transition-shadow overflow-hidden !pt-0">
           <div class="px-4 pt-2.5 pb-1.5 bg-white dark:bg-sidebar">
-            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">{{ $t('routes.avgCost') }}</span>
+            <span class="text-[13px] font-medium text-gray-600 dark:text-sidebar-foreground/70">{{ $t('routes.totalCost') }}</span>
           </div>
           <CardContent class="px-4 py-1.5 pb-3">
             <div class="flex items-center gap-2">
-              <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">${{ formatNumber(stats.avgCost) }}</div>
+              <div class="text-3xl font-semibold tracking-tight text-gray-900 dark:text-sidebar-foreground">${{ formatNumber(stats.totalCost) }}</div>
               <span class="inline-flex items-center rounded-md bg-emerald-50 dark:bg-sidebar-accent px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-sidebar-accent-foreground ring-1 ring-inset ring-emerald-100 dark:ring-sidebar-border">↗ 12%</span>
             </div>
             <div class="mt-1">
-              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">{{ $t('routes.perRoute') }}</span>
+              <span class="text-xs text-gray-500 dark:text-sidebar-foreground/60">{{ $t('routes.allRoutes') }}</span>
             </div>
           </CardContent>
         </Card>
@@ -197,7 +197,7 @@
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{{ $t('common.id') }}</TableHead>
+                  <TableHead>{{ $t('common.serialNumber') }}</TableHead>
                   <TableHead>{{ $t('routes.originPort') }}</TableHead>
                   <TableHead>{{ $t('routes.destinationPort') }}</TableHead>
                   <TableHead>{{ $t('routes.distanceKm') }}</TableHead>
@@ -223,13 +223,13 @@
                   </TableCell>
                 </TableRow>
                 <TableRow 
-                  v-for="route in filteredRoutes" 
+                  v-for="(route, index) in filteredRoutes" 
                   :key="route.routeId"
                   :data-route-id="route.routeId"
                   @mouseover="highlightedRouteId = route.routeId"
                   @mouseleave="highlightedRouteId = null"
                 >
-                  <TableCell class="font-medium">{{ route.routeId }}</TableCell>
+                  <TableCell class="font-medium">{{ index + 1 }}</TableCell>
                   <TableCell>{{ route.originPort }}</TableCell>
                   <TableCell>{{ route.destinationPort }}</TableCell>
                   <TableCell>{{ formatNumber(route.distance) }}</TableCell>
@@ -454,15 +454,13 @@ const stats = computed(() => {
   const avgDuration = routes.value.length > 0 
     ? Math.round(routes.value.reduce((sum, route) => sum + (route.duration || 0), 0) / routes.value.length)
     : 0
-  const avgCost = routes.value.length > 0
-    ? Math.round(routes.value.reduce((sum, route) => sum + (route.cost || 0), 0) / routes.value.length)
-    : 0
+  const totalCost = routes.value.reduce((sum, route) => sum + (route.cost || 0), 0)
   const totalDistance = routes.value.reduce((sum, route) => sum + (route.distance || 0), 0)
   
   return {
     total,
     avgDuration,
-    avgCost,
+    totalCost,
     totalDistance
   }
 })
