@@ -163,10 +163,52 @@
             <CardDescription>Shipments managed by this vendor</CardDescription>
           </CardHeader>
           <CardContent>
-            <div class="text-center py-8 text-gray-500 dark:text-sidebar-foreground/70">
+            <!-- Loading State -->
+            <div v-if="loadingShipments" class="text-center py-8">
+              <Loader2 class="h-8 w-8 animate-spin mx-auto mb-2 dark:text-sidebar-foreground" />
+              <p class="text-gray-500 dark:text-sidebar-foreground/70">Loading shipments...</p>
+            </div>
+
+            <!-- No Shipments -->
+            <div v-else-if="vendorShipments.length === 0" class="text-center py-8 text-gray-500 dark:text-sidebar-foreground/70">
               <Package class="h-12 w-12 mx-auto mb-2 opacity-50 dark:text-sidebar-foreground/60" />
-              <p>No shipment associations configured yet.</p>
-              <p class="text-sm mt-2">This feature will show shipments associated with this vendor.</p>
+              <p>No shipments assigned to this vendor yet.</p>
+            </div>
+
+            <!-- Shipments Table -->
+            <div v-else class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50 dark:bg-sidebar/50">
+                  <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-sidebar-foreground/70 uppercase">Shipment ID</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-sidebar-foreground/70 uppercase">Origin</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-sidebar-foreground/70 uppercase">Destination</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-sidebar-foreground/70 uppercase">Status</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-sidebar-foreground/70 uppercase">Est. Delivery</th>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-sidebar-foreground/70 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-sidebar-border">
+                  <tr v-for="shipment in vendorShipments" :key="shipment.shipmentId" class="hover:bg-gray-50 dark:hover:bg-sidebar/30">
+                    <td class="px-4 py-3 text-sm font-medium dark:text-sidebar-foreground">#{{ shipment.shipmentId }}</td>
+                    <td class="px-4 py-3 text-sm dark:text-sidebar-foreground">{{ shipment.origin }}</td>
+                    <td class="px-4 py-3 text-sm dark:text-sidebar-foreground">{{ shipment.destination }}</td>
+                    <td class="px-4 py-3 text-sm">
+                      <Badge :variant="getStatusBadgeVariant(shipment.status)">
+                        {{ shipment.status }}
+                      </Badge>
+                    </td>
+                    <td class="px-4 py-3 text-sm dark:text-sidebar-foreground">
+                      {{ shipment.estimatedDelivery ? new Date(shipment.estimatedDelivery).toLocaleDateString() : 'N/A' }}
+                    </td>
+                    <td class="px-4 py-3 text-sm">
+                      <Button @click="viewShipment(shipment.shipmentId)" variant="ghost" size="sm">
+                        <Eye class="h-4 w-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </CardContent>
         </Card>
@@ -190,9 +232,10 @@ import {
   Package,
   Mail,
   Phone,
-  MapPin
+  MapPin,
+  Eye
 } from 'lucide-vue-next'
-import { vendorApi } from '@/services/api'
+import { vendorApi, shipmentApi } from '@/services/api'
 
 const router = useRouter()
 const route = useRoute()
@@ -200,6 +243,8 @@ const route = useRoute()
 const vendor = ref(null)
 const isLoading = ref(false)
 const error = ref(null)
+const vendorShipments = ref([])
+const loadingShipments = ref(false)
 
 const vendorId = route.params.id
 
@@ -247,11 +292,35 @@ const loadVendor = async () => {
       contactPhone: contactData.phone,
       address: contactData.address
     }
+
+    // Load shipments after vendor is loaded
+    await loadVendorShipments()
   } catch (err) {
     error.value = err.message || 'Failed to load vendor details'
     console.error('❌ Error loading vendor:', err)
   } finally {
     isLoading.value = false
+  }
+}
+
+const loadVendorShipments = async () => {
+  loadingShipments.value = true
+  try {
+    // Fetch all shipments
+    const allShipments = await shipmentApi.getAll()
+    
+    // Filter shipments that are assigned to this vendor
+    vendorShipments.value = allShipments.filter(
+      shipment => shipment.assignedVendor && 
+                   shipment.assignedVendor.vendorId === parseInt(vendorId)
+    )
+    
+    console.log(`✅ Found ${vendorShipments.value.length} shipments for vendor ${vendorId}`)
+  } catch (err) {
+    console.error('❌ Error loading vendor shipments:', err)
+    // Don't show error, just keep shipments empty
+  } finally {
+    loadingShipments.value = false
   }
 }
 
@@ -268,6 +337,25 @@ const getServiceTypeBadgeVariant = (serviceType) => {
     default:
       return 'outline'
   }
+}
+
+const getStatusBadgeVariant = (status) => {
+  switch (status) {
+    case 'Delivered':
+      return 'default'
+    case 'In Transit':
+      return 'secondary'
+    case 'Pending':
+      return 'outline'
+    case 'Delayed':
+      return 'destructive'
+    default:
+      return 'outline'
+  }
+}
+
+const viewShipment = (shipmentId) => {
+  router.push(`/shipments/${shipmentId}`)
 }
 
 const editVendor = () => {

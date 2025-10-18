@@ -1,15 +1,29 @@
 <template>
   <div class="container mx-auto px-4 py-8 max-w-6xl">
     <div class="space-y-6">
-      <!-- Header Section -->
-      <div class="flex items-center space-x-4">
+      <!-- Back Button -->
+      <div>
         <Button @click="$router.push('/routes')" variant="outline" size="sm">
           <ArrowLeft class="mr-2 h-4 w-4" />
           Back to Routes
         </Button>
+      </div>
+
+      <!-- Header Section -->
+      <div class="flex items-center justify-between">
         <div>
           <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">Route Details</h1>
           <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">Detailed information about the selected route</p>
+        </div>
+        <div v-if="routeData" class="flex items-center space-x-2">
+          <Button @click="editRoute" variant="outline" size="sm">
+            <Edit class="mr-2 h-4 w-4" />
+            Edit Route
+          </Button>
+          <Button @click="confirmDelete" variant="outline" size="sm" class="text-red-600 hover:text-red-700">
+            <Trash2 class="mr-2 h-4 w-4" />
+            Delete Route
+          </Button>
         </div>
       </div>
 
@@ -180,28 +194,6 @@
             </div>
           </CardContent>
         </Card>
-
-        <!-- Route Actions -->
-        <Card>
-          <CardHeader>
-            <CardTitle>Route Actions</CardTitle>
-            <CardDescription>
-              Manage this route
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div class="flex space-x-4">
-              <Button @click="editRoute" variant="outline">
-                <Edit class="mr-2 h-4 w-4" />
-                Edit Route
-              </Button>
-              <Button @click="confirmDelete" variant="outline" class="text-red-600 hover:text-red-700">
-                <Trash2 class="mr-2 h-4 w-4" />
-                Delete Route
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   </div>
@@ -234,18 +226,10 @@ const router = useRouter()
 const route = useRoute()
 
 const routeData = ref(null)
-const shipments = ref([])
+const assignedShipments = ref([])
 const isLoading = ref(false)
 const loadingShipments = ref(false)
 const error = ref(null)
-
-const assignedShipments = computed(() => {
-  if (!routeData.value) return []
-  return shipments.value.filter(shipment => 
-    shipment.routeId === routeData.value.routeId ||
-    shipment.assignedRoute?.routeId === routeData.value.routeId
-  )
-})
 
 const loadRoute = async () => {
   const routeId = Number(route.params.id)
@@ -258,7 +242,8 @@ const loadRoute = async () => {
   error.value = null
   try {
     routeData.value = await routeApi.getById(routeId)
-    loadShipments()
+    // Load shipments after route is loaded
+    await loadShipments()
   } catch (err) {
     error.value = err.message || 'Failed to load route details'
     console.error('Error loading route:', err)
@@ -268,12 +253,24 @@ const loadRoute = async () => {
 }
 
 const loadShipments = async () => {
+  if (!routeData.value) return
+  
   loadingShipments.value = true
   try {
-    const data = await shipmentApi.getAll()
-    shipments.value = data || []
+    // Fetch all shipments
+    const allShipments = await shipmentApi.getAll()
+    
+    // Filter shipments that are assigned to this route
+    assignedShipments.value = allShipments.filter(
+      shipment => shipment.assignedRoute && 
+                   shipment.assignedRoute.routeId === routeData.value.routeId
+    )
+    
+    console.log(`✅ Found ${assignedShipments.value.length} shipments for route ${routeData.value.routeId}`)
   } catch (err) {
-    console.error('Error loading shipments:', err)
+    console.error('❌ Error loading shipments:', err)
+    // Don't show error, just keep shipments empty
+    assignedShipments.value = []
   } finally {
     loadingShipments.value = false
   }

@@ -1,20 +1,22 @@
 <template>
   <div class="container mx-auto px-4 py-8 max-w-3xl">
     <div class="space-y-6">
-      <!-- Header Section -->
-      <div class="flex items-center space-x-4">
+      <!-- Back Button -->
+      <div>
         <Button @click="$router.push('/routes')" variant="outline" size="sm">
           <ArrowLeft class="mr-2 h-4 w-4" />
           Back to Routes
         </Button>
-        <div>
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">
-            {{ isEditMode ? 'Edit Route' : 'Create New Route' }}
-          </h1>
-          <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">
-            {{ isEditMode ? 'Update route information' : 'Set up a new shipping route' }}
-          </p>
-        </div>
+      </div>
+
+      <!-- Header Section -->
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-sidebar-foreground">
+          {{ isEditMode ? 'Edit Route' : 'Create New Route' }}
+        </h1>
+        <p class="mt-2 text-gray-600 dark:text-sidebar-foreground/70">
+          {{ isEditMode ? 'Update route information' : 'Set up a new shipping route' }}
+        </p>
       </div>
 
       <!-- Loading State -->

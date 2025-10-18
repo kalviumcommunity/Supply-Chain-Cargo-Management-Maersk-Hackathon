@@ -288,8 +288,8 @@ export default {
     searchVendors: 'Buscar por ID, nombre, correo, teléfono o dirección...',
     // Encabezados de tabla
     serviceType: 'Tipo de Servicio',
-    contactEmail: 'Correo de Contacto',
-    contactPhone: 'Teléfono de Contacto',
+    contact_email: 'Correo del Proveedor',
+    contact_phone: 'Contacto del Proveedor',
     loadingVendors: 'Cargando proveedores...',
     noVendors: 'No se encontraron proveedores. Cree su primer proveedor para comenzar.',
     noVendorsMatches: 'Ningún proveedor coincide con sus filtros.',
