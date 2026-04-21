@@ -1,7 +1,8 @@
 # ============================================
 # SERVER CONFIGURATION
 # ============================================
-server.port=8080
+server.port=${PORT:8080}
+server.address=0.0.0.0
 
 # ============================================
 # POSTGRESQL DATABASE CONFIGURATION
